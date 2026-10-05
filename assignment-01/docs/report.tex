@@ -1,0 +1,199 @@
+\documentclass[12pt,a4paper]{report}
+
+\usepackage{alltt, fancyvrb, url}
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{geometry}
+\usepackage{pdfpages}
+\usepackage{hyperref}
+
+\geometry{margin=1in}
+
+\usepackage{textcomp}
+\usepackage{siunitx}
+
+\usepackage[italian]{babel}
+\usepackage[capitalise, italian]{cleveref}
+
+\graphicspath{ {./src/img} }
+
+\textwidth=450pt\oddsidemargin=0pt
+\begin{document}
+
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+  \begin{center}
+    {{\Large{\textsc{Alma Mater Studiorum $\cdot$ Università di
+    Bologna}}}}\\[1ex]
+    \rule{15.8cm}{0.6mm}\\[2ex]
+    {\small Corso di Laurea Magistrale in Ingegneria e Scienze Informatiche}\\
+    {\small A.A. 2026/2027}
+  \end{center}
+
+  \vfill
+  \begin{center}
+    {\large\textsc{Corso di Sistemi Concorrenti}}\\[1.5ex]
+    {\LARGE\textbf{Assignment \#01}}\\[2.5ex]
+    {\Huge\textbf{Concurrent Lift}}\\[1.5ex]
+    {\large\textit{Modelling and Verification of an Elevator with
+    Fire Alarm}}\\[1ex]
+  \end{center}
+  \vfill
+
+  \begin{center}
+    \begin{tabular}{@{}c@{\qquad}c@{}}
+      {\large\bf Enrico Bartocetti} & {\large\bf Alessandro Rebosio} \\[0.5ex]
+      {\small matr.\ 000000000 } & {\small matr.\ 0001269442}
+    \end{tabular}
+  \end{center}
+
+  \vspace{2mm}
+  \noindent\rule{\linewidth}{0.4pt}
+
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\pagenumbering{roman}
+\tableofcontents
+\cleardoublepage
+\pagenumbering{arabic}
+
+\chapter{Introduzione: Dominio e Requisiti}
+\label{chap:intro_dominio}
+
+\section{Descrizione del Dominio Applicativo}
+Il sistema analizzato modella il comportamento concorrente di un
+ascensore e dei suoi utilizzatori all'interno di un edificio a
+sviluppo verticale.
+
+\subsection{Struttura dell'Edificio e Popolazione di Utenti}
+L'ambiente operativo è costituito da una struttura articolata su un
+numero finito $N$ di piani, formalmente identificati dall'insieme
+discreto $\mathcal{F} = \{0, 1, \dots, N-1\}$. All'interno di questa
+configurazione, il piano $0$ assume convenzionalmente il ruolo di
+piano terra (\emph{ground floor}), costituendo il punto cardine sia
+per l'accesso e l'uscita ordinaria dall'edificio, sia per le manovre
+di evacuazione rapida in situazioni di emergenza.
+
+A popolare l'edificio è presente una comunità di utenti distribuiti lungo i vari livelli:
+\begin{itemize}
+    \item a ciascun piano possono trovarsi contemporaneamente fino a $M$ persone intenzionate a utilizzare l'impianto di risalita;
+    \item ogni utente agisce come un agente autonomo e concorrente rispetto agli altri, caratterizzato dal desiderio di raggiungere un piano differente rispetto a quello in cui si trova attualmente.
+\end{itemize}
+
+\subsection{Cabina e Vincolo di Risorsa}
+L'impianto si avvale di una singola cabina deputata alla
+movimentazione verticale degli occupanti tra i vari piani. La
+caratteristica vincolante di tale risorsa risiede nella sua capacità
+strettamente unitaria ($Capacity = 1$): in nessun caso è consentito a
+più di una persona occupare lo spazio interno contemporaneamente. La
+cabina rappresenta pertanto una risorsa condivisa critica soggetta a
+un principio inderogabile di mutua esclusione.
+
+L'interazione tra gli utenti e il sistema dell'ascensore avviene
+attraverso due distinte tipologie di interfaccia fisica. All'esterno
+della cabina, su ogni singolo piano, è presente un pulsante di
+chiamata (\emph{call button}) mediante il quale gli utenti in attesa
+segnalano la propria richiesta di servizio, sollecitando l'arrivo
+dell'ascensore al rispettivo livello. All'interno della cabina è
+invece installata una pulsantiera dotata di tasti di selezione
+(\emph{floor buttons}), accessibile unicamente al passeggero salito a
+bordo per indicare il piano di destinazione verso cui essere trasportato.
+
+\subsection{Politica di Servizio FIFO (First-Come, First-Served)}
+Al fine di garantire equità di trattamento (\emph{fairness}) ed
+evitare situazioni in cui un utente venga ignorato o scavalcato
+indefinitamente (\emph{starvation}), gli utenti che richiedono
+l'ascensore su un determinato piano devono essere serviti rispettando
+rigorosamente l'ordine temporale di arrivo e di chiamata, attuando
+una politica di accodamento \textbf{FIFO} (\emph{First-Come, First-Served}).
+
+\section{Gestione delle Situazioni di Emergenza: Allarme Antincendio}
+Il sistema dell'ascensore non opera in isolamento, ma interagisce con
+un impianto antincendio esterno (\emph{Fire Alarm System}), in grado
+di generare asincronamente un segnale di allarme in caso di incendio.
+
+A fronte della ricezione di tale notifica di pericolo, la tutela
+dell'incolumità fisica prevale in modo assoluto sull'ordinaria
+erogazione del trasporto. Il sistema attua pertanto una sequenza
+deterministica di sicurezza:
+\begin{enumerate}[label=\textbf{\alph*.}]
+  \item \textbf{Interruzione delle attività correnti}: l'ascensore
+    interrompe tempestivamente le normali corse ordinarie e sospende
+    l'evasione delle chiamate pendenti registrate ai piani;
+  \item \textbf{Discesa prioritaria al piano terra}: la cabina si
+    dirige immediatamente e con massima priorità verso il piano terra
+    ($Floor = 0$), ignorando qualsiasi fermata intermedia;
+  \item \textbf{Apertura porte ed evacuazione}: una volta giunta al
+    piano terra, le porte della cabina si aprono automaticamente per
+    permettere l'immediata evacuazione dell'eventuale passeggero a
+    bordo e garantire una via di fuga sicura verso l'esterno;
+  \item \textbf{Stato di attesa cautelativa (\emph{Safe Lockout})}:
+    l'ascensore rimane fermo al piano terra con le porte aperte,
+    inibendo qualsiasi nuova operazione di salita o comando di movimentazione;
+  \item \textbf{Ripristino del servizio}: la condizione di blocco
+    permane fino alla ricezione di un esplicito segnale esterno di
+    risoluzione dell'allarme (\emph{alarm resolved/cleared}), a
+    seguito del quale il sistema è autorizzato a ripristinare il
+    regime di normale operatività.
+\end{enumerate}
+
+\newpage
+\section{Requisiti e Proprietà di Correttezza Formale}
+Sulla base della specifica del problema, il sistema concorrente deve
+soddisfare precise proprietà qualitative, distinte nelle classi
+canoniche di \emph{Safety} e \emph{Liveness}.
+
+\subsection{Proprietà di Safety (Sicurezza)}
+Le proprietà di sicurezza sanciscono formalmente che durante l'intera
+evoluzione temporale del sistema ``non deve mai verificarsi alcuno
+stato non consentito''.
+
+Nel contesto dell'ascensore, il requisito primario di sicurezza
+coincide con la \textbf{mutua esclusione della cabina} (\emph{mutual
+exclusion}). In nessun istante temporale e lungo alcuna traiettoria
+di esecuzione possono trovarsi due o più persone simultaneamente
+all'interno dell'ascensore. Indicando con
+$\text{Utenti\_in\_cabina}(t)$ il numero di occupanti a bordo
+all'istante $t$, il controllore deve garantire costantemente che:
+\[
+  \forall t \ge 0, \quad \text{Utenti\_in\_cabina}(t) \le 1
+\]
+La violazione di tale condizione rappresenterebbe un sovraffollamento
+della cabina con conseguente compromissione delle garanzie di
+sicurezza fisica e di consistenza logica del sistema.
+
+\subsection{Proprietà di Liveness (Vivacità Condizionata)}
+Mentre le proprietà di sicurezza vietano configurazioni illegali, le
+proprietà di vivacità stabiliscono che gli eventi desiderati dal
+sistema ``debbano prima o poi verificarsi nel tempo''. Nel nostro
+dominio, tali proprietà assumono una formulazione condizionata, in
+quanto l'insorgenza di un allarme antincendio sopprime legittimamente
+le promesse di servizio ordinario a favore della salvaguardia della vita umana:
+\begin{itemize}
+  \item \textbf{Arrivo al piano di chiamata (\emph{Eventual Arrival
+    upon Call})}: a fronte della pressione del pulsante di chiamata
+    da parte di un utente a un dato piano, la cabina deve prima o poi
+    giungere a quel piano per consentire il servizio, a meno che non
+    si manifesti uno stato di allarme antincendio;
+  \item \textbf{Consegna al piano desiderato (\emph{Eventual
+    Delivery})}: quando un passeggero regolarmente a bordo seleziona
+    il piano prescelto, l'ascensore deve infine raggiungere tale
+    destinazione, salvo il caso in cui un segnale di allarme
+    costringa la cabina a deviare prioritariamente verso il piano
+    terra per l'evacuazione forzata;
+  \item \textbf{Accesso al servizio ed assenza di starvation
+    (\emph{Starvation Freedom})}: ciascun utente posizionato in
+    attesa a un piano deve infine riuscire a salire a bordo della
+    cabina, escludendo il verificarsi di un'emergenza antincendio
+    persistente che inibisca l'imbarco.
+\end{itemize}
+
+\end{document}

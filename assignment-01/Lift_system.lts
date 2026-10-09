@@ -1,0 +1,75 @@
+/*
+ * ELABORATO PER IL CORSO "CONCURRENT SYSTEMS"
+ * Corso di Laurea Magistrale in Ingegneria e Scienze Informatiche
+ * Anno Accademico 2026/2027
+ * Prof. A. Ricci
+ *
+ * Autori:
+ *	- Bartocetti Enrico, enrico.bartocetti@studio.unibo.it
+ *	- Rebosio Alessandro, alessandro.rebosio@studio.unibo.it
+*/
+
+/*
+ *	TODO:
+ *	- Separazione OPEN in OPENING e IDLE_OPEN (uniformare CLOSE?)
+ *	- Allarme
+ *	- Utente
+ *	- Modellazione delle proprietà
+*/
+
+/* ------------ SYSTEM CONSTANTS ----------- */
+const MAX_FLOOR			= 3
+const MIN_FLOOR			= 0
+const NUM_DOOR_STEPS	= 2
+const NUM_MOVING_STEPS	= 2
+
+/* ---------- COMPUTED CONSTANTS ---------- */
+const NUM_FLOORS = MAX_FLOOR - MIN_FLOOR + 1
+
+/* ---------------- RANGES ---------------- */
+range FLOORS		= 0..NUM_FLOORS-1
+range DOOR_STEPS	= 0..NUM_DOOR_STEPS
+range MOVING_STEPS	= 0..NUM_MOVING_STEPS
+
+/* ----------------- LIFT ----------------- */
+LIFT = IDLE[0],
+
+// ASCENSORE CON PORTE CHIUSE AL PIANO F
+IDLE[f:FLOORS] =
+	(goto[t:FLOORS] -> MOVING[f][t][0]			// Con le porte chiuse scegli di andare al piano t
+	|open_door_button -> OPEN_DOOR[f][f][0]),	// Scegli di aprire le porte rimanendo allo stesso piano f
+
+// SPOSTAMENTO ASCENSORE: i = step completati (0 ancora al piano, N piano sup/inf)
+MOVING[from:FLOORS][to:FLOORS][i:MOVING_STEPS] =
+	(when from == to arrived -> OPEN_DOOR[to][to][0]									// Arrivato al piano desiderato apri la porta
+	|when from != to && i < NUM_MOVING_STEPS step_move -> MOVING[from][to][i+1]		// Step movimento tra piani consecutivi
+    |when from < to && i == NUM_MOVING_STEPS step_floor -> MOVING[from+1][to][0]		// Finiti step per arrivare al piano successivo
+    |when from > to && i == NUM_MOVING_STEPS step_floor -> MOVING[from-1][to][0]),	// Finiti step per arrivare al piano precedente
+
+// ASCENSORE CON PORTE APERTE: i = livello di apertura (0 chiusa, N aperta)
+OPEN_DOOR[from:FLOORS][to:FLOORS][i:DOOR_STEPS] =
+	(when i < NUM_DOOR_STEPS step_door_open -> OPEN_DOOR[from][to][i+1]				// Step per apertura porte
+	|when i == NUM_DOOR_STEPS timeout -> CLOSE_DOOR[from][to][0]						// Ascensore con porte aperte, timeout per inattività, vai al piano scelto o rimani fermo
+	|when i == NUM_DOOR_STEPS goto[new_to:FLOORS] -> CLOSE_DOOR[from][new_to][0]		// Utente sceglie piano, chiude porte e vai al piano scelto
+	|when i > 0 close_door_button -> CLOSE_DOOR[from][to][NUM_DOOR_STEPS-i]),		// Pulsante per chiusura porte anticipata
+
+// CHIUSURA PORTE: i = livello di chiusura (0 aperta, N chiusa)
+CLOSE_DOOR[from:FLOORS][to:FLOORS][i:DOOR_STEPS] =
+	(when i < NUM_DOOR_STEPS step_door_close -> CLOSE_DOOR[from][to][i+1]				// Step per chiusura porte
+	|when i == NUM_DOOR_STEPS  && from != to door_closed -> MOVING[from][to][0]			// Porte chiuse, inizia a muoverti per andare al piano scelto
+	|when i == NUM_DOOR_STEPS  && from == to door_closed -> IDLE[from]					// Porte chiuse, rimani fermo allo stesso piano e passa ad IDLE
+	|when i < NUM_DOOR_STEPS open_door_button -> OPEN_DOOR[from][to][NUM_DOOR_STEPS-i]	// Pulsante per riapertura porte durante la chiusura
+	|when i < NUM_DOOR_STEPS sensor_obstacle -> OPEN_DOOR[from][to][NUM_DOOR_STEPS-i])	// Apertura porte in caso di ostacolo rilevato
+
+\{arrived, step_move, step_floor, step_door_open, door_closed}.  // Step nascosti che l'ascensore esegue automaticamente
+
+/*
+ALARM_MOVE_DOWN[f:FLOORS][i:MOVING_STEPS] =
+	(when i < NUM_MOVING_STEPS step_move_down -> ALARM_MOVE_DOWN[f][i+1]
+	|when i == NUM_MOVING_STEPS && f > 0 step_move_down -> ALARM_MOVE_DOWN[f-1][0]
+	|when i == NUM_MOVING_STEPS && f == 0 open_door -> ALARM_OPEN_DOOR[0]),
+ALARM_OPEN_DOOR[i:DOOR_STEPS] =
+	(when i < NUM_DOOR_STEPS step_door_open -> ALARM_OPEN_DOOR[i+1]
+	|when i == NUM_DOOR_STEPS wait -> ALARM_WAIT),
+ALARM_WAIT = (alarm_solved -> CLOSE_DOOR[0][0]).
+*/

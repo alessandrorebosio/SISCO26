@@ -9,20 +9,24 @@ set "LTSA_JAR=%APP_DIR%\ltsa.jar"
 where java >nul 2>&1
 if errorlevel 1 (
     echo Error: Java is required but was not found in PATH.
-    exit /b 1
+    goto :fail
 )
-
 if not exist "%LTL2BUCHI_JAR%" (
     echo Error: required file not found: %LTL2BUCHI_JAR%
-    exit /b 1
+    goto :fail
 )
-
 if not exist "%LTSA_JAR%" (
     echo Error: required file not found: %LTSA_JAR%
-    exit /b 1
+    goto :fail
 )
 
-rem LTL2Buchi is a runtime module of LTSA and is included in its classpath.
-java -cp "%LTSA_JAR%;%LTL2BUCHI_JAR%" HPWindow
+if "%~1"=="" (
+    java -cp "%LTSA_JAR%;%LTL2BUCHI_JAR%" HPWindow
+) else (
+    java -cp "%LTSA_JAR%;%LTL2BUCHI_JAR%" HPWindow "%~1"
+)
+exit /b %errorlevel%
 
-endlocal
+:fail
+pause
+exit /b 1

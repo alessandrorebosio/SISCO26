@@ -18,58 +18,57 @@
 */
 
 /* ------------ SYSTEM CONSTANTS ----------- */
-const MAX_FLOOR			= 3
-const MIN_FLOOR			= 0
-const NUM_DOOR_STEPS	= 2
-const NUM_MOVING_STEPS	= 2
-
-/* ---------- COMPUTED CONSTANTS ---------- */
-const NUM_FLOORS = MAX_FLOOR - MIN_FLOOR + 1
+const MIN_FLOOR = 0	// Piano più basso (piano terra)
+const MAX_FLOOR = 3	// Piano più alto
 
 /* ---------------- RANGES ---------------- */
-range FLOORS		= 0..NUM_FLOORS-1
-range DOOR_STEPS	= 0..NUM_DOOR_STEPS
-range MOVING_STEPS	= 0..NUM_MOVING_STEPS
+range FLOORS = MIN_FLOOR..MAX_FLOOR	// Piani dell'edificio
 
 /* ----------------- LIFT ----------------- */
-LIFT = IDLE[0],
+LIFT = IDLE[MIN_FLOOR],	// Stato iniziale: fermo al piano terra con porte chiuse
 
-// ASCENSORE CON PORTE CHIUSE AL PIANO F
+// ASCENSORE FERMO CON PORTE CHIUSE AL PIANO f
 IDLE[f:FLOORS] =
-	(goto[t:FLOORS] -> MOVING[f][t][0]			// Con le porte chiuse scegli di andare al piano t
-	|open_door_button -> OPEN_DOOR[f][f][0]),	// Scegli di aprire le porte rimanendo allo stesso piano f
+	(goto[t:FLOORS] -> GO[f][t]				// Richiesta del piano t
+	|open_door_button -> OPENING[f][f]		// Pulsante apertura: apri le porte rimanendo al piano f
+	|alarm -> ALARM_DOWN[f]),				// Allarme: scendi al piano terra
 
-// SPOSTAMENTO ASCENSORE: i = step completati (0 ancora al piano, N piano sup/inf)
-MOVING[from:FLOORS][to:FLOORS][i:MOVING_STEPS] =
-	(when from == to arrived -> OPEN_DOOR[to][to][0]									// Arrivato al piano desiderato apri la porta
-	|when from != to && i < NUM_MOVING_STEPS step_move -> MOVING[from][to][i+1]		// Step movimento tra piani consecutivi
-    |when from < to && i == NUM_MOVING_STEPS step_floor -> MOVING[from+1][to][0]		// Finiti step per arrivare al piano successivo
-    |when from > to && i == NUM_MOVING_STEPS step_floor -> MOVING[from-1][to][0]),	// Finiti step per arrivare al piano precedente
+// SCELTA: se f è la destinazione apri le porte, altrimenti muoviti
+GO[f:FLOORS][t:FLOORS] = if (f == t) then OPENING[f][f] else MOVING[f][t],
 
-// ASCENSORE CON PORTE APERTE: i = livello di apertura (0 chiusa, N aperta)
-OPEN_DOOR[from:FLOORS][to:FLOORS][i:DOOR_STEPS] =
-	(when i < NUM_DOOR_STEPS step_door_open -> OPEN_DOOR[from][to][i+1]				// Step per apertura porte
-	|when i == NUM_DOOR_STEPS timeout -> CLOSE_DOOR[from][to][0]						// Ascensore con porte aperte, timeout per inattività, vai al piano scelto o rimani fermo
-	|when i == NUM_DOOR_STEPS goto[new_to:FLOORS] -> CLOSE_DOOR[from][new_to][0]		// Utente sceglie piano, chiude porte e vai al piano scelto
-	|when i > 0 close_door_button -> CLOSE_DOOR[from][to][NUM_DOOR_STEPS-i]),		// Pulsante per chiusura porte anticipata
+// SPOSTAMENTO: f = piano corrente, t = destinazione
+MOVING[f:FLOORS][t:FLOORS] =
+	(when (f < t) at[f+1] -> GO[f+1][t]		// Salita di un piano
+	|when (f > t) at[f-1] -> GO[f-1][t]		// Discesa di un piano
+	|alarm -> ALARM_DOWN[f]),				// Allarme: abbandona la destinazione e scendi al piano terra
 
-// CHIUSURA PORTE: i = livello di chiusura (0 aperta, N chiusa)
-CLOSE_DOOR[from:FLOORS][to:FLOORS][i:DOOR_STEPS] =
-	(when i < NUM_DOOR_STEPS step_door_close -> CLOSE_DOOR[from][to][i+1]				// Step per chiusura porte
-	|when i == NUM_DOOR_STEPS  && from != to door_closed -> MOVING[from][to][0]			// Porte chiuse, inizia a muoverti per andare al piano scelto
-	|when i == NUM_DOOR_STEPS  && from == to door_closed -> IDLE[from]					// Porte chiuse, rimani fermo allo stesso piano e passa ad IDLE
-	|when i < NUM_DOOR_STEPS open_door_button -> OPEN_DOOR[from][to][NUM_DOOR_STEPS-i]	// Pulsante per riapertura porte durante la chiusura
-	|when i < NUM_DOOR_STEPS sensor_obstacle -> OPEN_DOOR[from][to][NUM_DOOR_STEPS-i])	// Apertura porte in caso di ostacolo rilevato
+// PORTE IN APERTURA: f = piano corrente, t = destinazione pendente
+OPENING[f:FLOORS][t:FLOORS] =
+	(door_opened -> OPEN[f][t]				// Porte completamente aperte
+	|alarm -> ALARM_CLOSING[f]),			// Allarme: richiudi per scendere
 
-\{arrived, step_move, step_floor, step_door_open, door_closed}.  // Step nascosti che l'ascensore esegue automaticamente
+// PORTE APERTE
+OPEN[f:FLOORS][t:FLOORS] =
+	(goto[n:FLOORS] -> CLOSING[f][n]					// L'utente sceglie il piano n: chiudi e imposta la nuova destinazione
+	|{timeout, close_door_button} -> CLOSING[f][t]		// Timeout per inattività o pulsante chiusura: inizia a chiudere
+	|alarm -> ALARM_CLOSING[f]),						// Allarme: chiudi per scendere
 
-/*
-ALARM_MOVE_DOWN[f:FLOORS][i:MOVING_STEPS] =
-	(when i < NUM_MOVING_STEPS step_move_down -> ALARM_MOVE_DOWN[f][i+1]
-	|when i == NUM_MOVING_STEPS && f > 0 step_move_down -> ALARM_MOVE_DOWN[f-1][0]
-	|when i == NUM_MOVING_STEPS && f == 0 open_door -> ALARM_OPEN_DOOR[0]),
-ALARM_OPEN_DOOR[i:DOOR_STEPS] =
-	(when i < NUM_DOOR_STEPS step_door_open -> ALARM_OPEN_DOOR[i+1]
-	|when i == NUM_DOOR_STEPS wait -> ALARM_WAIT),
-ALARM_WAIT = (alarm_solved -> CLOSE_DOOR[0][0]).
-*/
+// PORTE IN CHIUSURA
+CLOSING[f:FLOORS][t:FLOORS] =
+	({open_door_button, sensor_obstacle} -> OPEN[f][t]				// Pulsante apertura o ostacolo rilevato: riapri
+	|door_closed -> if (f == t) then IDLE[f] else MOVING[f][t]		// Porte chiuse: se non c'è destinazione resta fermo, altrimenti parti
+	|alarm -> ALARM_CLOSING[f]),									// Allarme: continua a chiudere per scendere
+
+// ALLARME - CHIUSURA PORTE: a piano terra invece si aprono
+ALARM_CLOSING[f:FLOORS] = if (f == MIN_FLOOR) then ALARM_OPENING else (door_closed -> ALARM_DOWN[f]),
+
+// ALLARME - DISCESA AL PIANO TERRA SENZA FERMATE INTERMEDIE
+ALARM_DOWN[f:FLOORS] = if (f == MIN_FLOOR) then ALARM_OPENING else (at[f-1] -> ALARM_DOWN[f-1]),
+
+// ALLARME - APERTURA PORTE A PIANO TERRA, ATTESA DELLA RISOLUZIONE E RITORNO AL SERVIZIO NORMALE
+ALARM_OPENING = (door_opened -> alarm_solved -> OPEN[MIN_FLOOR][MIN_FLOOR]).
+
+/* -------------- FIRE ALARM -------------- */
+FIRE_ALARM = (alarm -> alarm_solved -> FIRE_ALARM).	// Impianto antincendio esterno: alterna allarme e risoluzione
+
+||SYS = (LIFT || FIRE_ALARM).

@@ -31,7 +31,8 @@ LIFT = IDLE[MIN_FLOOR],	// Stato iniziale: fermo al piano terra con porte chiuse
 
 // ASCENSORE FERMO CON PORTE CHIUSE AL PIANO f
 IDLE[f:FLOORS] =
-	({select, call}[t:FLOORS] -> GO[f][t]							// Selezione interna o chiamata dal piano t
+	(select[t:FLOORS] -> GO[f][t]									// Pulsante interno: richiesta di andare al piano t
+	|request[t:FLOORS] -> GO[f][t]									// Prende in carico una chiamata esterna pendente al piano t
 	|open_door_button -> OPENING[f]									// Pulsante apertura: apri le porte rimanendo al piano f
 	|alarm -> ALARM_RECEIVED[f][DOORS_CLOSED]),						// Allarme ricevuto
 
@@ -85,8 +86,17 @@ ALARM_OPENING = (door_opened -> LIFT_ALARM),
 // ASCENSORE IN ALLARME, ATTESA RISOLUZIONE E RITORNA IN SERVIZIO
 LIFT_ALARM = (alarm_solved -> OPEN[GROUND_FLOOR][GROUND_FLOOR]).
 
+/* ------------- CALL BUTTONS ------------- */
+// Pulsante di chiamata esterno al piano F: memorizza la chiamata finché l'ascensore non la prende in carico
+CALL_BUTTON(F=0) = OFF,
+OFF	= (call[F] -> ON),												// Prima pressione: chiamata registrata
+ON	= (call[F] -> ON												// Pressioni ripetute: nessun effetto
+	  |request[F] -> OFF).											// Chiamata presa in carico dall'ascensore: si spegne
+
+||CALL_BUTTONS = (forall[f:FLOORS] CALL_BUTTON(f)).
+
 /* -------------- FIRE ALARM -------------- */
 FIRE_ALARM = (alarm -> alarm_solved -> FIRE_ALARM).					// Impianto antincendio esterno: alterna allarme e risoluzione
 
 /* -------------- COMPOSIZIONE DEI SISTEMI -------------- */
-||SYS = (LIFT || FIRE_ALARM).
+||SYS = (LIFT || CALL_BUTTONS || FIRE_ALARM).

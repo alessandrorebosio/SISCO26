@@ -9,12 +9,6 @@
  *	- Rebosio Alessandro, alessandro.rebosio@studio.unibo.it
 */
 
-/*
- *	TODO:
- *	- Utente con coda FIFO di chiamate
- *	- Modellazione delle proprietà
-*/
-
 /* ------------ SYSTEM CONSTANTS ----------- */
 const MIN_FLOOR		= 0												// Piano più basso (piano terra)
 const MAX_FLOOR		= 3												// Piano più alto
@@ -22,11 +16,13 @@ const GROUND_FLOOR	= 0 											// Piano in cui va l'ascensore in caso di alla
 const DOORS_CLOSED	= 0 											// Porte dell'ascensore chiuse
 const DOORS_OPEN	= 1 											// Porte dell'ascensore aperte
 const EMPTY			= MAX_FLOOR + 1									// Cabina vuota (nessun passeggero)
+const NONE			= MAX_FLOOR + 1									// Slot vuoto della coda delle chiamate
 
 /* ---------------- RANGES ---------------- */
 range FLOORS = MIN_FLOOR..MAX_FLOOR									// Piani dell'edificio
 range DOORS = DOORS_CLOSED..DOORS_OPEN								// Stati delle porte
 range PASSENGERS = MIN_FLOOR..EMPTY									// Passeggero a bordo: utente del piano p, oppure EMPTY
+range SLOT = MIN_FLOOR..NONE										// Contenuto di uno slot della coda: piano chiamante, oppure NONE
 
 /* ----------------- LIFT ----------------- */
 // f = piano corrente, t = destinazione, p = passeggero a bordo (utente del piano p) oppure EMPTY
@@ -35,7 +31,7 @@ LIFT = IDLE[MIN_FLOOR][EMPTY],	// Stato iniziale: fermo al piano terra, porte ch
 // ASCENSORE FERMO CON PORTE CHIUSE AL PIANO f
 IDLE[f:FLOORS][p:PASSENGERS] =
 	(when (p != EMPTY) select[p][t:FLOORS] -> GO[f][t][p]			// Pulsante interno: il passeggero chiede il piano t
-	|when (p == EMPTY) request[t:FLOORS] -> GO[f][t][p]				// Cabina vuota: prende in carico una chiamata esterna pendente al piano t
+	|when (p == EMPTY) request[t:FLOORS] -> GO[f][t][p]				// Cabina vuota: prende in carico la chiamata in testa alla coda (piano t)
 	|open_door_button -> OPENING[f][p]								// Pulsante apertura: apri le porte rimanendo al piano f
 	|alarm -> ALARM_RECEIVED[f][DOORS_CLOSED][p]),					// Allarme ricevuto
 
@@ -110,18 +106,27 @@ RIDING[d:FLOORS] =
 
 ||USERS = (forall[h:FLOORS] USER(h)).
 
-/* ------------- CALL BUTTONS ------------- */
-// Pulsante di chiamata esterno al piano F: memorizza la chiamata finché l'ascensore non la prende in carico
-CALL_BUTTON(F=0) = OFF,
-OFF	= (call[F] -> ON												// Prima pressione: chiamata registrata
-	  |enter[F] -> OFF),											// Utente salito dopo la presa in carico: nulla da fare
-ON	= (call[F] -> ON												// Pressioni ripetute: nessun effetto
-	  |{request[F], enter[F]} -> OFF).								// Chiamata presa in carico o utente già salito: si spegne
-
-||CALL_BUTTONS = (forall[f:FLOORS] CALL_BUTTON(f)).
+/* -------------- CALL QUEUE -------------- */
+// Coda FIFO delle chiamate esterne: uno slot per piano (MAX_FLOOR = 3 -> 4 slot), a = testa, d = ultimo slot
+// NB: se cambia MAX_FLOOR va aggiunto/rimosso a mano uno slot in Q e un ramo in ogni catena di if
+CALL_QUEUE = Q[NONE][NONE][NONE][NONE],
+Q[a:SLOT][b:SLOT][c:SLOT][d:SLOT] =
+	(call[f:FLOORS] ->												// Nuova chiamata dal piano f
+		if (f == a || f == b || f == c || f == d) then Q[a][b][c][d]	// Già in coda: nessun effetto
+		else if (a == NONE) then Q[f][b][c][d]						// Accodata nel primo slot libero
+		else if (b == NONE) then Q[a][f][c][d]
+		else if (c == NONE) then Q[a][b][f][d]
+		else Q[a][b][c][f]
+	|when (a != NONE) request[a] -> Q[b][c][d][NONE]				// L'ascensore prende in carico solo la testa: dequeue con shift
+	|enter[f:FLOORS] ->												// Utente del piano f salito prima del suo turno: rimosso dalla coda
+		if (a == f) then Q[b][c][d][NONE]
+		else if (b == f) then Q[a][c][d][NONE]
+		else if (c == f) then Q[a][b][d][NONE]
+		else if (d == f) then Q[a][b][c][NONE]
+		else Q[a][b][c][d]).
 
 /* -------------- FIRE ALARM -------------- */
 FIRE_ALARM = (alarm -> alarm_solved -> FIRE_ALARM).					// Impianto antincendio esterno: alterna allarme e risoluzione
 
 /* -------------- COMPOSIZIONE DEI SISTEMI -------------- */
-||SYS = (LIFT || USERS || CALL_BUTTONS || FIRE_ALARM).
+||SYS = (LIFT || USERS || CALL_QUEUE || FIRE_ALARM).

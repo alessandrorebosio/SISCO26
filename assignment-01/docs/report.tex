@@ -15,6 +15,7 @@
 \usepackage{hyperref}
 
 \geometry{margin=1in}
+\emergencystretch=3em
 
 \usepackage{textcomp}
 \usepackage{siunitx}
@@ -195,5 +196,147 @@ le promesse di servizio ordinario a favore della salvaguardia della vita umana:
     cabina, escludendo il verificarsi di un'emergenza antincendio
     persistente che inibisca l'imbarco.
 \end{itemize}
+
+\chapter{Modello FSP}
+\label{chap:modello-fsp}
+
+Il modello è contenuto nel file \texttt{Lift\_system.lts} ed è
+composto da quattro componenti: \textbf{LIFT}, \textbf{USERS},
+\textbf{CALL\_QUEUE} e \textbf{FIRE\_ALARM}. Il sistema completo è
+definito dalla composizione parallela:
+\begin{verbatim}
+||SYS = (LIFT || USERS ||
+         CALL_QUEUE || FIRE_ALARM).
+\end{verbatim}
+
+\section{Cabina e ciclo di servizio}
+La cabina è inizialmente ferma al piano terra e vuota. Quando è vuota,
+l'evento \texttt{request[h][u]} viene sincronizzato con l'utente in
+testa alla coda e avvia il movimento verso il piano \texttt{h}. Dopo
+l'apertura delle porte, l'evento \texttt{enter[h][u]} consente
+all'utente selezionato di salire. Il passeggero sceglie poi la
+destinazione mediante \texttt{select[h][u][t]}; l'evento
+\texttt{exit[h][u][t]} conclude il servizio.
+
+La capacità della cabina è modellata dal parametro
+\texttt{p:CABIN\_STATE}, con valori \texttt{EMPTY} e \texttt{FULL}.
+Le guardie sugli eventi \texttt{enter}, \texttt{exit} e
+\texttt{select} impediscono rispettivamente l'ingresso quando la
+cabina è occupata, l'uscita quando è vuota e una nuova selezione senza
+un passeggero a bordo.
+
+\section{Coda FIFO}
+Ogni utente possiede un processo \textbf{TICKET}. Il processo memorizza
+la posizione dell'utente tramite il numero di utenti che lo precedono
+(\texttt{k}) e quello degli utenti che lo seguono (\texttt{m}). Una
+nuova chiamata viene aggiunta in fondo; l'evento \texttt{enter} di un
+utente precedente decrementa \texttt{k}. Solo quando
+\texttt{k == 0} il ticket può sincronizzare \texttt{request[H][U]} e
+\texttt{enter[H][U]}, rendendo esplicita la politica FIFO.
+
+\section{Gestione dell'allarme}
+L'evento \texttt{alarm} è abilitato negli stati di marcia, di
+apertura, di chiusura e di attesa della cabina. Con porte chiuse la
+cabina raggiunge il piano terra senza fermate intermedie; con porte
+aperte fuori dal piano terra vengono prima chiuse. Al piano terra le
+porte vengono aperte e l'eventuale passeggero sincronizza
+\texttt{evacuate}. \texttt{LIFT\_ALARM} sospende quindi il servizio
+fino a \texttt{alarm\_solved}, dopodiché la cabina torna nello stato
+con porte aperte al piano terra.
+
+\chapter{Modello mediante Rete di Petri}
+\label{chap:modello-petri}
+
+La stessa dinamica può essere rappresentata con una rete di Petri
+colorata, usando i colori \texttt{floor}, \texttt{user} e
+\texttt{destination}. Le piazze principali sono:
+\begin{itemize}
+  \item \textbf{LiftAt(f)}, con un token nella posizione corrente;
+  \item \textbf{CabinEmpty} e \textbf{CabinOccupied(u)}, che modellano
+    la capacità unitaria;
+  \item \textbf{Waiting(u,f)} e \textbf{Queue(k,u,f)}, per utenti e
+    posizioni nella coda;
+  \item \textbf{DoorsOpen(f)} e \textbf{DoorsClosed(f)};
+  \item \textbf{AlarmActive} e \textbf{AlarmResolved}.
+\end{itemize}
+
+Le transizioni \textbf{Call}, \textbf{Request}, \textbf{Board},
+\textbf{Select} e \textbf{Exit} corrispondono agli eventi FSP. La
+transizione \textbf{Board} richiede un token in \textbf{CabinEmpty} e
+lo sostituisce con \textbf{CabinOccupied(u)}; il posto
+\textbf{CabinEmpty} viene marcato nuovamente solo da \textbf{Exit} o
+\textbf{Evacuate}. La coda FIFO è ottenuta facendo avanzare il token
+dell'utente verso la testa dopo ogni ingresso di un utente precedente.
+
+La transizione \textbf{Alarm} abilita il sottografo di emergenza,
+disabilita le transizioni ordinarie e porta il token
+\textbf{LiftAt(f)} verso \textbf{LiftAt(0)}. Da qui
+\textbf{OpenForEvacuation} rimuove il token del passeggero, mentre
+\textbf{AlarmSolved} riabilita il sottografo ordinario.
+
+\chapter{Proprietà FLTL e verifica}
+\label{chap:fltl}
+
+Le proprietà di vivacità sono condizionate all'assenza di un allarme
+attivo, poiché l'evacuazione ha priorità sul servizio ordinario.
+\begin{description}
+  \item[\texttt{MUTUAL\_EXCLUSION}] dopo un ingresso, prima di un
+    nuovo ingresso devono avvenire \texttt{exit} oppure
+    \texttt{evacuate}:
+    \[
+      \Box\bigl(\mathit{enter}\Rightarrow
+      \neg\mathit{enter}\ \mathsf{U}\
+      (\mathit{exit}\vee\mathit{evacuate})\bigr).
+    \]
+  \item[\texttt{EVENTUAL\_ARRIVAL}] ogni chiamata è seguita dal
+    servizio al piano dell'utente, se l'allarme viene risolto:
+    \[
+      \Box\bigl(\mathit{call}\Rightarrow
+      \mathsf{F}\mathit{enter}\bigr).
+    \]
+  \item[\texttt{EVENTUAL\_DELIVERY}] ogni selezione è seguita
+    dall'uscita oppure dall'evacuazione:
+    \[
+      \Box\bigl(\mathit{select}\Rightarrow
+      \mathsf{F}(\mathit{exit}\vee\mathit{evacuate})\bigr).
+    \]
+  \item[\texttt{STARVATION\_FREEDOM}] un utente che ha effettuato una
+    chiamata raggiunge prima o poi \texttt{enter}, assumendo fairness
+    e risoluzione dell'allarme:
+    \[
+      \Box\bigl(\mathit{call}\Rightarrow
+      \mathsf{F}\mathit{enter}\bigr).
+    \]
+\end{description}
+
+In LTSA la proprietà di mutua esclusione può essere espressa come
+processo parametrico:
+\begin{verbatim}
+property MUTUAL_EXCLUSION =
+    (enter[h:FLOORS][u:USER_IDX] -> IN_CABIN),
+IN_CABIN =
+    (exit[h:FLOORS][u:USER_IDX][t:FLOORS] ->
+        MUTUAL_EXCLUSION
+    |evacuate[h:FLOORS][u:USER_IDX] ->
+        MUTUAL_EXCLUSION).
+\end{verbatim}
+La stessa tecnica viene applicata alle proprietà di arrivo, consegna
+e assenza di starvation, mantenendo gli indici per distinguere
+utenti e piani.
+
+\section{Esito dell'analisi}
+La struttura del modello garantisce la mutua esclusione: \texttt{LIFT}
+abilita \texttt{enter} soltanto nello stato \texttt{EMPTY} e porta la
+cabina nello stato \texttt{FULL}. Le guardie del processo di coda
+garantiscono inoltre che solo il ticket con \texttt{k == 0} possa
+richiedere il servizio.
+
+Le proprietà di vivacità richiedono l'ipotesi di fairness delle
+transizioni abilitate e la risoluzione dell'allarme. Senza tale
+ipotesi, una sequenza infinita di allarmi è ammessa dal modello e
+rende impossibile garantire una consegna ordinaria. Il repository
+contiene il modello FSP aggiornato; l'output numerico della verifica
+LTSA non è tra gli artefatti presenti e va prodotto eseguendo le
+proprietà sul composto \texttt{SYS}.
 
 \end{document}

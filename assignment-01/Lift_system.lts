@@ -10,123 +10,174 @@
 */
 
 /* ------------ SYSTEM CONSTANTS ----------- */
-const MIN_FLOOR		= 0												// Piano più basso (piano terra)
-const MAX_FLOOR		= 3												// Piano più alto
-const GROUND_FLOOR	= 0 											// Piano in cui va l'ascensore in caso di allarme
-const DOORS_CLOSED	= 0 											// Porte dell'ascensore chiuse
-const DOORS_OPEN	= 1 											// Porte dell'ascensore aperte
-const EMPTY			= MAX_FLOOR + 1									// Cabina vuota (nessun passeggero)
-const NONE			= MAX_FLOOR + 1									// Slot vuoto della coda delle chiamate
+// Floor configs
+const MIN_FLOOR		= 0									// Piano più basso (piano terra)
+const MAX_FLOOR		= 2									// Piano più alto (con 4 piani e M = 2 il sistema ha ~9.2M stati)
+const GROUND_FLOOR	= 0									// Piano in cui va l'ascensore in caso di allarme
+// User configs
+const M				= 2									// Numero di utenti per piano (stati: M = 1 -> 918, M = 2 -> 117378)
+const N_USERS		= (MAX_FLOOR - MIN_FLOOR + 1) * M	// Numero totale di utenti (= capacità della coda)
+// Cabin states
+const EMPTY			= 0									// Cabina vuota
+const FULL			= 1									// Cabina occupata (capacità 1)
 
 /* ---------------- RANGES ---------------- */
-range FLOORS = MIN_FLOOR..MAX_FLOOR									// Piani dell'edificio
-range DOORS = DOORS_CLOSED..DOORS_OPEN								// Stati delle porte
-range PASSENGERS = MIN_FLOOR..EMPTY									// Passeggero a bordo: utente del piano p, oppure EMPTY
-range SLOT = MIN_FLOOR..NONE										// Contenuto di uno slot della coda: piano chiamante, oppure NONE
+range FLOORS = MIN_FLOOR..MAX_FLOOR						// Piani dell'edificio
+range USER_IDX = 1..M									// Indice dell'utente all'interno del suo piano
+range CABIN_STATE = EMPTY..FULL							// Occupazione della cabina
+range QUEUE_POS = 0..N_USERS-1							// Possibili posizioni nella coda
 
-/* ----------------- LIFT ----------------- */
-// f = piano corrente, t = destinazione, p = passeggero a bordo (utente del piano p) oppure EMPTY
-LIFT = IDLE[MIN_FLOOR][EMPTY],	// Stato iniziale: fermo al piano terra, porte chiuse, cabina vuota
+/*
+	+--------------------------------------+
+	|                LIFT                  |
+	+--------------------------------------+
+
+	Dizionario indici utilizzati:
+	- f = piano corrente
+	- t = destinazione
+	- p = occupazione della cabina (EMPTY/FULL)
+*/
+
+// STATO INIZIALE
+LIFT = IDLE[GROUND_FLOOR][EMPTY],											// Ascensore fermo al piano terra, porte chiuse, cabina vuota
 
 // ASCENSORE FERMO CON PORTE CHIUSE AL PIANO f
-IDLE[f:FLOORS][p:PASSENGERS] =
-	(when (p != EMPTY) select[p][t:FLOORS] -> GO[f][t][p]			// Pulsante interno: il passeggero chiede il piano t
-	|when (p == EMPTY) request[t:FLOORS] -> GO[f][t][p]				// Cabina vuota: prende in carico la chiamata in testa alla coda (piano t)
-	|open_door_button -> OPENING[f][p]								// Pulsante apertura: apri le porte rimanendo al piano f
-	|alarm -> ALARM_RECEIVED[f][DOORS_CLOSED][p]),					// Allarme ricevuto
+IDLE[f:FLOORS][p:CABIN_STATE] =
+	(when (p == FULL) select[h:FLOORS][u:USER_IDX][t:FLOORS] -> GO[f][t][p]	// Cabina piena: il passeggero chiede il piano t col pulsante interno
+	|when (p == EMPTY) request[h:FLOORS][u:USER_IDX] -> GO[f][h][p]			// Cabina vuota: va a prendere l'utente in testa alla coda (piano h)
+	|open_door_button -> OPENING[f][p]										// Pulsante apertura: apri le porte rimanendo al piano f
+	|alarm -> ALARM_DOWN[f][p]),											// Allarme a porte chiuse: scendi al piano terra
 
-// SCELTA: se f è la destinazione apri le porte, altrimenti muoviti
-GO[f:FLOORS][t:FLOORS][p:PASSENGERS] =
+// SCELTA: se sono già alla destinazione apri le porte, altrimenti muoviti
+GO[f:FLOORS][t:FLOORS][p:CABIN_STATE] =
 	if (f == t)
 	then OPENING[f][p]
 	else MOVING[f][t][p],
 
-// SPOSTAMENTO: f = piano corrente, t = destinazione
-MOVING[f:FLOORS][t:FLOORS][p:PASSENGERS] =
-	(when (f < t) at[f+1] -> GO[f+1][t][p]							// Salita di un piano
-	|when (f > t) at[f-1] -> GO[f-1][t][p]							// Discesa di un piano
-	|alarm -> ALARM_RECEIVED[f][DOORS_CLOSED][p]),					// Allarme ricevuto
+// SPOSTAMENTO: decide se salire o scendere
+MOVING[f:FLOORS][t:FLOORS][p:CABIN_STATE] =
+	(when (f < t) at[f+1] -> GO[f+1][t][p]								// Salita di un piano
+	|when (f > t) at[f-1] -> GO[f-1][t][p]								// Discesa di un piano
+	|alarm -> ALARM_DOWN[f][p]),										// Allarme a porte chiuse: scendi al piano terra
 
-// PORTE IN APERTURA AL PIANO f (si apre solo a destinazione raggiunta)
-OPENING[f:FLOORS][p:PASSENGERS] =
-	(door_opened -> OPEN[f][f][p]									// Porte completamente aperte
-	|alarm -> ALARM_RECEIVED[f][DOORS_OPEN][p]),					// Allarme ricevuto
+// APERTURA PORTE AL PIANO
+OPENING[f:FLOORS][p:CABIN_STATE] =
+	(door_opened -> OPEN[f][f][p]										// Porte completamente aperte
+	|alarm -> ALARM_OPEN[f][p]),										// Allarme a porte non chiuse
 
 // PORTE APERTE
-OPEN[f:FLOORS][t:FLOORS][p:PASSENGERS] =
-	(when (p == EMPTY) enter[f] -> OPEN[f][f][f]					// Cabina vuota: sale l'utente del piano f
-	|when (p != EMPTY) exit[p][f] -> OPEN[f][f][EMPTY]				// Il passeggero scende al piano f
-	|when (p != EMPTY) select[p][n:FLOORS] -> CLOSING[f][n][p]		// Il passeggero sceglie il piano n: chiudi e imposta la nuova destinazione
-	|{timeout, close_door_button} -> CLOSING[f][t][p]				// Timeout per inattività o pulsante chiusura: inizia a chiudere
-	|alarm -> ALARM_RECEIVED[f][DOORS_OPEN][p]),					// Allarme ricevuto
+OPEN[f:FLOORS][t:FLOORS][p:CABIN_STATE] =
+	(when (p == EMPTY) enter[f][u:USER_IDX] -> OPEN[f][f][FULL]						// Cabina vuota: sale un utente del piano f (la coda ammette solo la testa)
+	|when (p == FULL) exit[h:FLOORS][u:USER_IDX][f] -> OPEN[f][f][EMPTY]			// Cabina piena: il passeggero scende al piano f
+	|when (p == FULL) select[h:FLOORS][u:USER_IDX][n:FLOORS] -> CLOSING[f][n][p]	// Cabina piena: il passeggero sceglie il piano n
+	|{timeout, close_door_button} -> CLOSING[f][t][p]								// Timeout per inattività o pulsante chiusura: inizia a chiudere le porte
+	|alarm -> ALARM_OPEN[f][p]),													// Allarme a porte non chiuse
 
-// PORTE IN CHIUSURA
-CLOSING[f:FLOORS][t:FLOORS][p:PASSENGERS] =
-	({open_door_button, sensor_obstacle} -> OPEN[f][t][p]			// Pulsante apertura o ostacolo rilevato: riapri
-	|door_closed -> if (f == t) then IDLE[f][p] else MOVING[f][t][p]	// Porte chiuse: se non c'è destinazione resta fermo, altrimenti parti
-	|alarm -> ALARM_RECEIVED[f][DOORS_OPEN][p]),					// Allarme ricevuto
+// CHIUSURA PORTE
+CLOSING[f:FLOORS][t:FLOORS][p:CABIN_STATE] =
+	({open_door_button, sensor_obstacle} -> OPEN[f][t][p]				// Pulsante per riapertura o ostacolo rilevato: riapri le porte
+	|door_closed -> if (f == t) then IDLE[f][p] else MOVING[f][t][p]	// Porte chiuse: se è già a destinazione resta fermo, altrimenti parte
+	|alarm -> ALARM_OPEN[f][p]),										// Allarme a porte non chiuse
 
-// ALLARME RICEVUTO: decide cosa fare in base alle porte e alla posizione dell'ascensore
-ALARM_RECEIVED[f:FLOORS][d:DOORS][p:PASSENGERS] =
-	if (d == DOORS_CLOSED) then ALARM_DOWN[f][p]					// Porte chiuse: vai al piano terra e apri
-	else if (d == DOORS_OPEN && f == GROUND_FLOOR) then EVACUATE[p]	// Già aperte a piano terra: evacua ed entra in allarme
-	else ALARM_CLOSING[f][p],										// Altrove: chiudi le porte e scendi al piano terra
-
-// ALLARME - CHIUSURA PORTE PER ANDARE AL PIANO TERRA
-ALARM_CLOSING[f:FLOORS][p:PASSENGERS] = (door_closed -> ALARM_DOWN[f][p]),
-
-// ALLARME - DISCESA AL PIANO TERRA SENZA FERMATE INTERMEDIE
-ALARM_DOWN[f:FLOORS][p:PASSENGERS] =
+// ALLARME A PORTE NON CHIUSE: a piano terra evacua subito, altrove chiudi le porte e scendi
+ALARM_OPEN[f:FLOORS][p:CABIN_STATE] =
 	if (f == GROUND_FLOOR)
-	then ALARM_OPENING[p]
+	then EVACUATE[p]
+	else (door_closed -> ALARM_DOWN[f][p]),
+
+// ALLARME A PORTE CHIUSE: discesa al piano terra senza fermate intermedie, poi apri le porte
+ALARM_DOWN[f:FLOORS][p:CABIN_STATE] =
+	if (f == GROUND_FLOOR)
+	then (door_opened -> EVACUATE[p])
 	else (at[f-1] -> ALARM_DOWN[f-1][p]),
 
-// ALLARME - APERTURA PORTE A PIANO TERRA
-ALARM_OPENING[p:PASSENGERS] = (door_opened -> EVACUATE[p]),
-
-// ALLARME - EVACUAZIONE DELL'EVENTUALE PASSEGGERO A PIANO TERRA
-EVACUATE[p:PASSENGERS] =
+// EVACUAZIONE DELL'EVENTUALE PASSEGGERO AL PIANO TERRA
+EVACUATE[p:CABIN_STATE] =
 	if (p == EMPTY)
 	then LIFT_ALARM
-	else (evacuate[p] -> LIFT_ALARM),
+	else (evacuate[h:FLOORS][u:USER_IDX] -> LIFT_ALARM),				// Solo l'utente a bordo può sincronizzarsi
 
-// ASCENSORE IN ALLARME, ATTESA RISOLUZIONE E RITORNA IN SERVIZIO
+// ATTESA DELLA RISOLUZIONE E RITORNO IN SERVIZIO
 LIFT_ALARM = (alarm_solved -> OPEN[GROUND_FLOOR][GROUND_FLOOR][EMPTY]).
 
-/* ----------------- USER ----------------- */
-// Utente del piano H: chiama, sale, sceglie il piano e scende (oppure viene evacuato in caso di allarme)
-USER(H=0) = (call[H] -> WAITING),									// Preme il pulsante di chiamata esterno
-WAITING = (enter[H] -> INSIDE),										// Sale quando l'ascensore è al suo piano a porte aperte
+/*
+	+--------------------------------------+
+	|                USER                  |
+	+--------------------------------------+
+
+	Dizionario indici utilizzati:
+	- u = indice dell'utente
+	- h = indice del piano
+	- d = piano di destinazione
+*/
+
+// STATO INIZIALE
+USER(H=0, U=1) = (call[H][U] -> WAITING),			// Preme il pulsante di chiamata esterno
+
+// ATTESA DELL'ASCENSORE AL PIANO
+WAITING = (enter[H][U] -> INSIDE),					// Sale quando è il suo turno e l'ascensore è al suo piano a porte aperte
+
+// UTENTE ENTRATO NELL'ASCENSORE
 INSIDE =
-	(select[H][d:FLOORS] -> RIDING[d]								// Pulsante interno: sceglie il piano d
-	|evacuate[H] -> USER),											// Allarme: evacuato a piano terra
+	(select[H][U][d:FLOORS] -> RIDING[d]			// Pulsante interno: sceglie il piano d
+	|evacuate[H][U] -> USER),						// Allarme: evacuato a piano terra
+
+// UTENTE IN CORSA DENTRO ALL'ASCENSORE
 RIDING[d:FLOORS] =
-	(exit[H][d] -> USER												// Scende al piano scelto
-	|evacuate[H] -> USER).											// Allarme: evacuato a piano terra
+	(exit[H][U][d] -> USER							// Uscita al piano scelto
+	|evacuate[H][U] -> USER).						// Allarme: evacuato a piano terra
 
-||USERS = (forall[h:FLOORS] USER(h)).
+// COMPOSIZIONE DI TUTTI GLI UTENTI
+||USERS = (forall[h:FLOORS][u:USER_IDX] USER(h,u)).	// Messa in parallelo di tutti gli utenti
 
-/* -------------- CALL QUEUE -------------- */
-// Coda FIFO delle chiamate esterne: uno slot per piano (MAX_FLOOR = 3 -> 4 slot), a = testa, d = ultimo slot
-// NB: se cambia MAX_FLOOR va aggiunto/rimosso a mano uno slot in Q e un ramo in ogni catena di if
-CALL_QUEUE = Q[NONE][NONE][NONE][NONE],
-Q[a:SLOT][b:SLOT][c:SLOT][d:SLOT] =
-	(call[f:FLOORS] ->												// Nuova chiamata dal piano f
-		if (f == a || f == b || f == c || f == d) then Q[a][b][c][d]	// Già in coda: nessun effetto
-		else if (a == NONE) then Q[f][b][c][d]						// Accodata nel primo slot libero
-		else if (b == NONE) then Q[a][f][c][d]
-		else if (c == NONE) then Q[a][b][f][d]
-		else Q[a][b][c][f]
-	|when (a != NONE) request[a] -> Q[b][c][d][NONE]				// L'ascensore prende in carico solo la testa: dequeue con shift
-	|enter[f:FLOORS] ->												// Utente del piano f salito prima del suo turno: rimosso dalla coda
-		if (a == f) then Q[b][c][d][NONE]
-		else if (b == f) then Q[a][c][d][NONE]
-		else if (c == f) then Q[a][b][d][NONE]
-		else if (d == f) then Q[a][b][c][NONE]
-		else Q[a][b][c][d]).
+/*
+	+--------------------------------------+
+	|             CALL QUEUE               |
+	+--------------------------------------+
 
-/* -------------- FIRE ALARM -------------- */
-FIRE_ALARM = (alarm -> alarm_solved -> FIRE_ALARM).					// Impianto antincendio esterno: alterna allarme e risoluzione
+	Dizionario indici utilizzati:
+	- u = indice dell'utente
+	- h = indice del piano
+	- n = #utenti in coda
+	- k = #utenti davanti a un certo utente
+	- m = #utenti dietro a un certo utente
+*/
 
-/* -------------- COMPOSIZIONE DEI SISTEMI -------------- */
+// STATO INIZIALE
+TICKET(H=0, U=1) = OUT[0],										// Utente fuori coda, la coda è vuota
+
+// UTENTE NON IN CODA: sa comunque quanti utenti sono in attesa
+OUT[n:QUEUE_POS] =
+	(call[h:FLOORS][u:USER_IDX] ->								// Arriva la chiamata di un utente
+		if (h == H && u == U) then WAIT[n][0]					// Chiamata propria: si mette in coda dietro agli n già in attesa
+		else if (n + 1 < N_USERS) then OUT[n+1]					// Chiamata altrui: un utente in più in coda
+		else ERROR												// Coda piena: caso irraggiungibile
+	|when (n > 0) enter[h:FLOORS][u:USER_IDX] -> OUT[n-1]),		// Qualcuno entra nell'ascensore, la coda si riduce
+
+// UTENTE IN CODA
+WAIT[k:QUEUE_POS][m:QUEUE_POS] =
+	(call[h:FLOORS][u:USER_IDX] ->								// Arriva la chiamata di un altro utente che non era in coda:
+		if (k + m + 1 < N_USERS) then WAIT[k][m+1]				// Il nuovo arrivato si accoda, aumentano gli utenti dietro
+		else ERROR												// Coda piena: caso irraggiungibile
+	|when (k == 0) request[H][U] -> WAIT[k][m]					// Sono in testa: richiedo all'ascensore di venire al mio piano
+	|when (k == 0) enter[H][U] -> OUT[m]						// Sono il primo in coda: salgo sull'ascensore ed esco dalla coda
+	|when (k > 0) enter[h:FLOORS][u:USER_IDX] -> WAIT[k-1][m]).	// Sale la testa: avanzo di una posizione (ingresso di un altro utente in ascensore)
+
+// COMPOSIZIONE DI TUTTI I BIGLIETTI
+||CALL_QUEUE = (forall[h:FLOORS][u:USER_IDX] TICKET(h,u)).		// Messa in parallelo dei biglietti: formano la coda FIFO
+
+/*
+	+--------------------------------------+
+	|             FIRE ALARM               |
+	+--------------------------------------+
+*/
+
+// IMPIANTO ANTINCENDIO ESTERNO
+FIRE_ALARM = (alarm -> alarm_solved -> FIRE_ALARM).	// Alterna allarme e risoluzione
+
+/*
+	+--------------------------------------+
+	|         SYSTEM COMPOSITION           |
+	+--------------------------------------+
+*/
 ||SYS = (LIFT || USERS || CALL_QUEUE || FIRE_ALARM).

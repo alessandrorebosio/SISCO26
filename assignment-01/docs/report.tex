@@ -1,5 +1,10 @@
 \documentclass[12pt,a4paper]{report}
 
+% ====================================================
+%
+% PACCHETTI
+%
+% ====================================================
 \usepackage{alltt, fancyvrb, url}
 \usepackage{graphicx}
 \usepackage{amsmath, amssymb}
@@ -13,330 +18,38 @@
 \usepackage{geometry}
 \usepackage{pdfpages}
 \usepackage{hyperref}
-
-\geometry{margin=1in}
-\emergencystretch=3em
-
 \usepackage{textcomp}
 \usepackage{siunitx}
-
 \usepackage[italian]{babel}
 \usepackage[capitalise, italian]{cleveref}
 
+% ====================================================
+%
+% CONFIGURAZIONI
+%
+% ====================================================
+\geometry{margin=1in}
+\emergencystretch=3em
 \graphicspath{ {./src/img} }
-
 \textwidth=450pt\oddsidemargin=0pt
+
+
+% ====================================================
+%
+% CORPO
+%
+% ====================================================
 \begin{document}
 
-\hypersetup{pageanchor=false}
-\begin{titlepage}
-  \begin{center}
-    {{\Large{\textsc{Alma Mater Studiorum $\cdot$ Università di
-    Bologna}}}}\\[1ex]
-    \rule{15.8cm}{0.6mm}\\[2ex]
-    {\small Corso di Laurea Magistrale in Ingegneria e Scienze Informatiche}\\
-    {\small A.A. 2026/2027}
-  \end{center}
+    \include{chapters/0-Cover}
 
-  \vfill
-  \begin{center}
-    {\large\textsc{Corso di Sistemi Concorrenti}}\\[1.5ex]
-    {\LARGE\textbf{Assignment \#01}}\\[2.5ex]
-    {\Huge\textbf{Concurrent Lift}}\\[1.5ex]
-    {\large\textit{Modelling and Verification of an Elevator with
-    Fire Alarm}}\\[1ex]
-  \end{center}
-  \vfill
+    \pagenumbering{roman}
+    \tableofcontents
 
-  \begin{center}
-    \begin{tabular}{@{}c@{\qquad}c@{}}
-      {\large\bf Enrico Bartocetti} & {\large\bf Alessandro Rebosio} \\[0.5ex]
-      {\small matr.\ 000000000 } & {\small matr.\ 0001269442}
-    \end{tabular}
-  \end{center}
-
-  \vspace{2mm}
-  \noindent\rule{\linewidth}{0.4pt}
-
-\end{titlepage}
-\hypersetup{pageanchor=true}
-
-\pagenumbering{roman}
-\tableofcontents
-\cleardoublepage
-\pagenumbering{arabic}
-
-\chapter{Introduzione: Dominio e Requisiti}
-\label{chap:intro_dominio}
-
-\section{Descrizione del Dominio Applicativo}
-Il sistema analizzato modella il comportamento concorrente di un
-ascensore e dei suoi utilizzatori all'interno di un edificio a
-sviluppo verticale.
-
-\subsection{Struttura dell'Edificio e Popolazione di Utenti}
-L'ambiente operativo è costituito da una struttura articolata su un
-numero finito $N$ di piani, formalmente identificati dall'insieme
-discreto $\mathcal{F} = \{0, 1, \dots, N-1\}$. All'interno di questa
-configurazione, il piano $0$ assume convenzionalmente il ruolo di
-piano terra (\emph{ground floor}), costituendo il punto cardine sia
-per l'accesso e l'uscita ordinaria dall'edificio, sia per le manovre
-di evacuazione rapida in situazioni di emergenza.
-
-A popolare l'edificio è presente una comunità di utenti distribuiti lungo i vari livelli:
-\begin{itemize}
-    \item a ciascun piano possono trovarsi contemporaneamente fino a $M$ persone intenzionate a utilizzare l'impianto di risalita;
-    \item ogni utente agisce come un agente autonomo e concorrente rispetto agli altri, caratterizzato dal desiderio di raggiungere un piano differente rispetto a quello in cui si trova attualmente.
-\end{itemize}
-
-\subsection{Cabina e Vincolo di Risorsa}
-L'impianto si avvale di una singola cabina deputata alla
-movimentazione verticale degli occupanti tra i vari piani. La
-caratteristica vincolante di tale risorsa risiede nella sua capacità
-strettamente unitaria ($Capacity = 1$): in nessun caso è consentito a
-più di una persona occupare lo spazio interno contemporaneamente. La
-cabina rappresenta pertanto una risorsa condivisa critica soggetta a
-un principio inderogabile di mutua esclusione.
-
-L'interazione tra gli utenti e il sistema dell'ascensore avviene
-attraverso due distinte tipologie di interfaccia fisica. All'esterno
-della cabina, su ogni singolo piano, è presente un pulsante di
-chiamata (\emph{call button}) mediante il quale gli utenti in attesa
-segnalano la propria richiesta di servizio, sollecitando l'arrivo
-dell'ascensore al rispettivo livello. All'interno della cabina è
-invece installata una pulsantiera dotata di tasti di selezione
-(\emph{floor buttons}), accessibile unicamente al passeggero salito a
-bordo per indicare il piano di destinazione verso cui essere trasportato.
-
-\subsection{Politica di Servizio FIFO (First-Come, First-Served)}
-Al fine di garantire equità di trattamento (\emph{fairness}) ed
-evitare situazioni in cui un utente venga ignorato o scavalcato
-indefinitamente (\emph{starvation}), gli utenti che richiedono
-l'ascensore su un determinato piano devono essere serviti rispettando
-rigorosamente l'ordine temporale di arrivo e di chiamata, attuando
-una politica di accodamento \textbf{FIFO} (\emph{First-Come, First-Served}).
-
-\section{Gestione delle Situazioni di Emergenza: Allarme Antincendio}
-Il sistema dell'ascensore non opera in isolamento, ma interagisce con
-un impianto antincendio esterno (\emph{Fire Alarm System}), in grado
-di generare asincronamente un segnale di allarme in caso di incendio.
-
-A fronte della ricezione di tale notifica di pericolo, la tutela
-dell'incolumità fisica prevale in modo assoluto sull'ordinaria
-erogazione del trasporto. Il sistema attua pertanto una sequenza
-deterministica di sicurezza:
-\begin{enumerate}[label=\textbf{\alph*.}]
-  \item \textbf{Interruzione delle attività correnti}: l'ascensore
-    interrompe tempestivamente le normali corse ordinarie e sospende
-    l'evasione delle chiamate pendenti registrate ai piani;
-  \item \textbf{Discesa prioritaria al piano terra}: la cabina si
-    dirige immediatamente e con massima priorità verso il piano terra
-    ($Floor = 0$), ignorando qualsiasi fermata intermedia;
-  \item \textbf{Apertura porte ed evacuazione}: una volta giunta al
-    piano terra, le porte della cabina si aprono automaticamente per
-    permettere l'immediata evacuazione dell'eventuale passeggero a
-    bordo e garantire una via di fuga sicura verso l'esterno;
-  \item \textbf{Stato di attesa cautelativa (\emph{Safe Lockout})}:
-    l'ascensore rimane fermo al piano terra con le porte aperte,
-    inibendo qualsiasi nuova operazione di salita o comando di movimentazione;
-  \item \textbf{Ripristino del servizio}: la condizione di blocco
-    permane fino alla ricezione di un esplicito segnale esterno di
-    risoluzione dell'allarme (\emph{alarm resolved/cleared}), a
-    seguito del quale il sistema è autorizzato a ripristinare il
-    regime di normale operatività.
-\end{enumerate}
-
-\newpage
-\section{Requisiti e Proprietà di Correttezza Formale}
-Sulla base della specifica del problema, il sistema concorrente deve
-soddisfare precise proprietà qualitative, distinte nelle classi
-canoniche di \emph{Safety} e \emph{Liveness}.
-
-\subsection{Proprietà di Safety (Sicurezza)}
-Le proprietà di sicurezza sanciscono formalmente che durante l'intera
-evoluzione temporale del sistema ``non deve mai verificarsi alcuno
-stato non consentito''.
-
-Nel contesto dell'ascensore, il requisito primario di sicurezza
-coincide con la \textbf{mutua esclusione della cabina} (\emph{mutual
-exclusion}). In nessun istante temporale e lungo alcuna traiettoria
-di esecuzione possono trovarsi due o più persone simultaneamente
-all'interno dell'ascensore. Indicando con
-$\text{Utenti\_in\_cabina}(t)$ il numero di occupanti a bordo
-all'istante $t$, il controllore deve garantire costantemente che:
-\[
-  \forall t \ge 0, \quad \text{Utenti\_in\_cabina}(t) \le 1
-\]
-La violazione di tale condizione rappresenterebbe un sovraffollamento
-della cabina con conseguente compromissione delle garanzie di
-sicurezza fisica e di consistenza logica del sistema.
-
-\subsection{Proprietà di Liveness (Vivacità Condizionata)}
-Mentre le proprietà di sicurezza vietano configurazioni illegali, le
-proprietà di vivacità stabiliscono che gli eventi desiderati dal
-sistema ``debbano prima o poi verificarsi nel tempo''. Nel nostro
-dominio, tali proprietà assumono una formulazione condizionata, in
-quanto l'insorgenza di un allarme antincendio sopprime legittimamente
-le promesse di servizio ordinario a favore della salvaguardia della vita umana:
-\begin{itemize}
-  \item \textbf{Arrivo al piano di chiamata (\emph{Eventual Arrival
-    upon Call})}: a fronte della pressione del pulsante di chiamata
-    da parte di un utente a un dato piano, la cabina deve prima o poi
-    giungere a quel piano per consentire il servizio, a meno che non
-    si manifesti uno stato di allarme antincendio;
-  \item \textbf{Consegna al piano desiderato (\emph{Eventual
-    Delivery})}: quando un passeggero regolarmente a bordo seleziona
-    il piano prescelto, l'ascensore deve infine raggiungere tale
-    destinazione, salvo il caso in cui un segnale di allarme
-    costringa la cabina a deviare prioritariamente verso il piano
-    terra per l'evacuazione forzata;
-  \item \textbf{Accesso al servizio ed assenza di starvation
-    (\emph{Starvation Freedom})}: ciascun utente posizionato in
-    attesa a un piano deve infine riuscire a salire a bordo della
-    cabina, escludendo il verificarsi di un'emergenza antincendio
-    persistente che inibisca l'imbarco.
-\end{itemize}
-
-\chapter{Modello FSP}
-\label{chap:modello-fsp}
-
-Il modello è contenuto nel file \texttt{Lift\_system.lts} ed è
-composto da quattro componenti: \textbf{LIFT}, \textbf{USERS},
-\textbf{CALL\_QUEUE} e \textbf{FIRE\_ALARM}. Il sistema completo è
-definito dalla composizione parallela:
-\begin{verbatim}
-||SYS = (LIFT || USERS ||
-         CALL_QUEUE || FIRE_ALARM).
-\end{verbatim}
-
-\section{Cabina e ciclo di servizio}
-La cabina è inizialmente ferma al piano terra e vuota. Quando è vuota,
-l'evento \texttt{request[h][u]} viene sincronizzato con l'utente in
-testa alla coda e avvia il movimento verso il piano \texttt{h}. Dopo
-l'apertura delle porte, l'evento \texttt{enter[h][u]} consente
-all'utente selezionato di salire. Il passeggero sceglie poi la
-destinazione mediante \texttt{select[h][u][t]}; l'evento
-\texttt{exit[h][u][t]} conclude il servizio.
-
-La capacità della cabina è modellata dal parametro
-\texttt{p:CABIN\_STATE}, con valori \texttt{EMPTY} e \texttt{FULL}.
-Le guardie sugli eventi \texttt{enter}, \texttt{exit} e
-\texttt{select} impediscono rispettivamente l'ingresso quando la
-cabina è occupata, l'uscita quando è vuota e una nuova selezione senza
-un passeggero a bordo.
-
-\section{Coda FIFO}
-Ogni utente possiede un processo \textbf{TICKET}. Il processo memorizza
-la posizione dell'utente tramite il numero di utenti che lo precedono
-(\texttt{k}) e quello degli utenti che lo seguono (\texttt{m}). Una
-nuova chiamata viene aggiunta in fondo; l'evento \texttt{enter} di un
-utente precedente decrementa \texttt{k}. Solo quando
-\texttt{k == 0} il ticket può sincronizzare \texttt{request[H][U]} e
-\texttt{enter[H][U]}, rendendo esplicita la politica FIFO.
-
-\section{Gestione dell'allarme}
-L'evento \texttt{alarm} è abilitato negli stati di marcia, di
-apertura, di chiusura e di attesa della cabina. Con porte chiuse la
-cabina raggiunge il piano terra senza fermate intermedie; con porte
-aperte fuori dal piano terra vengono prima chiuse. Al piano terra le
-porte vengono aperte e l'eventuale passeggero sincronizza
-\texttt{evacuate}. \texttt{LIFT\_ALARM} sospende quindi il servizio
-fino a \texttt{alarm\_solved}, dopodiché la cabina torna nello stato
-con porte aperte al piano terra.
-
-\chapter{Modello mediante Rete di Petri}
-\label{chap:modello-petri}
-
-La stessa dinamica può essere rappresentata con una rete di Petri
-colorata, usando i colori \texttt{floor}, \texttt{user} e
-\texttt{destination}. Le piazze principali sono:
-\begin{itemize}
-  \item \textbf{LiftAt(f)}, con un token nella posizione corrente;
-  \item \textbf{CabinEmpty} e \textbf{CabinOccupied(u)}, che modellano
-    la capacità unitaria;
-  \item \textbf{Waiting(u,f)} e \textbf{Queue(k,u,f)}, per utenti e
-    posizioni nella coda;
-  \item \textbf{DoorsOpen(f)} e \textbf{DoorsClosed(f)};
-  \item \textbf{AlarmActive} e \textbf{AlarmResolved}.
-\end{itemize}
-
-Le transizioni \textbf{Call}, \textbf{Request}, \textbf{Board},
-\textbf{Select} e \textbf{Exit} corrispondono agli eventi FSP. La
-transizione \textbf{Board} richiede un token in \textbf{CabinEmpty} e
-lo sostituisce con \textbf{CabinOccupied(u)}; il posto
-\textbf{CabinEmpty} viene marcato nuovamente solo da \textbf{Exit} o
-\textbf{Evacuate}. La coda FIFO è ottenuta facendo avanzare il token
-dell'utente verso la testa dopo ogni ingresso di un utente precedente.
-
-La transizione \textbf{Alarm} abilita il sottografo di emergenza,
-disabilita le transizioni ordinarie e porta il token
-\textbf{LiftAt(f)} verso \textbf{LiftAt(0)}. Da qui
-\textbf{OpenForEvacuation} rimuove il token del passeggero, mentre
-\textbf{AlarmSolved} riabilita il sottografo ordinario.
-
-\chapter{Proprietà FLTL e verifica}
-\label{chap:fltl}
-
-Le proprietà di vivacità sono condizionate all'assenza di un allarme
-attivo, poiché l'evacuazione ha priorità sul servizio ordinario.
-\begin{description}
-  \item[\texttt{MUTUAL\_EXCLUSION}] dopo un ingresso, prima di un
-    nuovo ingresso devono avvenire \texttt{exit} oppure
-    \texttt{evacuate}:
-    \[
-      \Box\bigl(\mathit{enter}\Rightarrow
-      \neg\mathit{enter}\ \mathsf{U}\
-      (\mathit{exit}\vee\mathit{evacuate})\bigr).
-    \]
-  \item[\texttt{EVENTUAL\_ARRIVAL}] ogni chiamata è seguita dal
-    servizio al piano dell'utente, se l'allarme viene risolto:
-    \[
-      \Box\bigl(\mathit{call}\Rightarrow
-      \mathsf{F}\mathit{enter}\bigr).
-    \]
-  \item[\texttt{EVENTUAL\_DELIVERY}] ogni selezione è seguita
-    dall'uscita oppure dall'evacuazione:
-    \[
-      \Box\bigl(\mathit{select}\Rightarrow
-      \mathsf{F}(\mathit{exit}\vee\mathit{evacuate})\bigr).
-    \]
-  \item[\texttt{STARVATION\_FREEDOM}] un utente che ha effettuato una
-    chiamata raggiunge prima o poi \texttt{enter}, assumendo fairness
-    e risoluzione dell'allarme:
-    \[
-      \Box\bigl(\mathit{call}\Rightarrow
-      \mathsf{F}\mathit{enter}\bigr).
-    \]
-\end{description}
-
-In LTSA la proprietà di mutua esclusione può essere espressa come
-processo parametrico:
-\begin{verbatim}
-property MUTUAL_EXCLUSION =
-    (enter[h:FLOORS][u:USER_IDX] -> IN_CABIN),
-IN_CABIN =
-    (exit[h:FLOORS][u:USER_IDX][t:FLOORS] ->
-        MUTUAL_EXCLUSION
-    |evacuate[h:FLOORS][u:USER_IDX] ->
-        MUTUAL_EXCLUSION).
-\end{verbatim}
-La stessa tecnica viene applicata alle proprietà di arrivo, consegna
-e assenza di starvation, mantenendo gli indici per distinguere
-utenti e piani.
-
-\section{Esito dell'analisi}
-La struttura del modello garantisce la mutua esclusione: \texttt{LIFT}
-abilita \texttt{enter} soltanto nello stato \texttt{EMPTY} e porta la
-cabina nello stato \texttt{FULL}. Le guardie del processo di coda
-garantiscono inoltre che solo il ticket con \texttt{k == 0} possa
-richiedere il servizio.
-
-Le proprietà di vivacità richiedono l'ipotesi di fairness delle
-transizioni abilitate e la risoluzione dell'allarme. Senza tale
-ipotesi, una sequenza infinita di allarmi è ammessa dal modello e
-rende impossibile garantire una consegna ordinaria. Il repository
-contiene il modello FSP aggiornato; l'output numerico della verifica
-LTSA non è tra gli artefatti presenti e va prodotto eseguendo le
-proprietà sul composto \texttt{SYS}.
+    \cleardoublepage
+    \pagenumbering{arabic}
+    \include{chapters/1-Analysis}
+    \include{chapters/2-Design}
+    \include{chapters/3-Test}
 
 \end{document}

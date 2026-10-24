@@ -1,0 +1,63 @@
+\chapter{Proprietà FLTL e verifica}
+
+Le proprietà di vivacità sono condizionate all'assenza di un allarme
+attivo, poiché l'evacuazione ha priorità sul servizio ordinario.
+\begin{description}
+  \item[\texttt{MUTUAL\_EXCLUSION}] dopo un ingresso, prima di un
+    nuovo ingresso devono avvenire \texttt{exit} oppure
+    \texttt{evacuate}:
+    \[
+      \Box\bigl(\mathit{enter}\Rightarrow
+      \neg\mathit{enter}\ \mathsf{U}\
+      (\mathit{exit}\vee\mathit{evacuate})\bigr).
+    \]
+  \item[\texttt{EVENTUAL\_ARRIVAL}] ogni chiamata è seguita dal
+    servizio al piano dell'utente, se l'allarme viene risolto:
+    \[
+      \Box\bigl(\mathit{call}\Rightarrow
+      \mathsf{F}\mathit{enter}\bigr).
+    \]
+  \item[\texttt{EVENTUAL\_DELIVERY}] ogni selezione è seguita
+    dall'uscita oppure dall'evacuazione:
+    \[
+      \Box\bigl(\mathit{select}\Rightarrow
+      \mathsf{F}(\mathit{exit}\vee\mathit{evacuate})\bigr).
+    \]
+  \item[\texttt{STARVATION\_FREEDOM}] un utente che ha effettuato una
+    chiamata raggiunge prima o poi \texttt{enter}, assumendo fairness
+    e risoluzione dell'allarme:
+    \[
+      \Box\bigl(\mathit{call}\Rightarrow
+      \mathsf{F}\mathit{enter}\bigr).
+    \]
+\end{description}
+
+In LTSA la proprietà di mutua esclusione può essere espressa come
+processo parametrico:
+\begin{verbatim}
+property MUTUAL_EXCLUSION =
+    (enter[h:FLOORS][u:USER_IDX] -> IN_CABIN),
+IN_CABIN =
+    (exit[h:FLOORS][u:USER_IDX][t:FLOORS] ->
+        MUTUAL_EXCLUSION
+    |evacuate[h:FLOORS][u:USER_IDX] ->
+        MUTUAL_EXCLUSION).
+\end{verbatim}
+La stessa tecnica viene applicata alle proprietà di arrivo, consegna
+e assenza di starvation, mantenendo gli indici per distinguere
+utenti e piani.
+
+\section{Esito dell'analisi}
+La struttura del modello garantisce la mutua esclusione: \texttt{LIFT}
+abilita \texttt{enter} soltanto nello stato \texttt{EMPTY} e porta la
+cabina nello stato \texttt{FULL}. Le guardie del processo di coda
+garantiscono inoltre che solo il ticket con \texttt{k == 0} possa
+richiedere il servizio.
+
+Le proprietà di vivacità richiedono l'ipotesi di fairness delle
+transizioni abilitate e la risoluzione dell'allarme. Senza tale
+ipotesi, una sequenza infinita di allarmi è ammessa dal modello e
+rende impossibile garantire una consegna ordinaria. Il repository
+contiene il modello FSP aggiornato; l'output numerico della verifica
+LTSA non è tra gli artefatti presenti e va prodotto eseguendo le
+proprietà sul composto \texttt{SYS}.

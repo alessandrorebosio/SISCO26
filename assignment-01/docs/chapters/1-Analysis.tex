@@ -1,0 +1,94 @@
+\chapter{Analisi del dominio e dei requisiti}
+
+% ======================================================
+%
+% 1.1 - DESCRIZIONE DEL DOMINIO APPLICATIVO
+%
+% ======================================================
+\section{Descrizione del dominio applicativo}
+Il sistema analizzato modella il comportamento di un ascensore e dei suoi utilizzatori all'interno di un edificio a sviluppo verticale.
+
+% ======================================================
+% 1.1.1 - EDIFICIO E UTENTI
+% ======================================================
+\subsection{Edificio e utenti}
+\label{subsec:building_users}
+L'ambiente operativo è costituito da una struttura articolata su un numero finito $N$ di piani, identificati dall'insieme $\mathcal{F} = \{0, 1, \dots, N-1\}$.
+All'interno di questa configurazione, il piano $0$ assume convenzionalmente il ruolo di piano terra (\emph{ground floor}).
+Esso costituisce il punto cardine sia per l'accesso e l'uscita ordinaria dall'edificio, sia per le manovre di evacuazione rapida in situazioni di emergenza.
+
+A popolare l'edificio è presente un insieme di utenti distribuiti lungo i vari livelli:
+\begin{itemize}
+    \item a ciascun piano possono trovarsi contemporaneamente fino a $M$ persone intenzionate a utilizzare l'impianto di risalita;
+    \item ogni utente agisce come un agente autonomo e concorrente rispetto agli altri, caratterizzato dalla volontà di raggiungere un piano differente rispetto a quello in cui si trova attualmente.
+\end{itemize}
+Gli utenti dovranno quindi essere in grado di utilizzare l'ascensore per spostarsi all'interno dell'edificio.
+
+% ======================================================
+% 1.1.2 - CABINA E VINCOLO DI RISORSA
+% ======================================================
+\subsection{Cabina e vincolo di risorsa}
+L'impianto è composto da una singola cabina addetta alla movimentazione verticale degli utenti tra i vari piani.
+La caratteristica vincolante di tale risorsa risiede nella sua capacità strettamente unitaria ($Capacity = 1$): in nessun caso è consentito a più di una persona occupare lo spazio interno contemporaneamente.
+
+L'interazione tra gli utenti e il sistema dell'ascensore avviene attraverso due distinte interfacce fisiche.
+All'esterno della cabina, su ogni singolo piano, è presente un pulsante di chiamata (\emph{call button}) mediante il quale gli utenti in attesa segnalano la propria volontà di utilizzare l'ascensore.
+All'interno della cabina è invece installata una pulsantiera dotata di tasti di selezione (\emph{floor buttons}), accessibile unicamente al passeggero salito a bordo per indicare il piano di destinazione verso cui essere trasportato.
+
+% ======================================================
+% 1.1.3 - POLITICA DI SERVIZIO FIFO
+% ======================================================
+\subsection{Politica di servizio FIFO}
+Al fine di garantire equità di trattamento (\emph{fairness}) ed evitare situazioni in cui un utente venga ignorato o scavalcato indefinitamente (\emph{starvation}), gli utenti che richiedono l'ascensore su un determinato piano devono essere serviti rispettando l'ordine temporale di chiamata, attuando una politica di accodamento FIFO (\emph{First-In, First-Out}).
+
+% ======================================================
+%
+% 1.2 - GESTIONE DELL'ALLARME ANTINCENDIO
+%
+% ======================================================
+\section{Gestione dell'allarme antincendio}
+\label{sec:allarme}
+Il sistema dell'ascensore non opera completamente isolato, ma interagisce con un impianto antincendio esterno, in grado di generare in maniera asincrona un segnale di allarme in caso di incendio.
+
+A fronte della ricezione del segnale di incendio, la tutela dell'utente prevale in modo assoluto sull'ordinario funzionamento dell'ascensore.
+Il sistema attua pertanto la seguente sequenza di sicurezza:
+\begin{enumerate}
+    \item \textbf{Interruzione delle attività correnti}: l'ascensore interrompe le normali corse e sospende le chiamate registrate ai piani;
+    \item \textbf{Discesa prioritaria al piano terra}: la cabina si dirige verso il piano terra ($Floor = 0$), ignorando qualsiasi fermata intermedia;
+    \item \textbf{Apertura porte ed evacuazione}: una volta giunta al piano terra, le porte della cabina si aprono per permettere l'evacuazione dell'eventuale passeggero a bordo, garantendogli una via di fuga;
+    \item \textbf{Stato di attesa cautelativa (\emph{Safe Lockout})}: l'ascensore rimane fermo al piano terra con le porte aperte, impedendo qualsiasi comando di azionamento;
+    \item \textbf{Ripristino del servizio}: il blocco rimane attivo fino alla ricezione di un segnale esterno di risoluzione dell'allarme (\emph{alarm resolved}), a seguito del quale il sistema è autorizzato a ripristinare l'operatività.
+\end{enumerate}
+
+% ======================================================
+%
+% 1.3 - REQUISITI E PROPRIETÀ DI CORRETTEZZA FORMALE
+%
+% ======================================================
+\section{Requisiti e proprietà di correttezza formale}
+Sulla base della specifica del problema, il sistema concorrente deve soddisfare le proprietà di \emph{Safety} e \emph{Liveness}.
+
+% ======================================================
+% 1.3.1 - PROPRIETÀ DI SAFETY (SICUREZZA)
+% ======================================================
+\subsection{Proprietà di Safety (Sicurezza)}
+Le proprietà di sicurezza sanciscono formalmente che durante l'intera evoluzione temporale del sistema ``non deve mai verificarsi alcuno stato non consentito''.
+
+Nel contesto dell'ascensore, il requisito primario di sicurezza coincide con la \textbf{mutua esclusione della cabina} (\emph{mutual exclusion}).
+In nessun istante temporale e lungo alcuna traiettoria di esecuzione possono trovarsi due o più persone simultaneamente all'interno dell'ascensore.
+Indicando con $\text{Utenti\_in\_cabina}(t)$ il numero di occupanti a bordo all'istante $t$, il controllore deve garantire costantemente che:
+\[
+  \forall t \ge 0, \quad \text{Utenti\_in\_cabina}(t) \le 1
+\]
+
+% ======================================================
+% 1.3.2 - PROPRIETÀ DI LIVENESS (VIVACITÀ CONDIZIONATA)
+% ======================================================
+\subsection{Proprietà di Liveness (Vivacità condizionata)}
+Mentre le proprietà di sicurezza vietano configurazioni illegali, le proprietà di liveness stabiliscono che gli eventi desiderati dal sistema ``debbano prima o poi verificarsi nel tempo''.
+Nel nostro dominio tali proprietà possono essere violate in un particolare caso, in quanto l'arrivo di un allarme antincendio mette indefinitamente in pausa le promesse di servizio ordinario a favore della sicurezza degli utenti (fino alla cessazione dell'allarme):
+\begin{itemize}
+    \item \textbf{Arrivo al piano di chiamata (\emph{Eventual Arrival upon Call})}: a fronte della pressione del pulsante di chiamata da parte di un utente a un dato piano, la cabina deve prima o poi giungere a quel piano per consentire il servizio, a meno che non si manifesti uno stato di allarme antincendio;
+    \item \textbf{Consegna al piano desiderato (\emph{Eventual Delivery})}: quando un passeggero a bordo seleziona il piano prescelto, l'ascensore deve raggiungere tale destinazione, salvo il caso in cui un segnale di allarme costringa la cabina a dirigersi verso il piano terra per l'evacuazione dell'utente;
+    \item \textbf{Accesso al servizio ed assenza di starvation (\emph{Starvation Freedom})}: ciascun utente posizionato in attesa a un piano deve infine riuscire a salire a bordo della cabina, escludendo il verificarsi di un'emergenza antincendio che impedisce l'utilizzo dell'ascensore.
+\end{itemize}

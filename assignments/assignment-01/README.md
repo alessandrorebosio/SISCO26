@@ -32,7 +32,7 @@ The deliverable must be a zipped folder `Assignment-01`, to be submitted on the 
 
 ## Repository files
 
-- [`Lift_system.lts`](Lift_system.lts) contains the FSP model and the FLTL
+- [`lift_system.lts`](lift_system.lts) contains the FSP model and the FLTL
   properties checked with LTSA.
 - [`docs/`](docs/) contains the report sources and generated documentation.
 - The LTSA launcher is available at

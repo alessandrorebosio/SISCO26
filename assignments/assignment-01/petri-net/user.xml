@@ -1,105 +1,573 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<pnml>
-  <net id="user" type="P/T net">
-    <token id="Default" enabled="true" red="0" green="0" blue="0"/>
-
-    <place id="P_USER_AT_FLOOR">
-      <name><value>UserAtOriginFloor</value></name>
-      <graphics><position x="60" y="220"/><dimension x="30" y="30"/></graphics>
-      <initialMarking><value>1</value></initialMarking>
-    </place>
-    <place id="P_WAITING">
-      <name><value>Waiting</value></name>
-      <graphics><position x="260" y="220"/><dimension x="30" y="30"/></graphics>
-      <initialMarking><value>0</value></initialMarking>
-    </place>
-    <place id="P_INSIDE">
-      <name><value>InsideLift</value></name>
-      <graphics><position x="460" y="220"/><dimension x="30" y="30"/></graphics>
-      <initialMarking><value>0</value></initialMarking>
-    </place>
-    <place id="P_RIDING">
-      <name><value>Riding</value></name>
-      <graphics><position x="660" y="220"/><dimension x="30" y="30"/></graphics>
-      <initialMarking><value>0</value></initialMarking>
-    </place>
-    <place id="P_DELIVERED">
-      <name><value>Delivered</value></name>
-      <graphics><position x="900" y="150"/><dimension x="30" y="30"/></graphics>
-      <initialMarking><value>0</value></initialMarking>
-    </place>
-    <place id="P_EVACUATED">
-      <name><value>Evacuated</value></name>
-      <graphics><position x="900" y="300"/><dimension x="30" y="30"/></graphics>
-      <initialMarking><value>0</value></initialMarking>
-    </place>
-
-    <transition id="T_CALL">
-      <name><value>call</value></name>
-      <graphics><position x="160" y="220"/><dimension x="30" y="30"/></graphics>
-    </transition>
-    <transition id="T_ENTER">
-      <name><value>enter</value></name>
-      <graphics><position x="360" y="220"/><dimension x="30" y="30"/></graphics>
-    </transition>
-    <transition id="T_SELECT">
-      <name><value>select</value></name>
-      <graphics><position x="560" y="220"/><dimension x="30" y="30"/></graphics>
-    </transition>
-    <transition id="T_EXIT">
-      <name><value>exit</value></name>
-      <graphics><position x="780" y="150"/><dimension x="30" y="30"/></graphics>
-    </transition>
-    <transition id="T_EVACUATE">
-      <name><value>evacuate</value></name>
-      <graphics><position x="780" y="300"/><dimension x="30" y="30"/></graphics>
-    </transition>
-    <transition id="T_READY">
-      <name><value>readyForNextCall</value></name>
-      <graphics><position x="60" y="420"/><dimension x="30" y="30"/></graphics>
-    </transition>
-
-    <arc id="A1" source="P_USER_AT_FLOOR" target="T_CALL">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A2" source="T_CALL" target="P_WAITING">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A3" source="P_WAITING" target="T_ENTER">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A4" source="T_ENTER" target="P_INSIDE">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A5" source="P_INSIDE" target="T_SELECT">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A6" source="T_SELECT" target="P_RIDING">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A7" source="P_RIDING" target="T_EXIT">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A8" source="T_EXIT" target="P_DELIVERED">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A9" source="P_INSIDE" target="T_EVACUATE">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A10" source="P_RIDING" target="T_EVACUATE">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A11" source="T_EVACUATE" target="P_EVACUATED">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A12" source="P_DELIVERED" target="T_READY">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A13" source="P_EVACUATED" target="T_READY">
-      <inscription><value>1</value></inscription>
-    </arc>
-    <arc id="A14" source="T_READY" target="P_USER_AT_FLOOR">
-      <inscription><value>1</value></inscription>
-    </arc>
-  </net>
+<?xml version="1.0" encoding="ISO-8859-1"?><pnml>
+    <net id="Net-One" type="P/T net">
+        <token id="Default" enabled="true" red="0" green="0" blue="0"/>
+        <place id="P_IDLE_0">
+            <graphics>
+                <position x="105.0" y="300.0"/>
+            </graphics>
+            <name>
+                <value>idle_0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,1</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="P_IN_0">
+            <graphics>
+                <position x="615.0" y="300.0"/>
+            </graphics>
+            <name>
+                <value>in_0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="P_RIDE_0_0">
+            <graphics>
+                <position x="615.0" y="150.0"/>
+            </graphics>
+            <name>
+                <value>ride_0_0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="P_RIDE_0_1">
+            <graphics>
+                <position x="405.0" y="525.0"/>
+            </graphics>
+            <name>
+                <value>ride_0_1</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="P_WAIT_0">
+            <graphics>
+                <position x="360.0" y="300.0"/>
+            </graphics>
+            <name>
+                <value>wait_0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <transition id="T_CALL_0">
+            <graphics>
+                <position x="225.0" y="300.0"/>
+            </graphics>
+            <name>
+                <value>call[0]</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="T_ENTER_0">
+            <graphics>
+                <position x="495.0" y="300.0"/>
+            </graphics>
+            <name>
+                <value>enter[0]</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="T_EVACUATE_0">
+            <graphics>
+                <position x="405.0" y="75.0"/>
+            </graphics>
+            <name>
+                <value>evacuate[0]</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="T_EVACUATE_1">
+            <graphics>
+                <position x="195.0" y="450.0"/>
+            </graphics>
+            <name>
+                <value>evacuate[0]</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="T_EVACUATE_IN">
+            <graphics>
+                <position x="400.0" y="425.0"/>
+            </graphics>
+            <name>
+                <value>evacuate[0]</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="T_EXIT_0_0">
+            <graphics>
+                <position x="438.0" y="180.0"/>
+            </graphics>
+            <name>
+                <value>exit[0][0]</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="T_EXIT_0_1">
+            <graphics>
+                <position x="105.0" y="525.0"/>
+            </graphics>
+            <name>
+                <value>exit[0][1]</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="T_SELECT_0_0">
+            <graphics>
+                <position x="795.0" y="225.0"/>
+            </graphics>
+            <name>
+                <value>select[0][0]</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="T_SELECT_0_1">
+            <graphics>
+                <position x="795.0" y="420.0"/>
+            </graphics>
+            <name>
+                <value>select[0][1]</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <arc id="A1" source="P_IDLE_0" target="T_CALL_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="131" y="312" curvePoint="false"/>
+            <arcpath id="001" x="231" y="312" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A10" source="T_EVACUATE_IN" target="P_IDLE_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="406" y="437" curvePoint="false"/>
+            <arcpath id="001" x="130" y="317" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A11" source="P_RIDE_0_0" target="T_EXIT_0_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="612" y="164" curvePoint="false"/>
+            <arcpath id="001" x="454" y="192" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A12" source="T_EXIT_0_0" target="P_IDLE_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="444" y="192" curvePoint="false"/>
+            <arcpath id="001" x="131" y="306" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A13" source="P_RIDE_0_0" target="T_EVACUATE_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="612" y="156" curvePoint="false"/>
+            <arcpath id="001" x="421" y="87" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A14" source="T_EVACUATE_0" target="P_IDLE_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="411" y="87" curvePoint="false"/>
+            <arcpath id="001" x="128" y="302" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A15" source="P_RIDE_0_1" target="T_EXIT_0_1">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="402" y="537" curvePoint="false"/>
+            <arcpath id="001" x="121" y="537" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A16" source="T_EXIT_0_1" target="P_IDLE_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="117" y="522" curvePoint="false"/>
+            <arcpath id="001" x="117" y="326" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A17" source="P_RIDE_0_1" target="T_EVACUATE_1">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="402" y="531" curvePoint="false"/>
+            <arcpath id="001" x="211" y="462" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A18" source="T_EVACUATE_1" target="P_IDLE_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="201" y="462" curvePoint="false"/>
+            <arcpath id="001" x="124" y="325" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A2" source="T_CALL_0" target="P_WAIT_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="241" y="312" curvePoint="false"/>
+            <arcpath id="001" x="357" y="312" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A3" source="P_WAIT_0" target="T_ENTER_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="386" y="312" curvePoint="false"/>
+            <arcpath id="001" x="501" y="312" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A4" source="T_ENTER_0" target="P_IN_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="511" y="312" curvePoint="false"/>
+            <arcpath id="001" x="612" y="312" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A5" source="P_IN_0" target="T_SELECT_0_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="640" y="306" curvePoint="false"/>
+            <arcpath id="001" x="801" y="242" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A6" source="T_SELECT_0_0" target="P_RIDE_0_0">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="802" y="232" curvePoint="false"/>
+            <arcpath id="001" x="640" y="167" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A7" source="P_IN_0" target="T_SELECT_0_1">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="639" y="320" curvePoint="false"/>
+            <arcpath id="001" x="802" y="427" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A8" source="T_SELECT_0_1" target="P_RIDE_0_1">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="801" y="437" curvePoint="false"/>
+            <arcpath id="001" x="431" y="533" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="A9" source="P_IN_0" target="T_EVACUATE_IN">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="614" y="319" curvePoint="false"/>
+            <arcpath id="001" x="416" y="437" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+    </net>
 </pnml>

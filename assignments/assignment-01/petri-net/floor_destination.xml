@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="ISO-8859-1"?><pnml>
+    <net id="Net-One" type="P/T net">
+        <token id="Default" enabled="true" red="0" green="0" blue="0"/>
+        <place id="P_TGT_0">
+            <graphics><position x="150.0" y="220.0"/></graphics>
+            <name><value>tgt0</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <initialMarking><value>Default,1</value><graphics><offset x="0.0" y="0.0"/></graphics></initialMarking>
+            <capacity><value>0</value></capacity>
+        </place>
+        <place id="P_P0_TGT">
+            <graphics><position x="520.0" y="220.0"/></graphics>
+            <name><value>p0_tgt</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <initialMarking><value>Default,0</value><graphics><offset x="0.0" y="0.0"/></graphics></initialMarking>
+            <capacity><value>0</value></capacity>
+        </place>
+        <place id="P_TGT_1">
+            <graphics><position x="900.0" y="220.0"/></graphics>
+            <name><value>tgt1</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <initialMarking><value>Default,0</value><graphics><offset x="0.0" y="0.0"/></graphics></initialMarking>
+            <capacity><value>0</value></capacity>
+        </place>
+        <place id="P_FL_0">
+            <graphics><position x="150.0" y="520.0"/></graphics>
+            <name><value>fl0</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <initialMarking><value>Default,1</value><graphics><offset x="0.0" y="0.0"/></graphics></initialMarking>
+            <capacity><value>0</value></capacity>
+        </place>
+        <place id="P_FL_1">
+            <graphics><position x="520.0" y="520.0"/></graphics>
+            <name><value>fl1</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <initialMarking><value>Default,0</value><graphics><offset x="0.0" y="0.0"/></graphics></initialMarking>
+            <capacity><value>0</value></capacity>
+        </place>
+
+        <transition id="T_REQUEST_0">
+            <graphics><position x="350.0" y="320.0"/></graphics>
+            <name><value>request[0]</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <orientation><value>0</value></orientation><rate><value>1.0</value></rate>
+            <timed><value>false</value></timed><infiniteServer><value>false</value></infiniteServer><priority><value>1</value></priority>
+        </transition>
+        <transition id="T_REQUEST_1">
+            <graphics><position x="350.0" y="170.0"/></graphics>
+            <name><value>request[1]</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <orientation><value>0</value></orientation><rate><value>1.0</value></rate>
+            <timed><value>false</value></timed><infiniteServer><value>false</value></infiniteServer><priority><value>1</value></priority>
+        </transition>
+        <transition id="T_SELECT_0">
+            <graphics><position x="700.0" y="150.0"/></graphics>
+            <name><value>select[*][0]</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <orientation><value>0</value></orientation><rate><value>1.0</value></rate>
+            <timed><value>false</value></timed><infiniteServer><value>false</value></infiniteServer><priority><value>1</value></priority>
+        </transition>
+        <transition id="T_SELECT_1">
+            <graphics><position x="700.0" y="270.0"/></graphics>
+            <name><value>select[*][1]</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <orientation><value>0</value></orientation><rate><value>1.0</value></rate>
+            <timed><value>false</value></timed><infiniteServer><value>false</value></infiniteServer><priority><value>1</value></priority>
+        </transition>
+        <transition id="T_AT_1">
+            <graphics><position x="350.0" y="520.0"/></graphics>
+            <name><value>at[1]</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <orientation><value>0</value></orientation><rate><value>1.0</value></rate>
+            <timed><value>false</value></timed><infiniteServer><value>false</value></infiniteServer><priority><value>1</value></priority>
+        </transition>
+        <transition id="T_AT_0">
+            <graphics><position x="700.0" y="520.0"/></graphics>
+            <name><value>at[0]</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <orientation><value>0</value></orientation><rate><value>1.0</value></rate>
+            <timed><value>false</value></timed><infiniteServer><value>false</value></infiniteServer><priority><value>1</value></priority>
+        </transition>
+        <transition id="T_DOOR_CLOSED">
+            <graphics><position x="350.0" y="400.0"/></graphics>
+            <name><value>door_closed</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <orientation><value>0</value></orientation><rate><value>1.0</value></rate>
+            <timed><value>false</value></timed><infiniteServer><value>false</value></infiniteServer><priority><value>1</value></priority>
+        </transition>
+        <transition id="T_TAU_0">
+            <graphics><position x="150.0" y="400.0"/></graphics>
+            <name><value>τ</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <orientation><value>0</value></orientation><rate><value>1.0</value></rate>
+            <timed><value>false</value></timed><infiniteServer><value>false</value></infiniteServer><priority><value>1</value></priority>
+        </transition>
+        <transition id="T_TAU_1">
+            <graphics><position x="900.0" y="400.0"/></graphics>
+            <name><value>τ</value><graphics><offset x="0.0" y="0.0"/></graphics></name>
+            <orientation><value>0</value></orientation><rate><value>1.0</value></rate>
+            <timed><value>false</value></timed><infiniteServer><value>false</value></infiniteServer><priority><value>1</value></priority>
+        </transition>
+
+        <arc id="A1" source="P_TGT_0" target="T_REQUEST_0"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="170" y="230" curvePoint="false"/><arcpath id="001" x="340" y="330" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A2" source="T_REQUEST_0" target="P_P0_TGT"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="370" y="320" curvePoint="false"/><arcpath id="001" x="500" y="230" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A3" source="P_TGT_0" target="T_REQUEST_1"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="170" y="210" curvePoint="false"/><arcpath id="001" x="340" y="180" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A4" source="T_REQUEST_1" target="P_TGT_1"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="370" y="170" curvePoint="false"/><arcpath id="001" x="880" y="220" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A5" source="P_P0_TGT" target="T_SELECT_0"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="540" y="220" curvePoint="false"/><arcpath id="001" x="690" y="160" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A6" source="T_SELECT_0" target="P_TGT_0"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="710" y="160" curvePoint="false"/><arcpath id="001" x="180" y="220" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A7" source="P_P0_TGT" target="T_SELECT_1"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="540" y="230" curvePoint="false"/><arcpath id="001" x="690" y="280" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A8" source="T_SELECT_1" target="P_TGT_1"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="710" y="270" curvePoint="false"/><arcpath id="001" x="880" y="230" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A9" source="P_FL_0" target="T_AT_1"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="170" y="520" curvePoint="false"/><arcpath id="001" x="330" y="520" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A10" source="T_AT_1" target="P_FL_1"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="370" y="520" curvePoint="false"/><arcpath id="001" x="500" y="520" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A11" source="P_FL_1" target="T_AT_0"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="540" y="520" curvePoint="false"/><arcpath id="001" x="680" y="520" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A12" source="T_AT_0" target="P_FL_0"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="720" y="520" curvePoint="false"/><arcpath id="001" x="170" y="520" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A13" source="P_P0_TGT" target="T_DOOR_CLOSED"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="520" y="240" curvePoint="false"/><arcpath id="001" x="370" y="400" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A14" source="T_DOOR_CLOSED" target="P_P0_TGT"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="350" y="380" curvePoint="false"/><arcpath id="001" x="520" y="240" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A15" source="P_TGT_1" target="T_TAU_1"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="920" y="230" curvePoint="false"/><arcpath id="001" x="900" y="380" curvePoint="false"/><type value="normal"/></arc>
+        <arc id="A16" source="T_TAU_1" target="P_TGT_0"><graphics/><inscription><value>Default,1</value><graphics/></inscription><tagged><value>false</value></tagged><arcpath id="000" x="880" y="400" curvePoint="false"/><arcpath id="001" x="180" y="230" curvePoint="false"/><type value="normal"/></arc>
+    </net>
+</pnml>

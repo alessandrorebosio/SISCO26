@@ -2,9 +2,10 @@
 setlocal
 
 set "SCRIPT_DIR=%~dp0"
-set "APP_DIR=%SCRIPT_DIR%app"
-set "LTL2BUCHI_JAR=%APP_DIR%\ltl2buchi.jar"
-set "LTSA_JAR=%APP_DIR%\ltsa.jar"
+set "REPO_DIR=%SCRIPT_DIR%.."
+set "LTSA_DIR=%REPO_DIR%\tools\ltsa"
+set "LTL2BUCHI_JAR=%LTSA_DIR%\ltl2buchi.jar"
+set "LTSA_JAR=%LTSA_DIR%\ltsa.jar"
 
 where java >nul 2>&1
 if errorlevel 1 (

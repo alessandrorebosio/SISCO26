@@ -1,5 +1,25 @@
-# Ignore macOS system files
+# Operating-system files
 .DS_Store
+Thumbs.db
 
-# Ignore Visual Studio Code configuration folder
+# Local editor settings and temporary files
 .vscode/
+*.swp
+*.swo
+*~
+
+# Legacy version-control metadata
+**/.svn/
+**/CVS/
+
+# LaTeX build output
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.synctex.blg
+*.toc

@@ -29,3 +29,18 @@ Properties that the system should have:
 The deliverable must be a zipped folder `Assignment-01`, to be submitted on the course web site, including:
 - A report (in PDF or MD), briefly describing the proposed solution, including all three points (model in FSP, model in Petri Nets, properties in FTFL and result of the analysis using the LTSA tool).
 - A text based *.lts file containing the sources in FSP.
+
+## Repository files
+
+- [`Lift_system.lts`](Lift_system.lts) contains the FSP model and the FLTL
+  properties checked with LTSA.
+- [`docs/`](docs/) contains the report sources and generated documentation.
+- The LTSA launcher is available at
+  [`../../scripts/run-ltsa.sh`](../../scripts/run-ltsa.sh) or
+  [`../../scripts/run-ltsa.bat`](../../scripts/run-ltsa.bat).
+- The PIPE launcher is available at
+  [`../../scripts/run-pipe.sh`](../../scripts/run-pipe.sh) or
+  [`../../scripts/run-pipe.bat`](../../scripts/run-pipe.bat).
+
+The Petri-net model belongs under [`petri-net/`](petri-net/) when added to the
+assignment.

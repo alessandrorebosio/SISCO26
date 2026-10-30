@@ -14,7 +14,7 @@ scripts/
 └── run-pipe.sh / .bat       # Start PIPE
 assignments/
 └── assignment-01/
-    ├── Lift_system.lts      # FSP model for the lift system
+    ├── lift_system.lts      # FSP model for the lift system
     └── docs/                # Assignment report sources
 ```
 

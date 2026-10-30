@@ -1,7 +1,9 @@
 \chapter{Proprietà FLTL e verifica}
 
-Le proprietà di vivacità sono condizionate all'assenza di un allarme
-attivo, poiché l'evacuazione ha priorità sul servizio ordinario.
+Le proprietà riportate di seguito sono quelle effettivamente definite
+nel modello FSP. La gestione dell'allarme è incorporata nelle proprietà:
+la coda sopravvive all'evacuazione, mentre una corsa interrotta può
+terminare con l'evento \texttt{evacuate}.
 \begin{description}
   \item[\texttt{MUTUAL\_EXCLUSION}] dopo un ingresso, prima di un
     nuovo ingresso devono avvenire \texttt{exit} oppure
@@ -12,10 +14,11 @@ attivo, poiché l'evacuazione ha priorità sul servizio ordinario.
       (\mathit{exit}\vee\mathit{evacuate})\bigr).
     \]
   \item[\texttt{EVENTUAL\_ARRIVAL}] ogni chiamata è seguita dal
-    servizio al piano dell'utente, se l'allarme viene risolto:
+    raggiungimento del piano dell'utente con le porte aperte:
     \[
       \Box\bigl(\mathit{call}\Rightarrow
-      \mathsf{F}\mathit{enter}\bigr).
+      \mathsf{F}(\mathit{LIFT\_AT}(h)\land
+      \mathit{DOORS\_OPEN})\bigr).
     \]
   \item[\texttt{EVENTUAL\_DELIVERY}] ogni selezione è seguita
     dall'uscita oppure dall'evacuazione:
@@ -24,10 +27,10 @@ attivo, poiché l'evacuazione ha priorità sul servizio ordinario.
       \mathsf{F}(\mathit{exit}\vee\mathit{evacuate})\bigr).
     \]
   \item[\texttt{STARVATION\_FREEDOM}] un utente che ha effettuato una
-    chiamata raggiunge prima o poi \texttt{enter}, assumendo fairness
-    e risoluzione dell'allarme:
+    chiamata e si trova nello stato di attesa raggiunge prima o poi
+    \texttt{enter}:
     \[
-      \Box\bigl(\mathit{call}\Rightarrow
+      \Box\bigl(\mathit{WAITING}(h,u)\Rightarrow
       \mathsf{F}\mathit{enter}\bigr).
     \]
 \end{description}
@@ -43,9 +46,9 @@ IN_CABIN =
     |evacuate[h:FLOORS][u:USER_IDX] ->
         MUTUAL_EXCLUSION).
 \end{verbatim}
-La stessa tecnica viene applicata alle proprietà di arrivo, consegna
-e assenza di starvation, mantenendo gli indici per distinguere
-utenti e piani.
+Nel modello, le proprietà sono parametrizzate sugli stessi indici
+\texttt{FLOORS}, \texttt{USER\_IDX} e, per la consegna,
+\texttt{FLOORS} della destinazione.
 
 \section{Esito dell'analisi}
 La struttura del modello garantisce la mutua esclusione: \texttt{LIFT}
@@ -54,10 +57,11 @@ cabina nello stato \texttt{FULL}. Le guardie del processo di coda
 garantiscono inoltre che solo il ticket con \texttt{k == 0} possa
 richiedere il servizio.
 
-Le proprietà di vivacità richiedono l'ipotesi di fairness delle
-transizioni abilitate e la risoluzione dell'allarme. Senza tale
-ipotesi, una sequenza infinita di allarmi è ammessa dal modello e
-rende impossibile garantire una consegna ordinaria. Il repository
-contiene il modello FSP aggiornato; l'output numerico della verifica
-LTSA non è tra gli artefatti presenti e va prodotto eseguendo le
-proprietà sul composto \texttt{SYS}.
+Le proprietà di vivacità sono verificate sotto l'ipotesi di scelta
+fair di LTSA. \texttt{EVENTUAL\_ARRIVAL} e
+\texttt{STARVATION\_FREEDOM} possono attraversare un allarme, perché
+la coda viene conservata e il servizio riprende dopo
+\texttt{alarm\_solved}. \texttt{EVENTUAL\_DELIVERY} ammette invece
+\texttt{evacuate} come alternativa all'uscita alla destinazione.
+L'output numerico della verifica LTSA non è tra gli artefatti presenti
+e va prodotto eseguendo le proprietà sul composto \texttt{SYS}.

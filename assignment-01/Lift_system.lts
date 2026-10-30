@@ -189,3 +189,47 @@ FIRE_ALARM = (alarm -> alarm_solved -> FIRE_ALARM).	// Alternates between alarm 
 	+--------------------------------------+
 */
 ||SYS = (LIFT || USERS || CALL_QUEUE || FIRE_ALARM).
+
+/*
+	+--------------------------------------+
+	|          FLUENTS (FLTL)              |
+	+--------------------------------------+
+
+	Index dictionary:
+	- f = lift floor
+	- h = user's floor
+	- u = user index
+*/
+
+set LIFT_POSITIONS = {at[FLOORS]}																// All the floors the lift can reach
+
+fluent LIFT_AT[f:FLOORS] = <at[f], LIFT_POSITIONS \ {at[f]}> initially (f == GROUND_FLOOR)		// The lift is at floor f
+fluent DOORS_OPEN = <door_opened, door_closed>													// The lift doors are open
+fluent WAITING[h:FLOORS][u:USER_IDX] = <call[h][u], enter[h][u]>								// User u of floor h has called and has not boarded yet
+
+/*
+	+--------------------------------------+
+	|          PROPERTIES (FLTL)           |
+	+--------------------------------------+
+
+	LTSA checks the liveness properties under the fair choice assumption, so every
+	execution raises the alarm infinitely often ([]<>alarm holds) and an escape such as
+	"<>(... || alarm)" would make every property trivially true. The alarm case is
+	therefore handled without that escape:
+	- EVENTUAL_ARRIVAL and STARVATION_FREEDOM hold even across alarms, because the
+	  call queue survives the evacuation and the service resumes after alarm_solved;
+	- EVENTUAL_DELIVERY allows the evacuation as the only alternative to reaching the
+	  selected floor, since that is the only way an alarm can interrupt a ride.
+*/
+
+// SAFETY: only one user at a time in the cabin (after an enter, no other enter before exit/evacuate)
+assert MUTUAL_EXCLUSION = [](enter[FLOORS][USER_IDX] -> X(!enter[FLOORS][USER_IDX] W {exit[FLOORS][USER_IDX][FLOORS], evacuate[FLOORS][USER_IDX]}))
+
+// LIVENESS: if a user calls the lift, the lift eventually reaches the user's floor and opens the doors
+assert EVENTUAL_ARRIVAL = forall[h:FLOORS][u:USER_IDX] [](call[h][u] -> <>(LIFT_AT[h] && DOORS_OPEN))
+
+// LIVENESS: a passenger who selects floor d eventually exits at floor d (unless evacuated because of an alarm)
+assert EVENTUAL_DELIVERY = forall[h:FLOORS][u:USER_IDX][d:FLOORS] [](select[h][u][d] -> <>(exit[h][u][d] || evacuate[h][u]))
+
+// LIVENESS: a user waiting at a floor eventually gets the lift
+assert STARVATION_FREEDOM = forall[h:FLOORS][u:USER_IDX] [](WAITING[h][u] -> <>enter[h][u])

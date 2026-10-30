@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pnml>
+  <net id="user" type="P/T net">
+    <token id="Default" enabled="true" red="0" green="0" blue="0"/>
+
+    <place id="P_USER_AT_FLOOR">
+      <name><value>UserAtOriginFloor</value></name>
+      <graphics><position x="60" y="220"/><dimension x="30" y="30"/></graphics>
+      <initialMarking><value>1</value></initialMarking>
+    </place>
+    <place id="P_WAITING">
+      <name><value>Waiting</value></name>
+      <graphics><position x="260" y="220"/><dimension x="30" y="30"/></graphics>
+      <initialMarking><value>0</value></initialMarking>
+    </place>
+    <place id="P_INSIDE">
+      <name><value>InsideLift</value></name>
+      <graphics><position x="460" y="220"/><dimension x="30" y="30"/></graphics>
+      <initialMarking><value>0</value></initialMarking>
+    </place>
+    <place id="P_RIDING">
+      <name><value>Riding</value></name>
+      <graphics><position x="660" y="220"/><dimension x="30" y="30"/></graphics>
+      <initialMarking><value>0</value></initialMarking>
+    </place>
+    <place id="P_DELIVERED">
+      <name><value>Delivered</value></name>
+      <graphics><position x="900" y="150"/><dimension x="30" y="30"/></graphics>
+      <initialMarking><value>0</value></initialMarking>
+    </place>
+    <place id="P_EVACUATED">
+      <name><value>Evacuated</value></name>
+      <graphics><position x="900" y="300"/><dimension x="30" y="30"/></graphics>
+      <initialMarking><value>0</value></initialMarking>
+    </place>
+
+    <transition id="T_CALL">
+      <name><value>call</value></name>
+      <graphics><position x="160" y="220"/><dimension x="30" y="30"/></graphics>
+    </transition>
+    <transition id="T_ENTER">
+      <name><value>enter</value></name>
+      <graphics><position x="360" y="220"/><dimension x="30" y="30"/></graphics>
+    </transition>
+    <transition id="T_SELECT">
+      <name><value>select</value></name>
+      <graphics><position x="560" y="220"/><dimension x="30" y="30"/></graphics>
+    </transition>
+    <transition id="T_EXIT">
+      <name><value>exit</value></name>
+      <graphics><position x="780" y="150"/><dimension x="30" y="30"/></graphics>
+    </transition>
+    <transition id="T_EVACUATE">
+      <name><value>evacuate</value></name>
+      <graphics><position x="780" y="300"/><dimension x="30" y="30"/></graphics>
+    </transition>
+    <transition id="T_READY">
+      <name><value>readyForNextCall</value></name>
+      <graphics><position x="60" y="420"/><dimension x="30" y="30"/></graphics>
+    </transition>
+
+    <arc id="A1" source="P_USER_AT_FLOOR" target="T_CALL">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A2" source="T_CALL" target="P_WAITING">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A3" source="P_WAITING" target="T_ENTER">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A4" source="T_ENTER" target="P_INSIDE">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A5" source="P_INSIDE" target="T_SELECT">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A6" source="T_SELECT" target="P_RIDING">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A7" source="P_RIDING" target="T_EXIT">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A8" source="T_EXIT" target="P_DELIVERED">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A9" source="P_INSIDE" target="T_EVACUATE">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A10" source="P_RIDING" target="T_EVACUATE">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A11" source="T_EVACUATE" target="P_EVACUATED">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A12" source="P_DELIVERED" target="T_READY">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A13" source="P_EVACUATED" target="T_READY">
+      <inscription><value>1</value></inscription>
+    </arc>
+    <arc id="A14" source="T_READY" target="P_USER_AT_FLOOR">
+      <inscription><value>1</value></inscription>
+    </arc>
+  </net>
+</pnml>

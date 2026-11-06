@@ -98,30 +98,49 @@ Questa astrazione è sufficiente, perché per l'ascensore qualunque tipo di alla
 %
 % ======================================================
 \section{Reti di Petri}
+Per la rete di Petri si è scelto un modello più astratto rispetto alla traduzione letterale dell'FSP, che avrebbe prodotto una rete molto grande e incomprensibile senza aggiungere informazione utile.
+La rete, contenuta nel file \texttt{lift\_petri\_net.xml} e creata con lo strumento PIPE v4.3.0, è riportata in \cref{fig:petri_net}.
 
-La stessa dinamica può essere rappresentata con una rete di Petri
-colorata, usando i colori \texttt{floor}, \texttt{user} e
-\texttt{destination}. Le piazze principali sono:
-\begin{itemize}
-  \item \textbf{LiftAt(f)}, con un token nella posizione corrente;
-  \item \textbf{CabinEmpty} e \textbf{CabinOccupied(u)}, che modellano
-    la capacità unitaria;
-  \item \textbf{Waiting(u,f)} e \textbf{Queue(k,u,f)}, per utenti e
-    posizioni nella coda;
-  \item \textbf{DoorsOpen(f)} e \textbf{DoorsClosed(f)};
-  \item \textbf{AlarmActive} e \textbf{AlarmResolved}.
-\end{itemize}
+% ======================================================
+% 2.2.1 - STRUTTURA
+% ======================================================
+\subsection{Struttura}
+Le etichette di posti e transizioni relativi a un piano riportano tra parentesi quadre l’indice del piano: \texttt{etichetta[f]} si riferisce al piano $\texttt{f}$.
+A titolo di esempio è riportato un modello composto da 2 piani e 3 utenti per piano.
 
-Le transizioni \textbf{Call}, \textbf{Request}, \textbf{Board},
-\textbf{Select} e \textbf{Exit} corrispondono agli eventi FSP. La
-transizione \textbf{Board} richiede un token in \textbf{CabinEmpty} e
-lo sostituisce con \textbf{CabinOccupied(u)}; il posto
-\textbf{CabinEmpty} viene marcato nuovamente solo da \textbf{Exit} o
-\textbf{Evacuate}. La coda FIFO è ottenuta facendo avanzare il token
-dell'utente verso la testa dopo ogni ingresso di un utente precedente.
+La cabina è rappresentata da un unico token che cambia posto a seconda dello stato dell'ascensore.
+Proprio perché il token è uno solo, la capacità unitaria della cabina è garantita dalla struttura stessa della rete.
+I singoli utenti sono rappresentati dai token nei posti \texttt{user[f]} e \texttt{user\_waiting[f]} (in attesa dell'ascensore).
+Quando un utente arriva a destinazione, il suo token viene aggiunto agli utenti fermi al piano di arrivo (\texttt{user[f]}), da cui potrà effettuare una nuova chiamata.
 
-La transizione \textbf{Alarm} abilita il sottografo di emergenza,
-disabilita le transizioni ordinarie e porta il token
-\textbf{LiftAt(f)} verso \textbf{LiftAt(0)}. Da qui
-\textbf{OpenForEvacuation} rimuove il token del passeggero, mentre
-\textbf{AlarmSolved} riabilita il sottografo ordinario.
+Le transizioni \texttt{call}, \texttt{at}, \texttt{door\_opened}, \texttt{enter}, \texttt{select} ed \texttt{exit} corrispondono alle azioni omonime del modello FSP.
+La transizione \texttt{obstacle} modella il sensore di ostacolo: interrompe l'ingresso (\texttt{entering}), riapre le porte e riporta l'utente in attesa.
+
+\begin{landscape}
+    \begin{figure}[p]
+        \centering
+        \includegraphics[width=0.89\linewidth]{petri_net.png}
+        \caption{Rete di Petri dell'ascensore, con 2 piani e 3 utenti per piano}
+        \label{fig:petri_net}
+    \end{figure}
+\end{landscape}
+
+% ======================================================
+% 2.2.2 - LIMITI
+% ======================================================
+\subsection{Limiti}
+\subsubsection{Allarme antincendio non modellato}
+La rete descrive solo il comportamento ordinario del sistema.
+La gestione dell'allarme, che richiede di poter interrompere l'ascensore in qualsiasi stato, è trattata nel modello FSP e verificata con LTSA.
+Nella rete andrebbe aggiunta con due posti (allarme attivo / spento) connessi da una transizione che segnala l'allarme.
+Un arco inibitore dal posto di allarme attivo a ciascuna transizione ordinaria ne bloccherebbe lo scatto, interrompendo qualsiasi attività in corso.
+Per ogni stato in cui può trovarsi la cabina servirebbe poi una transizione di evacuazione, abilitata dalla presenza del token di allarme, che porta la cabina al piano terra con le porte aperte.
+Se a bordo c'è un passeggero, la stessa transizione lo rilascia al piano terra, rimettendolo tra gli utenti fermi, come l'azione \texttt{evacuate} dell'FSP.
+La cabina resterebbe in attesa finché una transizione di fine allarme non ripristinasse il servizio.
+
+\subsubsection{Nessuna coda FIFO}
+Le chiamate sono possibili solo con la cabina ferma (\texttt{idle[f]}); chi chiama per primo è deciso da una scelta non deterministica.
+
+\subsubsection{Astrazione di porte e movimento}
+Non sono modellati i timeout di chiusura né i pulsanti di apertura/chiusura.
+Anche il percorso tra piani è stato collassato in un singolo passo.

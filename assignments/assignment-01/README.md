@@ -32,8 +32,8 @@ The deliverable must be a zipped folder `Assignment-01`, to be submitted on the 
 
 ## Repository files
 
-- [`lift_system.lts`](lift_system.lts) contains the FSP model and the FLTL
-  properties checked with LTSA.
+- [`lift_system.lts`](lift_system.lts) contains the FSP model and the FLTL properties checked with LTSA.
+- [`lift_petri_net.xml`](lift_petri_net.xml) contains the Petri Net model created with Pipe v4.3.0.
 - [`docs/`](docs/) contains the report sources and generated documentation.
 - The LTSA launcher is available at
   [`../../scripts/run-ltsa.sh`](../../scripts/run-ltsa.sh) or
@@ -41,6 +41,3 @@ The deliverable must be a zipped folder `Assignment-01`, to be submitted on the 
 - The PIPE launcher is available at
   [`../../scripts/run-pipe.sh`](../../scripts/run-pipe.sh) or
   [`../../scripts/run-pipe.bat`](../../scripts/run-pipe.bat).
-
-The Petri-net model belongs under [`petri-net/`](petri-net/) when added to the
-assignment.

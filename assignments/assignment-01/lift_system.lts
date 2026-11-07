@@ -212,14 +212,10 @@ fluent WAITING[h:FLOORS][u:USER_IDX] = <call[h][u], enter[h][u]>								// User 
 	|          PROPERTIES (FLTL)           |
 	+--------------------------------------+
 
-	LTSA checks the liveness properties under the fair choice assumption, so every
-	execution raises the alarm infinitely often ([]<>alarm holds) and an escape such as
-	"<>(... || alarm)" would make every property trivially true. The alarm case is
-	therefore handled without that escape:
-	- EVENTUAL_ARRIVAL and STARVATION_FREEDOM hold even across alarms, because the
-	  call queue survives the evacuation and the service resumes after alarm_solved;
-	- EVENTUAL_DELIVERY allows the evacuation as the only alternative to reaching the
-	  selected floor, since that is the only way an alarm can interrupt a ride.
+	Index dictionary:
+	- h = user's floor
+	- u = user index
+	- d = user's destination floor
 */
 
 // SAFETY: only one user at a time in the cabin (after an enter, no other enter before exit/evacuate)

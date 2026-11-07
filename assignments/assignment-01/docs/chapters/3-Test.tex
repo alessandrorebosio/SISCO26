@@ -1,67 +1,92 @@
 \chapter{Proprietà FLTL e verifica}
+In questo capitolo le proprietà richieste, riportate in fase di analisi (vedi \cref{sec:proprieta}), vengono formalizzate in FLTL (\emph{Fluent Linear Temporal Logic}), perché devono essere soddisfatte in ogni scenario possibile.
+Le formule sono state poi inserite nel modello FSP come \texttt{assert} e verificate con LTSA sul sistema completo.
 
-Le proprietà riportate di seguito sono quelle effettivamente definite
-nel modello FSP. La gestione dell'allarme è incorporata nelle proprietà:
-la coda sopravvive all'evacuazione, mentre una corsa interrotta può
-terminare con l'evento \texttt{evacuate}.
+% ======================================================
+%
+% 3.1 - DEFINIZIONE
+%
+% ======================================================
+\section{Definizione}
+Nelle seguenti sezioni sono utilizzati gli stessi indici del modello, ovvero piano della cabina \texttt{f}, piano dell'utente \texttt{h}, indice dell'utente \texttt{u} e piano di destinazione \texttt{d}.
+
+% ======================================================
+% 3.1.1 - FLUENTI
+% ======================================================
+\subsection{Fluenti}
+Per poter definire le proprietà richieste, si è reso necessario introdurre tre fluenti, ovvero condizioni che possono essere vere o false e che cambiano nel tempo in base alle azioni avvenute.
+
 \begin{description}
-  \item[\texttt{MUTUAL\_EXCLUSION}] dopo un ingresso, prima di un
-    nuovo ingresso devono avvenire \texttt{exit} oppure
-    \texttt{evacuate}:
-    \[
-      \Box\bigl(\mathit{enter}\Rightarrow
-      \neg\mathit{enter}\ \mathsf{U}\
-      (\mathit{exit}\vee\mathit{evacuate})\bigr).
-    \]
-  \item[\texttt{EVENTUAL\_ARRIVAL}] ogni chiamata è seguita dal
-    raggiungimento del piano dell'utente con le porte aperte:
-    \[
-      \Box\bigl(\mathit{call}\Rightarrow
-      \mathsf{F}(\mathit{LIFT\_AT}(h)\land
-      \mathit{DOORS\_OPEN})\bigr).
-    \]
-  \item[\texttt{EVENTUAL\_DELIVERY}] ogni selezione è seguita
-    dall'uscita oppure dall'evacuazione:
-    \[
-      \Box\bigl(\mathit{select}\Rightarrow
-      \mathsf{F}(\mathit{exit}\vee\mathit{evacuate})\bigr).
-    \]
-  \item[\texttt{STARVATION\_FREEDOM}] un utente che ha effettuato una
-    chiamata e si trova nello stato di attesa raggiunge prima o poi
-    \texttt{enter}:
-    \[
-      \Box\bigl(\mathit{WAITING}(h,u)\Rightarrow
-      \mathsf{F}\mathit{enter}\bigr).
-    \]
+    \item[\texttt{LIFT\_AT[f]}] vero quando la cabina è al piano \texttt{f}. Si accende con \texttt{at[f]} e si spegne quando la cabina raggiunge un altro piano. Inizialmente è vero solo per il piano terra.
+    \item[\texttt{DOORS\_OPEN}] vero quando le porte sono aperte. Si accende con \texttt{door\_opened} e si spegne con \texttt{door\_closed}.
+    \item[\texttt{WAITING[h][u]}] vero quando l'utente \texttt{u} del piano \texttt{h} ha chiamato l'ascensore e non è ancora salito. Si accende con \texttt{call[h][u]} e si spegne con \texttt{enter[h][u]}.
 \end{description}
 
-In LTSA la proprietà di mutua esclusione può essere espressa come
-processo parametrico:
-\begin{verbatim}
-property MUTUAL_EXCLUSION =
-    (enter[h:FLOORS][u:USER_IDX] -> IN_CABIN),
-IN_CABIN =
-    (exit[h:FLOORS][u:USER_IDX][t:FLOORS] ->
-        MUTUAL_EXCLUSION
-    |evacuate[h:FLOORS][u:USER_IDX] ->
-        MUTUAL_EXCLUSION).
-\end{verbatim}
-Nel modello, le proprietà sono parametrizzate sugli stessi indici
-\texttt{FLOORS}, \texttt{USER\_IDX} e, per la consegna,
-\texttt{FLOORS} della destinazione.
+Le definizioni in FSP sono le seguenti:
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+set LIFT_POSITIONS = {at[FLOORS]}
+fluent LIFT_AT[f:FLOORS] = <at[f], LIFT_POSITIONS \ {at[f]}>
+                           initially (f == GROUND_FLOOR)
+fluent DOORS_OPEN        = <door_opened, door_closed>
+fluent WAITING[h:FLOORS][u:USER_IDX] = <call[h][u], enter[h][u]>
+\end{lstlisting}
 
-\section{Esito dell'analisi}
-La struttura del modello garantisce la mutua esclusione: \texttt{LIFT}
-abilita \texttt{enter} soltanto nello stato \texttt{EMPTY} e porta la
-cabina nello stato \texttt{FULL}. Le guardie del processo di coda
-garantiscono inoltre che solo il ticket con \texttt{k == 0} possa
-richiedere il servizio.
+Nelle formule compaiono anche i nomi delle azioni del modello (ad esempio \texttt{call[h][u]} o \texttt{enter}): sono \emph{fluenti d'azione}, veri solo nell'istante in cui l'azione avviene.
 
-Le proprietà di vivacità sono verificate sotto l'ipotesi di scelta
-fair di LTSA. \texttt{EVENTUAL\_ARRIVAL} e
-\texttt{STARVATION\_FREEDOM} possono attraversare un allarme, perché
-la coda viene conservata e il servizio riprende dopo
-\texttt{alarm\_solved}. \texttt{EVENTUAL\_DELIVERY} ammette invece
-\texttt{evacuate} come alternativa all'uscita alla destinazione.
-L'output numerico della verifica LTSA non è tra gli artefatti presenti
-e va prodotto eseguendo le proprietà sul composto \texttt{SYS}.
+% ======================================================
+% 3.1.2 - PROPRIETA'
+% ======================================================
+\needspace{3\baselineskip}
+\subsection{Proprietà}
+Le proprietà sono espresse in FLTL, usando gli operatori $\Box$ (\emph{always}), $\Diamond$ (\emph{eventually}), $\mathsf{X}$ (\emph{next}) e $\mathsf{W}$ (\emph{weak until}).
+
+\begin{description}
+    \item[\texttt{MUTUAL\_EXCLUSION}] dopo un ingresso, finché non avviene \texttt{exit} oppure \texttt{evacuate}, non può avvenire un nuovo ingresso, così da garantire che al massimo un utente sia presente in cabina.
+    È una proprietà di sicurezza, quindi si usa il \emph{weak until}, che non impone che l'uscita avvenga:
+        \[
+        \Box\,\bigl(\texttt{enter} \Rightarrow \mathsf{X}\,(\neg\texttt{enter}\ \mathsf{W}\ (\texttt{exit} \lor \texttt{evacuate}))\bigr)
+        \]
+    \item[\texttt{EVENTUAL\_ARRIVAL}] ogni chiamata dell'utente \texttt{u} del piano \texttt{h} è seguita dal raggiungimento del piano \texttt{h} con le porte aperte:
+        \[
+        \Box\,\bigl(\texttt{call[h][u]} \Rightarrow \Diamond\,(\texttt{LIFT\_AT[h]} \land \texttt{DOORS\_OPEN})\bigr)
+        \]
+    \item[\texttt{EVENTUAL\_DELIVERY}] ogni selezione del piano \texttt{d} è seguita dall'uscita a quel piano oppure dall'evacuazione:
+        \[
+        \Box\,\bigl(\texttt{select[h][u][d]} \Rightarrow \Diamond\,(\texttt{exit[h][u][d]} \lor \texttt{evacuate[h][u]})\bigr)
+        \]
+    \item[\texttt{STARVATION\_FREEDOM}] un utente in attesa, cioè che ha effettuato una chiamata e non è ancora salito, entra prima o poi in cabina:
+        \[
+        \Box\,\bigl(\texttt{WAITING[h][u]} \Rightarrow \Diamond\,\texttt{enter[h][u]}\bigr)
+        \]
+\end{description}
+
+% ======================================================
+%
+% 3.2 - ESITO DELLA VERIFICA
+%
+% ======================================================
+\section{Esito della verifica}
+Le proprietà sono state verificate con LTSA sul sistema completo \texttt{SYS}, con i parametri seguenti:
+\begin{itemize}
+    \item $N = 3$ piani, numerati da 0 a 2, con il piano 0 come piano terra;
+    \item $M = 2$ utenti per piano, quindi 6 utenti in totale.
+\end{itemize}
+Con questa configurazione il sistema ha 117\,378 stati raggiungibili.
+Tutte le proprietà risultano verificate, come mostrato in \cref{tab:risultati_ltsa}: LTSA non ha riportato alcuna violazione.
+L'analisi di sicurezza non ha inoltre rilevato né errori né deadlock.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lrrrl}
+        \toprule
+        Proprietà & Stati & Transizioni & Tempo & Esito \\
+        \midrule
+        \texttt{MUTUAL\_EXCLUSION}   & 117\,378   & 384\,467   & 250 ms  & verificata \\
+        \texttt{EVENTUAL\_ARRIVAL}   & 1\,316\,689 & 4\,695\,108 & 5251 ms & verificata \\
+        \texttt{EVENTUAL\_DELIVERY}  & 137\,584   & 431\,952   & 228 ms  & verificata \\
+        \texttt{STARVATION\_FREEDOM} & 1\,330\,567 & 7\,224\,485 & 6865 ms & verificata \\
+        \bottomrule
+    \end{tabular}
+    \caption{Risultati della verifica con LTSA ($N = 3$, $M = 2$).}
+    \label{tab:risultati_ltsa}
+\end{table}

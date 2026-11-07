@@ -66,6 +66,7 @@ Il sistema attua pertanto la seguente sequenza di sicurezza:
 %
 % ======================================================
 \section{Requisiti e proprietà di correttezza formale}
+\label{sec:proprieta}
 Sulla base della specifica del problema, il sistema concorrente deve soddisfare le proprietà di \emph{Safety} e \emph{Liveness}.
 
 % ======================================================
@@ -74,7 +75,7 @@ Sulla base della specifica del problema, il sistema concorrente deve soddisfare 
 \subsection{Proprietà di Safety (Sicurezza)}
 Le proprietà di sicurezza sanciscono formalmente che durante l'intera evoluzione temporale del sistema ``non deve mai verificarsi alcuno stato non consentito''.
 
-Nel contesto dell'ascensore, il requisito primario di sicurezza coincide con la \textbf{mutua esclusione della cabina} (\emph{mutual exclusion}).
+Nel contesto dell'ascensore, il requisito primario di sicurezza coincide con la \textbf{mutua esclusione della cabina} (\textbf{\emph{Mutual Exclusion}}).
 In nessun istante temporale e lungo alcuna traiettoria di esecuzione possono trovarsi due o più persone simultaneamente all'interno dell'ascensore.
 Indicando con $\text{Utenti\_in\_cabina}(t)$ il numero di occupanti a bordo all'istante $t$, il controllore deve garantire costantemente che:
 \[

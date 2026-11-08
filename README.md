@@ -1,4 +1,4 @@
-# SISCO26
+# SISCO26
 
 Repository for the Concurrent Systems course.
 

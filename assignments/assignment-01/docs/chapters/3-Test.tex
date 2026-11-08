@@ -4,14 +4,14 @@ Le formule sono state poi inserite nel modello FSP come \texttt{assert} e verifi
 
 % ======================================================
 %
-% 3.1 - DEFINIZIONE
+% 3.1 - DEFINITION
 %
 % ======================================================
 \section{Definizione}
 Nelle seguenti sezioni sono utilizzati gli stessi indici del modello, ovvero piano della cabina \texttt{f}, piano dell'utente \texttt{h}, indice dell'utente \texttt{u} e piano di destinazione \texttt{d}.
 
 % ======================================================
-% 3.1.1 - FLUENTI
+% 3.1.1 - FLUENTS
 % ======================================================
 \subsection{Fluenti}
 Per poter definire le proprietà richieste, si è reso necessario introdurre tre fluenti, ovvero condizioni che possono essere vere o false e che cambiano nel tempo in base alle azioni avvenute.
@@ -34,7 +34,7 @@ fluent WAITING[h:FLOORS][u:USER_IDX] = <call[h][u], enter[h][u]>
 Nelle formule compaiono anche i nomi delle azioni del modello (ad esempio \texttt{call[h][u]} o \texttt{enter}): sono \emph{fluenti d'azione}, veri solo nell'istante in cui l'azione avviene.
 
 % ======================================================
-% 3.1.2 - PROPRIETA'
+% 3.1.2 - PROPERTIES
 % ======================================================
 \needspace{3\baselineskip}
 \subsection{Proprietà}
@@ -62,7 +62,7 @@ Le proprietà sono espresse in FLTL, usando gli operatori $\Box$ (\emph{always})
 
 % ======================================================
 %
-% 3.2 - ESITO DELLA VERIFICA
+% 3.2 - VERIFICATION RESULT
 %
 % ======================================================
 \section{Esito della verifica}

@@ -2,14 +2,14 @@
 
 % ======================================================
 %
-% 1.1 - DESCRIZIONE DEL DOMINIO APPLICATIVO
+% 1.1 - DESCRIPTION OF THE APPLICATION DOMAIN
 %
 % ======================================================
 \section{Descrizione del dominio applicativo}
 Il sistema analizzato modella il comportamento di un ascensore e dei suoi utilizzatori all'interno di un edificio a sviluppo verticale.
 
 % ======================================================
-% 1.1.1 - EDIFICIO E UTENTI
+% 1.1.1 - BUILDING AND USERS
 % ======================================================
 \subsection{Edificio e utenti}
 \label{subsec:building_users}
@@ -25,7 +25,7 @@ A popolare l'edificio è presente un insieme di utenti distribuiti lungo i vari 
 Gli utenti dovranno quindi essere in grado di utilizzare l'ascensore per spostarsi all'interno dell'edificio.
 
 % ======================================================
-% 1.1.2 - CABINA E VINCOLO DI RISORSA
+% 1.1.2 - CABIN AND RESOURCE CONSTRAINT
 % ======================================================
 \subsection{Cabina e vincolo di risorsa}
 L'impianto è composto da una singola cabina addetta alla movimentazione verticale degli utenti tra i vari piani.
@@ -36,14 +36,14 @@ All'esterno della cabina, su ogni singolo piano, è presente un pulsante di chia
 All'interno della cabina è invece installata una pulsantiera dotata di tasti di selezione (\emph{floor buttons}), accessibile unicamente al passeggero salito a bordo per indicare il piano di destinazione verso cui essere trasportato.
 
 % ======================================================
-% 1.1.3 - POLITICA DI SERVIZIO FIFO
+% 1.1.3 - FIFO SERVICE POLICY
 % ======================================================
 \subsection{Politica di servizio FIFO}
 Al fine di garantire equità di trattamento (\emph{fairness}) ed evitare situazioni in cui un utente venga ignorato o scavalcato indefinitamente (\emph{starvation}), gli utenti che richiedono l'ascensore su un determinato piano devono essere serviti rispettando l'ordine temporale di chiamata, attuando una politica di accodamento FIFO (\emph{First-In, First-Out}).
 
 % ======================================================
 %
-% 1.2 - GESTIONE DELL'ALLARME ANTINCENDIO
+% 1.2 - FIRE ALARM MANAGEMENT
 %
 % ======================================================
 \section{Gestione dell'allarme antincendio}
@@ -62,7 +62,7 @@ Il sistema attua pertanto la seguente sequenza di sicurezza:
 
 % ======================================================
 %
-% 1.3 - REQUISITI E PROPRIETÀ DI CORRETTEZZA FORMALE
+% 1.3 - REQUIREMENTS AND FORMAL CORRECTNESS PROPERTIES
 %
 % ======================================================
 \section{Requisiti e proprietà di correttezza formale}
@@ -70,7 +70,7 @@ Il sistema attua pertanto la seguente sequenza di sicurezza:
 Sulla base della specifica del problema, il sistema concorrente deve soddisfare le proprietà di \emph{Safety} e \emph{Liveness}.
 
 % ======================================================
-% 1.3.1 - PROPRIETÀ DI SAFETY (SICUREZZA)
+% 1.3.1 - SAFETY PROPERTIES (SAFETY)
 % ======================================================
 \subsection{Proprietà di Safety (Sicurezza)}
 Le proprietà di sicurezza sanciscono formalmente che durante l'intera evoluzione temporale del sistema ``non deve mai verificarsi alcuno stato non consentito''.
@@ -83,7 +83,7 @@ Indicando con $\text{Utenti\_in\_cabina}(t)$ il numero di occupanti a bordo all'
 \]
 
 % ======================================================
-% 1.3.2 - PROPRIETÀ DI LIVENESS (VIVACITÀ CONDIZIONATA)
+% 1.3.2 - LIVENESS PROPERTIES (CONDITIONAL LIVENESS)
 % ======================================================
 \subsection{Proprietà di Liveness (Vivacità condizionata)}
 Mentre le proprietà di sicurezza vietano configurazioni illegali, le proprietà di liveness stabiliscono che gli eventi desiderati dal sistema ``debbano prima o poi verificarsi nel tempo''.

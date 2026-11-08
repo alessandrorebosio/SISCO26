@@ -2,7 +2,7 @@
 
 % ======================================================
 %
-% 2.1 - MODELLO FSP
+% 2.1 - FPS MODEL
 %
 % ======================================================
 \section{Modello FSP}
@@ -14,7 +14,7 @@ Il sistema completo è definito dalla loro composizione parallela:
 \end{center}
 
 % ======================================================
-% 2.1.1 - ASCENSORE E CICLO DI SERVIZIO
+% 2.1.1 - ELEVATOR AND SERVICE CYCLE
 % ======================================================
 \subsection{\texttt{LIFT}: Ascensore e ciclo di servizio}
 La cabina dell'ascensore è inizialmente ferma al piano terra e vuota, con le porte chiuse.
@@ -36,7 +36,7 @@ Inizialmente erano stati modellati anche i vari passaggi intermedi, quali gli st
 Con il procedere dell'esercizio questi step sono stati unificati in singole azioni atomiche (ad esempio direttamente \texttt{door\_closed}), a causa dell'esplosione combinatoria degli stati del modello e della verbosità del codice scritto.
 
 % ======================================================
-% 2.1.2 - UTENTI
+% 2.1.2 - USERS
 % ======================================================
 \subsection{\texttt{USERS}: Utenti}
 Per rispettare le specifiche richieste (vedi \cref{subsec:building_users}), nel sistema sono previsti \texttt{M} utenti per piano, ognuno modellato tramite il processo \texttt{USER}.
@@ -52,7 +52,7 @@ La composizione \texttt{forall} crea $U_{tot}$ processi \texttt{USER}, uno per o
 \end{center}
 
 % ======================================================
-% 2.1.3 - CODA FIFO
+% 2.1.3 - FIFO QUEUE
 % ======================================================
 \subsection{\texttt{CALL\_QUEUE}: Coda FIFO}
 Ad ogni utente corrisponde un processo \texttt{TICKET}, i cui contatori assumono valori nell'insieme $T = \{0, \dots, U_{tot}-1\}$, con $U_{tot} = \texttt{N\_USERS} = (\texttt{MAX\_FLOOR} - \texttt{MIN\_FLOOR} + 1) \cdot \texttt{M}$, di cui ricordiamo che \texttt{M} corrisponde al numero di utenti per piano.
@@ -81,7 +81,7 @@ Infine, come succede per gli utenti, viene eseguita la composizione di $U_{tot}$
 \end{center}
 
 % ======================================================
-% 2.1.4 - ALLARME ANTINCENDIO
+% 2.1.4 - FIRE ALARM
 % ======================================================
 \subsection{\texttt{FIRE\_ALARM}: Allarme antincendio}
 Il processo \texttt{FIRE\_ALARM} modella il sistema antincendio esterno in modo volutamente astratto:
@@ -94,7 +94,7 @@ Questa astrazione è sufficiente, perché per l'ascensore qualunque tipo di alla
 
 % ======================================================
 %
-% 2.2 - RETI DI PETRI
+% 2.2 - PETRI NETS
 %
 % ======================================================
 \section{Reti di Petri}
@@ -102,7 +102,7 @@ Per la rete di Petri si è scelto un modello più astratto rispetto alla traduzi
 La rete, contenuta nel file \texttt{lift\_petri\_net.xml} e creata con lo strumento PIPE v4.3.0, è riportata in \cref{fig:petri_net}.
 
 % ======================================================
-% 2.2.1 - STRUTTURA
+% 2.2.1 - STRUCTURE
 % ======================================================
 \subsection{Struttura}
 Le etichette di posti e transizioni relativi a un piano riportano tra parentesi quadre l’indice del piano: \texttt{etichetta[f]} si riferisce al piano $\texttt{f}$.
@@ -119,14 +119,14 @@ La transizione \texttt{obstacle} modella il sensore di ostacolo: interrompe l'in
 \begin{landscape}
     \begin{figure}[p]
         \centering
-        \includegraphics[width=0.89\linewidth]{petri_net.png}
+        \includegraphics[width=0.83\linewidth]{./img/petri_net.png}
         \caption{Rete di Petri dell'ascensore, con 2 piani e 3 utenti per piano}
         \label{fig:petri_net}
     \end{figure}
 \end{landscape}
 
 % ======================================================
-% 2.2.2 - LIMITI
+% 2.2.2 - LIMITS
 % ======================================================
 \subsection{Limiti}
 \subsubsection{Allarme antincendio non modellato}

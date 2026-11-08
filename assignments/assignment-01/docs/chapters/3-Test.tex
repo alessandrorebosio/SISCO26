@@ -1,5 +1,5 @@
 \chapter{Proprietà FLTL e verifica}
-In questo capitolo le proprietà richieste, riportate in fase di analisi (vedi \cref{sec:proprieta}), vengono formalizzate in FLTL (\emph{Fluent Linear Temporal Logic}), perché devono essere soddisfatte in ogni scenario possibile.
+In questo capitolo le proprietà richieste, riportate in fase di analisi (vedi \cref{sec:proprieta}), vengono formalizzate in FLTL (\emph{Fluent Linear Temporal Logic}), così da poter verificare che siano soddisfatte in ogni scenario possibile.
 Le formule sono state poi inserite nel modello FSP come \texttt{assert} e verificate con LTSA sul sistema completo.
 
 % ======================================================
@@ -17,9 +17,9 @@ Nelle seguenti sezioni sono utilizzati gli stessi indici del modello, ovvero pia
 Per poter definire le proprietà richieste, si è reso necessario introdurre tre fluenti, ovvero condizioni che possono essere vere o false e che cambiano nel tempo in base alle azioni avvenute.
 
 \begin{description}
-    \item[\texttt{LIFT\_AT[f]}] vero quando la cabina è al piano \texttt{f}. Si accende con \texttt{at[f]} e si spegne quando la cabina raggiunge un altro piano. Inizialmente è vero solo per il piano terra.
-    \item[\texttt{DOORS\_OPEN}] vero quando le porte sono aperte. Si accende con \texttt{door\_opened} e si spegne con \texttt{door\_closed}.
-    \item[\texttt{WAITING[h][u]}] vero quando l'utente \texttt{u} del piano \texttt{h} ha chiamato l'ascensore e non è ancora salito. Si accende con \texttt{call[h][u]} e si spegne con \texttt{enter[h][u]}.
+    \item[\texttt{LIFT\_AT[f]}] vero quando la cabina è al piano \texttt{f}. Diventa vero con \texttt{at[f]} e torna falso quando la cabina raggiunge un altro piano. Inizialmente è vero solo per il piano terra.
+    \item[\texttt{DOORS\_OPEN}] vero quando le porte sono aperte. Diventa vero con \texttt{door\_opened} e torna falso con \texttt{door\_closed}.
+    \item[\texttt{WAITING[h][u]}] vero quando l'utente \texttt{u} del piano \texttt{h} ha chiamato l'ascensore e non è ancora salito. Diventa vero con \texttt{call[h][u]} e torna falso con \texttt{enter[h][u]}.
 \end{description}
 
 Le definizioni in FSP sono le seguenti:
@@ -41,16 +41,16 @@ Nelle formule compaiono anche i nomi delle azioni del modello (ad esempio \textt
 Le proprietà sono espresse in FLTL, usando gli operatori $\Box$ (\emph{always}), $\Diamond$ (\emph{eventually}), $\mathsf{X}$ (\emph{next}) e $\mathsf{W}$ (\emph{weak until}).
 
 \begin{description}
-    \item[\texttt{MUTUAL\_EXCLUSION}] dopo un ingresso, finché non avviene \texttt{exit} oppure \texttt{evacuate}, non può avvenire un nuovo ingresso, così da garantire che al massimo un utente sia presente in cabina.
+    \item[\texttt{MUTUAL\_EXCLUSION}] dopo un ingresso, finché non avviene \texttt{exit} oppure \texttt{evacuate}, non può verificarsi un nuovo ingresso, così da garantire che al massimo un utente sia presente in cabina.
     È una proprietà di sicurezza, quindi si usa il \emph{weak until}, che non impone che l'uscita avvenga:
         \[
         \Box\,\bigl(\texttt{enter} \Rightarrow \mathsf{X}\,(\neg\texttt{enter}\ \mathsf{W}\ (\texttt{exit} \lor \texttt{evacuate}))\bigr)
         \]
-    \item[\texttt{EVENTUAL\_ARRIVAL}] ogni chiamata dell'utente \texttt{u} del piano \texttt{h} è seguita dal raggiungimento del piano \texttt{h} con le porte aperte:
+    \item[\texttt{EVENTUAL\_ARRIVAL}] ogni chiamata dell'utente \texttt{u} del piano \texttt{h} è seguita prima o poi dall'arrivo della cabina al piano \texttt{h} con le porte aperte:
         \[
         \Box\,\bigl(\texttt{call[h][u]} \Rightarrow \Diamond\,(\texttt{LIFT\_AT[h]} \land \texttt{DOORS\_OPEN})\bigr)
         \]
-    \item[\texttt{EVENTUAL\_DELIVERY}] ogni selezione del piano \texttt{d} è seguita dall'uscita a quel piano oppure dall'evacuazione:
+    \item[\texttt{EVENTUAL\_DELIVERY}] ogni selezione del piano \texttt{d} è seguita prima o poi dall'uscita a quel piano oppure dall'evacuazione:
         \[
         \Box\,\bigl(\texttt{select[h][u][d]} \Rightarrow \Diamond\,(\texttt{exit[h][u][d]} \lor \texttt{evacuate[h][u]})\bigr)
         \]
@@ -82,9 +82,9 @@ L'analisi di sicurezza non ha inoltre rilevato né errori né deadlock.
         Proprietà & Stati & Transizioni & Tempo & Esito \\
         \midrule
         \texttt{MUTUAL\_EXCLUSION}   & 117\,378   & 384\,467   & 250 ms  & verificata \\
-        \texttt{EVENTUAL\_ARRIVAL}   & 1\,316\,689 & 4\,695\,108 & 5251 ms & verificata \\
+        \texttt{EVENTUAL\_ARRIVAL}   & 1\,316\,689 & 4\,695\,108 & 5\,251 ms & verificata \\
         \texttt{EVENTUAL\_DELIVERY}  & 137\,584   & 431\,952   & 228 ms  & verificata \\
-        \texttt{STARVATION\_FREEDOM} & 1\,330\,567 & 7\,224\,485 & 6865 ms & verificata \\
+        \texttt{STARVATION\_FREEDOM} & 1\,330\,567 & 7\,224\,485 & 6\,865 ms & verificata \\
         \bottomrule
     \end{tabular}
     \caption{Risultati della verifica con LTSA ($N = 3$, $M = 2$).}

@@ -15,11 +15,11 @@ Il sistema analizzato modella il comportamento di un ascensore e dei suoi utiliz
 \label{subsec:building_users}
 L'ambiente operativo è costituito da una struttura articolata su un numero finito $N$ di piani, identificati dall'insieme $\mathcal{F} = \{0, 1, \dots, N-1\}$.
 All'interno di questa configurazione, il piano $0$ assume convenzionalmente il ruolo di piano terra (\emph{ground floor}).
-Esso costituisce il punto cardine sia per l'accesso e l'uscita ordinaria dall'edificio, sia per le manovre di evacuazione rapida in situazioni di emergenza.
+Esso costituisce il punto cardine sia per l'accesso all'edificio e l'uscita ordinaria da esso, sia per le manovre di evacuazione rapida in situazioni di emergenza.
 
 A popolare l'edificio è presente un insieme di utenti distribuiti lungo i vari livelli:
 \begin{itemize}
-    \item a ciascun piano possono trovarsi contemporaneamente fino a $M$ persone intenzionate a utilizzare l'impianto di risalita;
+    \item a ciascun piano possono trovarsi contemporaneamente fino a $M$ persone intenzionate a utilizzare l'ascensore;
     \item ogni utente agisce come un agente autonomo e concorrente rispetto agli altri, caratterizzato dalla volontà di raggiungere un piano differente rispetto a quello in cui si trova attualmente.
 \end{itemize}
 Gli utenti dovranno quindi essere in grado di utilizzare l'ascensore per spostarsi all'interno dell'edificio.
@@ -48,7 +48,7 @@ Al fine di garantire equità di trattamento (\emph{fairness}) ed evitare situazi
 % ======================================================
 \section{Gestione dell'allarme antincendio}
 \label{sec:allarme}
-Il sistema dell'ascensore non opera completamente isolato, ma interagisce con un impianto antincendio esterno, in grado di generare in maniera asincrona un segnale di allarme in caso di incendio.
+Il sistema dell'ascensore non opera in modo completamente isolato, ma interagisce con un impianto antincendio esterno, in grado di generare in maniera asincrona un segnale di allarme in caso di incendio.
 
 A fronte della ricezione del segnale di incendio, la tutela dell'utente prevale in modo assoluto sull'ordinario funzionamento dell'ascensore.
 Il sistema attua pertanto la seguente sequenza di sicurezza:
@@ -76,7 +76,7 @@ Sulla base della specifica del problema, il sistema concorrente deve soddisfare 
 Le proprietà di sicurezza sanciscono formalmente che durante l'intera evoluzione temporale del sistema ``non deve mai verificarsi alcuno stato non consentito''.
 
 Nel contesto dell'ascensore, il requisito primario di sicurezza coincide con la \textbf{mutua esclusione della cabina} (\textbf{\emph{Mutual Exclusion}}).
-In nessun istante temporale e lungo alcuna traiettoria di esecuzione possono trovarsi due o più persone simultaneamente all'interno dell'ascensore.
+In nessun istante temporale né lungo alcuna traiettoria di esecuzione possono trovarsi due o più persone simultaneamente all'interno dell'ascensore.
 Indicando con $\text{Utenti\_in\_cabina}(t)$ il numero di occupanti a bordo all'istante $t$, il controllore deve garantire costantemente che:
 \[
   \forall t \ge 0, \quad \text{Utenti\_in\_cabina}(t) \le 1
@@ -87,9 +87,9 @@ Indicando con $\text{Utenti\_in\_cabina}(t)$ il numero di occupanti a bordo all'
 % ======================================================
 \subsection{Proprietà di Liveness (Vivacità condizionata)}
 Mentre le proprietà di sicurezza vietano configurazioni illegali, le proprietà di liveness stabiliscono che gli eventi desiderati dal sistema ``debbano prima o poi verificarsi nel tempo''.
-Nel nostro dominio tali proprietà possono essere violate in un particolare caso, in quanto l'arrivo di un allarme antincendio mette indefinitamente in pausa le promesse di servizio ordinario a favore della sicurezza degli utenti (fino alla cessazione dell'allarme):
+Nel nostro dominio tali proprietà possono essere violate in un particolare caso, in quanto l'arrivo di un allarme antincendio mette temporaneamente in pausa le promesse di servizio ordinario a favore della sicurezza degli utenti (fino alla cessazione dell'allarme):
 \begin{itemize}
     \item \textbf{Arrivo al piano di chiamata (\emph{Eventual Arrival upon Call})}: a fronte della pressione del pulsante di chiamata da parte di un utente a un dato piano, la cabina deve prima o poi giungere a quel piano per consentire il servizio, a meno che non si manifesti uno stato di allarme antincendio;
     \item \textbf{Consegna al piano desiderato (\emph{Eventual Delivery})}: quando un passeggero a bordo seleziona il piano prescelto, l'ascensore deve raggiungere tale destinazione, salvo il caso in cui un segnale di allarme costringa la cabina a dirigersi verso il piano terra per l'evacuazione dell'utente;
-    \item \textbf{Accesso al servizio ed assenza di starvation (\emph{Starvation Freedom})}: ciascun utente posizionato in attesa a un piano deve infine riuscire a salire a bordo della cabina, escludendo il verificarsi di un'emergenza antincendio che impedisce l'utilizzo dell'ascensore.
+    \item \textbf{Accesso al servizio e assenza di starvation (\emph{Starvation Freedom})}: ciascun utente posizionato in attesa a un piano deve infine riuscire a salire a bordo della cabina, escludendo il verificarsi di un'emergenza antincendio che impedisca l'utilizzo dell'ascensore.
 \end{itemize}

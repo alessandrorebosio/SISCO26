@@ -2,9 +2,11 @@ Concurrent Systems a.y. 2026-2027 - ISI LM UNIBO - Cesena Campus
 
 # Assignment #02
 
-v0.9.0-20261105
+v0.9.0-2026-11-05
 
-The assignment is about the design and development of concurrent program implementing the N-Body simulation.
+The assignment is about
+- Designing and developing a concurrent program implementing the N-Body simulation.
+- Verifying and evaluating the program, using FSP, model-checking (JPF) and performance tests.
 
 ### Description
 
@@ -16,7 +18,7 @@ In the following we consider a simulation approach to solve the problem, based o
 
 ```
 vt = 0;     /* virtual time */
-dt  = 0.01; /* time increment at each iteration */
+dt = 0.01;  /* time increment at each iteration */
 
 initialize a set of bodies b (position, mass, velocity)
 
@@ -31,43 +33,35 @@ loop {
     vt = vt + dt;
     Display current stage;  /* if visualisation is required */
 }
-
 ```
 
-A simple sequential implementation is available on the repo `sisco.ass2.n_body_seq`. In this implementation, bodies lives in a 2D space and there are two versions: without visualisation (`sisco.ass2.n_body_seq.SimulationMain`) and with a simple GUI visualisation (`sisco.ass2.n_body_seq.SimulationMainWithGUI`).
+A simple sequential implementation is available in the package `sisco.ass2.n_body_seq`. In this implementation, bodies live in a 2D space and there are two versions: without visualisation (`sisco.ass2.n_body_seq.SimulationMain`) and with a simple GUI visualisation (`sisco.ass2.n_body_seq.SimulationMainWithGUI`).
 
 ### The Assignment
 
-We want to develop a concurrent version of the simulation, in two steps described in the following.
+We want to develop a concurrent version of the simulation, in two steps:
 
-1) First step: we want to develop a concurrent version without visualisation and interaction with the user, focusing only on performances.
+1. Develop a concurrent version without visualisation and interaction with the user, focusing only on performance.
+   The program should run a simulation with a certain number of bodies N (initialised randomly), for a number of simulation steps M.
+   Two different implementations must be developed:
+   - One based on Java **multithreaded programming**, using only default/platform threads.
+   - One based on a **task-based** approach, using the Java **Executor Framework**.
 
-    The concurrent program should be able to run a simulation with a certain number of bodies N (initialised randomly), for a number of simulation steps M.
+   The programs should be designed according to the principles studied during the course, promoting modularity and encapsulation as well as performance and reactivity. To enable/manage the interaction among active components/threads, high-level constructs such as monitors should be preferred (vs. low-level mechanisms) when possible, providing your own implementation.
+2. Develop a version with a GUI that allows to:
+   - Visualise every step of the simulation.
+   - Start, stop, suspend and execute step-by-step the simulation.
 
-    In this case, two different implementations must be developed:
-    - One based on Java **multithreaded programming**, using only default/platform threads;
-    - One based on a **Task-based** approach, using Java **Executor Framework**.
-
-    The concurrent programs should be designed according the principles studied during the course, promoting modularity, encapsulation as well as performance, reactivity. For enabling/managing interaction among active components/threads, high-level constructs such as monitors should be preferably used (vs. low-level mechanisms) when possible, providing your own implementation.
-
-2) Second step, we want to develop a version with a GUI that allow to:
-    - visualize every step of the simulation, and
-    - start, stop, suspend, execute step-by-step the simulation.
-
-    For this second point, only one implementation is requested (no constraints about it).
-
-The documentation can be provided as a report (either in *.md or *.pdf), including:
-  - A brief analsysis of the problem, focusing in particular those aspects that are relevant from a concurrency point of view
-  - A brief description of the adopted design, the architecture (structure) and the behaviour
-    - for the behaviour, a model based on FSP should be included, identifying some correctness properties
-  - Performance tests -- only for step 1 (no GUI), to show:
-    - if/how performances are improved compared with a sequential version
-    - if/how performances scale with the number of available cores
-  - Verification of the program using model-checking -- only for step 1 (no GUI), multithreaded programming version (no Executors)
-    - using JPF applied with a simplified version of the program.
+   For this second step, only one implementation is requested (no constraints about it).
 
 ### The deliverable
 
 The deliverable must be a zipped folder `Assignment-02`, to be submitted on the course web site, including:
-- `src` directory with sources
-- `doc` directory with the report
+- A `src` directory with the sources.
+- A `doc` directory with the report (in PDF or MD), including:
+  - A brief analysis of the problem, focusing in particular on the aspects that are relevant from a concurrency point of view.
+  - A brief description of the adopted design, the architecture (structure) and the behaviour. For the behaviour, a model based on FSP should be included, identifying some correctness properties.
+  - Performance tests (only for step 1, no GUI), to show:
+    - If/how performance improves compared with the sequential version.
+    - If/how performance scales with the number of available cores.
+  - Verification of the program using model-checking (only for step 1, no GUI, multithreaded version without Executors), using JPF applied to a simplified version of the program.

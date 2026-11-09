@@ -1,10 +1,6 @@
 \chapter{Proprietà FLTL e verifica}
-In questo capitolo le proprietà richieste, riportate in fase di
-analisi (vedi \cref{sec:proprieta}), vengono formalizzate in FLTL
-(\emph{Fluent Linear Temporal Logic}), così da poter verificare che
-siano soddisfatte in ogni scenario possibile.
-Le formule sono state poi inserite nel modello FSP come
-\texttt{assert} e verificate con LTSA sul sistema completo.
+In questo capitolo le proprietà richieste, riportate in fase di analisi (vedi \cref{sec:proprieta}), vengono formalizzate in FLTL (\emph{Fluent Linear Temporal Logic}), così da poter verificare che siano soddisfatte in ogni scenario possibile.
+Le formule sono state poi inserite nel modello FSP come \texttt{assert} e verificate con LTSA sul sistema completo.
 
 % ======================================================
 %
@@ -12,29 +8,18 @@ Le formule sono state poi inserite nel modello FSP come
 %
 % ======================================================
 \section{Definizione}
-Nelle seguenti sezioni sono utilizzati gli stessi indici del modello,
-ovvero piano della cabina \texttt{f}, piano dell'utente \texttt{h},
-indice dell'utente \texttt{u} e piano di destinazione \texttt{d}.
+Nelle seguenti sezioni sono utilizzati gli stessi indici del modello, ovvero piano della cabina \texttt{f}, piano dell'utente \texttt{h}, indice dell'utente \texttt{u} e piano di destinazione \texttt{d}.
 
 % ======================================================
 % 3.1.1 - FLUENTS
 % ======================================================
 \subsection{Fluenti}
-Per poter definire le proprietà richieste, si è reso necessario
-introdurre tre fluenti, ovvero condizioni che possono essere vere o
-false e che cambiano nel tempo in base alle azioni avvenute.
+Per poter definire le proprietà richieste, si è reso necessario introdurre tre fluenti, ovvero condizioni che possono essere vere o false e che cambiano nel tempo in base alle azioni avvenute.
 
 \begin{description}
-  \item[\texttt{LIFT\_AT[f]}] vero quando la cabina è al piano
-    \texttt{f}. Diventa vero con \texttt{at[f]} e torna falso quando
-    la cabina raggiunge un altro piano. Inizialmente è vero solo per
-    il piano terra.
-  \item[\texttt{DOORS\_OPEN}] vero quando le porte sono aperte.
-    Diventa vero con \texttt{door\_opened} e torna falso con
-    \texttt{door\_closed}.
-  \item[\texttt{WAITING[h][u]}] vero quando l'utente \texttt{u} del
-    piano \texttt{h} ha chiamato l'ascensore e non è ancora salito.
-    Diventa vero con \texttt{call[h][u]} e torna falso con \texttt{enter[h][u]}.
+  \item[\texttt{LIFT\_AT[f]}] vero quando la cabina è al piano \texttt{f}. Diventa vero con \texttt{at[f]} e torna falso quando la cabina raggiunge un altro piano. Inizialmente è vero solo per il piano terra.
+  \item[\texttt{DOORS\_OPEN}] vero quando le porte sono aperte. Diventa vero con \texttt{door\_opened} e torna falso con \texttt{door\_closed}.
+  \item[\texttt{WAITING[h][u]}] vero quando l'utente \texttt{u} del piano \texttt{h} ha chiamato l'ascensore e non è ancora salito. Diventa vero con \texttt{call[h][u]} e torna falso con \texttt{enter[h][u]}.
 \end{description}
 
 Le definizioni in FSP sono le seguenti:
@@ -46,48 +31,34 @@ fluent DOORS_OPEN        = <door_opened, door_closed>
 fluent WAITING[h:FLOORS][u:USER_IDX] = <call[h][u], enter[h][u]>
 \end{lstlisting}
 
-Nelle formule compaiono anche i nomi delle azioni del modello (ad
-esempio \texttt{call[h][u]} o \texttt{enter}): sono \emph{fluenti
-d'azione}, veri solo nell'istante in cui l'azione avviene.
+Nelle formule compaiono anche i nomi delle azioni del modello (ad esempio \texttt{call[h][u]} o \texttt{enter}): sono \emph{fluenti d'azione}, veri solo nell'istante in cui l'azione avviene.
 
 % ======================================================
 % 3.1.2 - PROPERTIES
 % ======================================================
 \needspace{3\baselineskip}
 \subsection{Proprietà}
-Le proprietà sono espresse in FLTL, usando gli operatori $\Box$
-(\emph{always}), $\Diamond$ (\emph{eventually}), $\mathsf{X}$
-(\emph{next}) e $\mathsf{W}$ (\emph{weak until}).
+Le proprietà sono espresse in FLTL, usando gli operatori $\Box$ (\emph{always}), $\Diamond$ (\emph{eventually}), $\mathsf{X}$ (\emph{next}) e $\mathsf{W}$ (\emph{weak until}).
 
 \begin{description}
-  \item[\texttt{MUTUAL\_EXCLUSION}] dopo un ingresso, finché non
-    avviene \texttt{exit} oppure \texttt{evacuate}, non può
-    verificarsi un nuovo ingresso, così da garantire che al massimo
-    un utente sia presente in cabina.
-    È una proprietà di sicurezza, quindi si usa il \emph{weak until},
-    che non impone che l'uscita avvenga:
+  \item[\texttt{MUTUAL\_EXCLUSION}] dopo un ingresso, finché non avviene \texttt{exit} oppure \texttt{evacuate}, non può verificarsi un nuovo ingresso, così da garantire che al massimo un utente sia presente in cabina.
+    È una proprietà di sicurezza, quindi si usa il \emph{weak until}, che non impone che l'uscita avvenga:
     \[
       \Box\,\bigl(\texttt{enter} \Rightarrow
         \mathsf{X}\,(\neg\texttt{enter}\ \mathsf{W}\ (\texttt{exit}
       \lor \texttt{evacuate}))\bigr)
     \]
-  \item[\texttt{EVENTUAL\_ARRIVAL}] ogni chiamata dell'utente
-    \texttt{u} del piano \texttt{h} è seguita prima o poi dall'arrivo
-    della cabina al piano \texttt{h} con le porte aperte:
+  \item[\texttt{EVENTUAL\_ARRIVAL}] ogni chiamata dell'utente \texttt{u} del piano \texttt{h} è seguita prima o poi dall'arrivo della cabina al piano \texttt{h} con le porte aperte:
     \[
       \Box\,\bigl(\texttt{call[h][u]} \Rightarrow
       \Diamond\,(\texttt{LIFT\_AT[h]} \land \texttt{DOORS\_OPEN})\bigr)
     \]
-  \item[\texttt{EVENTUAL\_DELIVERY}] ogni selezione del piano
-    \texttt{d} è seguita prima o poi dall'uscita a quel piano oppure
-    dall'evacuazione:
+  \item[\texttt{EVENTUAL\_DELIVERY}] ogni selezione del piano \texttt{d} è seguita prima o poi dall'uscita a quel piano oppure dall'evacuazione:
     \[
       \Box\,\bigl(\texttt{select[h][u][d]} \Rightarrow
       \Diamond\,(\texttt{exit[h][u][d]} \lor \texttt{evacuate[h][u]})\bigr)
     \]
-  \item[\texttt{STARVATION\_FREEDOM}] un utente in attesa, cioè che
-    ha effettuato una chiamata e non è ancora salito, entra prima o
-    poi in cabina:
+  \item[\texttt{STARVATION\_FREEDOM}] un utente in attesa, cioè che ha effettuato una chiamata e non è ancora salito, entra prima o poi in cabina:
     \[
       \Box\,\bigl(\texttt{WAITING[h][u]} \Rightarrow
       \Diamond\,\texttt{enter[h][u]}\bigr)
@@ -100,15 +71,14 @@ Le proprietà sono espresse in FLTL, usando gli operatori $\Box$
 %
 % ======================================================
 \section{Esito della verifica}
-Le proprietà sono state verificate con LTSA sul sistema completo
-\texttt{SYS}, con i parametri seguenti:
+Le proprietà sono state verificate con LTSA sul sistema completo \texttt{SYS}, con i parametri seguenti:
 \begin{itemize}
   \item $N = 3$ piani, numerati da 0 a 2, con il piano 0 come piano terra;
   \item $M = 2$ utenti per piano, quindi 6 utenti in totale.
 \end{itemize}
+
 Con questa configurazione il sistema ha 117\,378 stati raggiungibili.
-Tutte le proprietà risultano verificate, come mostrato in
-\cref{tab:risultati_ltsa}: LTSA non ha riportato alcuna violazione.
+Tutte le proprietà risultano verificate, come mostrato in \cref{tab:risultati_ltsa}: LTSA non ha riportato alcuna violazione.
 L'analisi di sicurezza non ha inoltre rilevato né errori né deadlock.
 
 \begin{table}[H]

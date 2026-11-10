@@ -13,9 +13,12 @@ scripts/
 ├── run-ltsa.sh / .bat       # Start LTSA
 └── run-pipe.sh / .bat       # Start PIPE
 assignments/
-└── assignment-01/
-    ├── lift_system.lts      # FSP model for the lift system
-    └── docs/                # Assignment report sources
+├── assignment-01/
+│   ├── lift_system.lts      # FSP model for the lift system
+│   ├── lift_petri_net.xml   # Petri net model for the lift system
+│   └── docs/                # Assignment report sources
+└── assignment-02/
+    └── README.md            # Assignment description and requirements
 ```
 
 Both tools require Java. On macOS/Linux, run:
@@ -28,5 +31,7 @@ Both tools require Java. On macOS/Linux, run:
 On Windows, run the corresponding `.bat` files. The scripts resolve their
 paths relative to the repository, so they can be launched from any directory.
 
-The assignment-specific documentation is available in
-[`assignments/assignment-01/README.md`](assignments/assignment-01/README.md).
+The assignment-specific documentation is available in:
+
+- [`assignments/assignment-01/README.md`](assignments/assignment-01/README.md)
+- [`assignments/assignment-02/README.md`](assignments/assignment-02/README.md)

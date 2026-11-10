@@ -56,8 +56,8 @@ Il sistema attua pertanto la seguente sequenza di sicurezza:
   \item \textbf{Interruzione delle attività correnti}: l'ascensore interrompe le normali corse e sospende le chiamate registrate ai piani;
   \item \textbf{Discesa prioritaria al piano terra}: la cabina si dirige verso il piano terra ($Floor = 0$), ignorando qualsiasi fermata intermedia;
   \item \textbf{Apertura porte ed evacuazione}: una volta giunta al piano terra, le porte della cabina si aprono per permettere l'evacuazione dell'eventuale passeggero a bordo, garantendogli una via di fuga;
-  \item \textbf{Stato di attesa cautelativa (\emph{Safe Lockout})}: l'ascensore rimane fermo al piano terra con le porte aperte, impedendo qualsiasi comando di azionamento;
-  \item \textbf{Ripristino del servizio}: il blocco rimane attivo fino alla ricezione di un segnale esterno di risoluzione dell'allarme (\emph{alarm resolved}), a seguito del quale il sistema è autorizzato a ripristinare l'operatività.
+  \item \textbf{Stato di attesa cautelativa}: l'ascensore rimane fermo al piano terra con le porte aperte, impedendo qualsiasi comando di azionamento;
+  \item \textbf{Ripristino del servizio}: il blocco rimane attivo fino alla ricezione di un segnale esterno di risoluzione dell'allarme, a seguito del quale il sistema è autorizzato a ripristinare l'operatività.
 \end{enumerate}
 
 % ======================================================
@@ -70,17 +70,17 @@ Il sistema attua pertanto la seguente sequenza di sicurezza:
 Sulla base della specifica del problema, il sistema concorrente deve soddisfare le proprietà di \emph{Safety} e \emph{Liveness}.
 
 % ======================================================
-% 1.3.1 - SAFETY PROPERTIES (SAFETY)
+% 1.3.1 - SAFETY PROPERTIES
 % ======================================================
 \subsection{Proprietà di Safety}
-Nel contesto dell'ascensore, il requisito primario di sicurezza coincide con la \textbf{mutua esclusione della cabina} (\textbf{\emph{Mutual Exclusion}}).
-In nessun istante temporale né lungo alcuna traiettoria di esecuzione possono trovarsi due o più persone simultaneamente all'interno dell'ascensore. Indicando con $\text{Utenti\_in\_cabina}(t)$ il numero di occupanti a bordo all'istante $t$, il controllore deve garantire costantemente che:
+Nel contesto dell'ascensore, il requisito primario coincide con la \textbf{mutua esclusione della cabina} (\textbf{Mutual Exclusion}): in nessun istante possono trovarsi due o più persone simultaneamente all'interno dell'ascensore.
+Indicando con $\text{Utenti\_in\_cabina}(t)$ il numero di occupanti a bordo all'istante $t$, il sistema deve garantire costantemente che:
 \[
   \forall t \ge 0, \quad \text{Utenti\_in\_cabina}(t) \le 1
 \]
 
 % ======================================================
-% 1.3.2 - LIVENESS PROPERTIES (CONDITIONAL LIVENESS)
+% 1.3.2 - LIVENESS PROPERTIES
 % ======================================================
 \subsection{Proprietà di Liveness}
 Mentre le proprietà di sicurezza vietano configurazioni illegali, le proprietà di liveness stabiliscono che gli eventi desiderati dal sistema ``debbano prima o poi verificarsi nel tempo''.

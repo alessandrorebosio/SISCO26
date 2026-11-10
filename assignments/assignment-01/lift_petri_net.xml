@@ -1,0 +1,1763 @@
+<?xml version="1.0" encoding="ISO-8859-1"?><pnml>
+    <net id="Net-One" type="P/T net">
+        <token id="Default" enabled="true" red="0" green="0" blue="0"/>
+        <place id="door_open[0]">
+            <graphics>
+                <position x="570.0" y="120.0"/>
+            </graphics>
+            <name>
+                <value>door_open[0]</value>
+                <graphics>
+                    <offset x="76.09090909090908" y="-10.45454545454544"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="door_open[1]">
+            <graphics>
+                <position x="300.0" y="525.0"/>
+            </graphics>
+            <name>
+                <value>door_open[1]</value>
+                <graphics>
+                    <offset x="49.818181818181856" y="43.272727272727295"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="door_opening[0]">
+            <graphics>
+                <position x="405.0" y="120.0"/>
+            </graphics>
+            <name>
+                <value>door_opening[0]</value>
+                <graphics>
+                    <offset x="56.545454545454575" y="-10.9090909090909"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="door_opening[0]'">
+            <graphics>
+                <position x="180.0" y="30.0"/>
+            </graphics>
+            <name>
+                <value>door_opening[0]'</value>
+                <graphics>
+                    <offset x="114.99999999999997" y="0.8181818181818166"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="door_opening[1]">
+            <graphics>
+                <position x="465.0" y="525.0"/>
+            </graphics>
+            <name>
+                <value>door_opening[1]</value>
+                <graphics>
+                    <offset x="66.36363636363635" y="38.18181818181816"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="door_opening[1]'">
+            <graphics>
+                <position x="645.0" y="615.0"/>
+            </graphics>
+            <name>
+                <value>door_opening[1]'</value>
+                <graphics>
+                    <offset x="56.0" y="45.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="entering[0]">
+            <graphics>
+                <position x="765.0" y="135.0"/>
+            </graphics>
+            <name>
+                <value>entering[0]</value>
+                <graphics>
+                    <offset x="44.00000000000002" y="-11.36363636363636"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="entering[1]">
+            <graphics>
+                <position x="180.0" y="525.0"/>
+            </graphics>
+            <name>
+                <value>entering[1]</value>
+                <graphics>
+                    <offset x="46.63636363636361" y="41.99999999999999"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="going_down">
+            <graphics>
+                <position x="240.0" y="120.0"/>
+            </graphics>
+            <name>
+                <value>going_down</value>
+                <graphics>
+                    <offset x="53.54545454545456" y="-7.4545454545454675"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="going_down_opening">
+            <graphics>
+                <position x="60.0" y="330.0"/>
+            </graphics>
+            <name>
+                <value>going_down_opening</value>
+                <graphics>
+                    <offset x="140.45454545454547" y="-2.1818181818181883"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="going_up">
+            <graphics>
+                <position x="630.0" y="525.0"/>
+            </graphics>
+            <name>
+                <value>going_up</value>
+                <graphics>
+                    <offset x="46.27272727272728" y="41.90909090909091"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="going_up_opening">
+            <graphics>
+                <position x="825.0" y="300.0"/>
+            </graphics>
+            <name>
+                <value>going_up_opening</value>
+                <graphics>
+                    <offset x="-2.4545454545454546" y="10.727272727272736"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="idle[0]">
+            <graphics>
+                <position x="60.0" y="195.0"/>
+            </graphics>
+            <name>
+                <value>idle[0]</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,1</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="idle[1]">
+            <graphics>
+                <position x="825.0" y="465.0"/>
+            </graphics>
+            <name>
+                <value>idle[1]</value>
+                <graphics>
+                    <offset x="64.6363636363636" y="1.8181818181818166"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="user_in[0]">
+            <graphics>
+                <position x="825.0" y="195.0"/>
+            </graphics>
+            <name>
+                <value>user_in[0]</value>
+                <graphics>
+                    <offset x="79.27272727272725" y="-6.272727272727272"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="user_in[1]">
+            <graphics>
+                <position x="60.0" y="450.0"/>
+            </graphics>
+            <name>
+                <value>user_in[1]</value>
+                <graphics>
+                    <offset x="18.0" y="44.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="user_waiting[0]">
+            <graphics>
+                <position x="465.0" y="240.0"/>
+            </graphics>
+            <name>
+                <value>user_waiting[0]</value>
+                <graphics>
+                    <offset x="47.0" y="41.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="user_waiting[1]">
+            <graphics>
+                <position x="480.0" y="390.0"/>
+            </graphics>
+            <name>
+                <value>user_waiting[1]</value>
+                <graphics>
+                    <offset x="60.09090909090902" y="-11.454545454545416"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,0</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="user[0]">
+            <graphics>
+                <position x="120.0" y="135.0"/>
+            </graphics>
+            <name>
+                <value>user[0]</value>
+                <graphics>
+                    <offset x="5.0" y="23.0"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,3</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <place id="user[1]">
+            <graphics>
+                <position x="750.0" y="495.0"/>
+            </graphics>
+            <name>
+                <value>user[1]</value>
+                <graphics>
+                    <offset x="78.09090909090911" y="4.0909090909091095"/>
+                </graphics>
+            </name>
+            <initialMarking>
+                <value>Default,3</value>
+                <graphics>
+                    <offset x="0.0" y="0.0"/>
+                </graphics>
+            </initialMarking>
+            <capacity>
+                <value>0</value>
+            </capacity>
+        </place>
+        <transition id="at[0]">
+            <graphics>
+                <position x="315.0" y="120.0"/>
+            </graphics>
+            <name>
+                <value>at[0]</value>
+                <graphics>
+                    <offset x="24.63636363636364" y="-10.181818181818214"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>180</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="at[1]">
+            <graphics>
+                <position x="555.0" y="525.0"/>
+            </graphics>
+            <name>
+                <value>at[1]</value>
+                <graphics>
+                    <offset x="32.63636363636364" y="47.72727272727272"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="call[0]">
+            <graphics>
+                <position x="180.0" y="225.0"/>
+            </graphics>
+            <name>
+                <value>call[0]</value>
+                <graphics>
+                    <offset x="36.9090909090909" y="47.72727272727272"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="call[0]'">
+            <graphics>
+                <position x="180.0" y="120.0"/>
+            </graphics>
+            <name>
+                <value>call[0]'</value>
+                <graphics>
+                    <offset x="34.18181818181818" y="44.90909090909091"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>180</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="call[1]">
+            <graphics>
+                <position x="690.0" y="510.0"/>
+            </graphics>
+            <name>
+                <value>call[1]</value>
+                <graphics>
+                    <offset x="27.818181818181817" y="-12.36363636363636"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="call[1]'">
+            <graphics>
+                <position x="690.0" y="405.0"/>
+            </graphics>
+            <name>
+                <value>call[1]'</value>
+                <graphics>
+                    <offset x="36.81818181818181" y="-14.999999999999993"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>180</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="door_opened[0]">
+            <graphics>
+                <position x="480.0" y="120.0"/>
+            </graphics>
+            <name>
+                <value>door_opened[0]</value>
+                <graphics>
+                    <offset x="73.36363636363633" y="-9.272727272727284"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="door_opened[1]">
+            <graphics>
+                <position x="375.0" y="525.0"/>
+            </graphics>
+            <name>
+                <value>door_opened[1]</value>
+                <graphics>
+                    <offset x="63.90909090909088" y="44.0909090909091"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="enter[0]">
+            <graphics>
+                <position x="660.0" y="135.0"/>
+            </graphics>
+            <name>
+                <value>enter[0]</value>
+                <graphics>
+                    <offset x="42.54545454545455" y="-7.5454545454545485"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>180</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="enter[1]">
+            <graphics>
+                <position x="240.0" y="525.0"/>
+            </graphics>
+            <name>
+                <value>enter[1]</value>
+                <graphics>
+                    <offset x="41.090909090909115" y="-12.454545454545451"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>180</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="entered[0]">
+            <graphics>
+                <position x="765.0" y="195.0"/>
+            </graphics>
+            <name>
+                <value>entered[0]</value>
+                <graphics>
+                    <offset x="35.545454545454554" y="39.00000000000001"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>135</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="entered[1]">
+            <graphics>
+                <position x="180.0" y="450.0"/>
+            </graphics>
+            <name>
+                <value>entered[1]</value>
+                <graphics>
+                    <offset x="46.00000000000008" y="-6.999999999999947"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>225</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="exit[0]">
+            <graphics>
+                <position x="60.0" y="270.0"/>
+            </graphics>
+            <name>
+                <value>exit[0]</value>
+                <graphics>
+                    <offset x="66.63636363636364" y="29.818181818181827"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>270</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="exit[0]'">
+            <graphics>
+                <position x="60.0" y="30.0"/>
+            </graphics>
+            <name>
+                <value>exit[0]'</value>
+                <graphics>
+                    <offset x="12.454545454545451" y="2.6363636363636367"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>225</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="exit[1]">
+            <graphics>
+                <position x="825.0" y="615.0"/>
+            </graphics>
+            <name>
+                <value>exit[1]</value>
+                <graphics>
+                    <offset x="55.0" y="30.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>225</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="exit[1]'">
+            <graphics>
+                <position x="825.0" y="360.0"/>
+            </graphics>
+            <name>
+                <value>exit[1]'</value>
+                <graphics>
+                    <offset x="-3.1818181818182225" y="27.9090909090909"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>90</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="obstacle">
+            <graphics>
+                <position x="660.0" y="195.0"/>
+            </graphics>
+            <name>
+                <value>obstacle</value>
+                <graphics>
+                    <offset x="41.636363636363626" y="44.0"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="obstacle'">
+            <graphics>
+                <position x="270.0" y="420.0"/>
+            </graphics>
+            <name>
+                <value>obstacle'</value>
+                <graphics>
+                    <offset x="38.63636363636368" y="-8.999999999999998"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>0</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="select[0]">
+            <graphics>
+                <position x="825.0" y="30.0"/>
+            </graphics>
+            <name>
+                <value>select[0]</value>
+                <graphics>
+                    <offset x="56.77777777777777" y="3.3838383838383876"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>135</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="select[0]'">
+            <graphics>
+                <position x="60.0" y="390.0"/>
+            </graphics>
+            <name>
+                <value>select[0]'</value>
+                <graphics>
+                    <offset x="81.18181818181824" y="24.54545454545455"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>90</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="select[1]">
+            <graphics>
+                <position x="825.0" y="255.0"/>
+            </graphics>
+            <name>
+                <value>select[1]</value>
+                <graphics>
+                    <offset x="-1.1818181818181541" y="30.636363636363633"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>270</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <transition id="select[1]'">
+            <graphics>
+                <position x="60.0" y="615.0"/>
+            </graphics>
+            <name>
+                <value>select[1]'</value>
+                <graphics>
+                    <offset x="17.81818181818182" y="36.45454545454548"/>
+                </graphics>
+            </name>
+            <orientation>
+                <value>135</value>
+            </orientation>
+            <rate>
+                <value>1.0</value>
+            </rate>
+            <timed>
+                <value>false</value>
+            </timed>
+            <infiniteServer>
+                <value>false</value>
+            </infiniteServer>
+            <priority>
+                <value>1</value>
+            </priority>
+        </transition>
+        <arc id="at[0] to door_opening[0]" source="at[0]" target="door_opening[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="332" y="131" curvePoint="false"/>
+            <arcpath id="001" x="402" y="131" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="at[1] to door_opening" source="at[1]" target="door_opening[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="561" y="537" curvePoint="false"/>
+            <arcpath id="001" x="491" y="537" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="call[0]' to going_down_opening'" source="call[0]'" target="going_down">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="197" y="126" curvePoint="false"/>
+            <arcpath id="001" x="237" y="131" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="call[0]' to user_waiting[0]" source="call[0]'" target="user_waiting[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="196" y="136" curvePoint="false"/>
+            <arcpath id="001" x="463" y="246" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="call[0] to P1" source="call[0]" target="door_opening[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="197" y="232" curvePoint="false"/>
+            <arcpath id="001" x="403" y="138" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="call[0] to user_waiting" source="call[0]" target="user_waiting[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="196" y="242" curvePoint="false"/>
+            <arcpath id="001" x="462" y="251" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="call[1]' to door_opening" source="call[1]'" target="door_opening[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="696" y="421" curvePoint="false"/>
+            <arcpath id="001" x="490" y="529" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="call[1]' to user_1_waiting" source="call[1]'" target="user_waiting[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="697" y="411" curvePoint="false"/>
+            <arcpath id="001" x="506" y="402" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="call[1] to going_up_opening" source="call[1]" target="going_up">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="696" y="527" curvePoint="false"/>
+            <arcpath id="001" x="656" y="533" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="call[1] to user_1_waiting" source="call[1]" target="user_waiting[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="697" y="517" curvePoint="false"/>
+            <arcpath id="001" x="505" y="409" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="door_opened' to waiting_open" source="door_opened[0]" target="door_open[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="496" y="132" curvePoint="false"/>
+            <arcpath id="001" x="567" y="132" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="door_opened to waiting_user_enter" source="door_opened[1]" target="door_open[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="381" y="537" curvePoint="false"/>
+            <arcpath id="001" x="326" y="537" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="door_opening_1 to exit[1]" source="door_opening[1]'" target="exit[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="671" y="626" curvePoint="false"/>
+            <arcpath id="001" x="827" y="628" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="door_opening' to exit[0]'" source="door_opening[0]'" target="exit[0]'">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="177" y="42" curvePoint="false"/>
+            <arcpath id="001" x="82" y="39" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="door_opening to door_opened" source="door_opening[1]" target="door_opened[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="462" y="537" curvePoint="false"/>
+            <arcpath id="001" x="391" y="537" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="door_opening to door_opened'" source="door_opening[0]" target="door_opened[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="431" y="132" curvePoint="false"/>
+            <arcpath id="001" x="486" y="132" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="enter[0] to user_entering" source="enter[0]" target="entering[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="677" y="146" curvePoint="false"/>
+            <arcpath id="001" x="762" y="146" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="enter[1] to user_entering[1]" source="enter[1]" target="entering[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="247" y="536" curvePoint="false"/>
+            <arcpath id="001" x="206" y="536" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="exit[0]' to idle_0" source="exit[0]'" target="idle[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="71" y="49" curvePoint="false"/>
+            <arcpath id="001" x="72" y="192" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="exit[0]' to user_0" source="exit[0]'" target="user[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="76" y="44" curvePoint="false"/>
+            <arcpath id="001" x="124" y="133" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="exit[0] to idle_0" source="exit[0]" target="idle[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="67" y="276" curvePoint="false"/>
+            <arcpath id="001" x="72" y="221" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="exit[0] to user_0" source="exit[0]" target="user[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="77" y="277" curvePoint="false"/>
+            <arcpath id="001" x="126" y="160" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="exit[1]' to idle_1" source="exit[1]'" target="idle[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="841" y="377" curvePoint="false"/>
+            <arcpath id="001" x="836" y="462" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="exit[1]' to user_1" source="exit[1]'" target="user[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="831" y="376" curvePoint="false"/>
+            <arcpath id="001" x="769" y="493" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="exit[1] to idle_1" source="exit[1]" target="idle[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="838" y="619" curvePoint="false"/>
+            <arcpath id="001" x="837" y="491" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="exit[1] to user_1" source="exit[1]" target="user[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="832" y="623" curvePoint="false"/>
+            <arcpath id="001" x="769" y="519" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="going_down_opening' to door_opened''" source="going_down" target="at[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="266" y="131" curvePoint="false"/>
+            <arcpath id="001" x="322" y="131" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="going_down_opening to exit[0]" source="going_down_opening" target="exit[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="72" y="327" curvePoint="false"/>
+            <arcpath id="001" x="72" y="287" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="going_up_opening' to exit[1]'" source="going_up_opening" target="exit[1]'">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="836" y="326" curvePoint="false"/>
+            <arcpath id="001" x="836" y="366" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="going_up to at[1]" source="going_up" target="at[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="627" y="537" curvePoint="false"/>
+            <arcpath id="001" x="571" y="537" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="idle_0 to call[0]" source="idle[0]" target="call[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="86" y="210" curvePoint="false"/>
+            <arcpath id="001" x="186" y="242" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="idle_0 to call[1]" source="idle[0]" target="call[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="81" y="218" curvePoint="false"/>
+            <arcpath id="001" x="151" y="309" curvePoint="false"/>
+            <arcpath id="002" x="148" y="595" curvePoint="false"/>
+            <arcpath id="003" x="718" y="591" curvePoint="false"/>
+            <arcpath id="004" x="702" y="537" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="idle_1 to call[0]'" source="idle[1]" target="call[0]'">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="827" y="465" curvePoint="false"/>
+            <arcpath id="001" x="720" y="343" curvePoint="false"/>
+            <arcpath id="002" x="720" y="79" curvePoint="false"/>
+            <arcpath id="003" x="191" y="83" curvePoint="false"/>
+            <arcpath id="004" x="191" y="116" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="idle_1 to call[1]'" source="idle[1]" target="call[1]'">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="823" y="470" curvePoint="false"/>
+            <arcpath id="001" x="707" y="411" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="select_0 to door_opening'" source="select[0]" target="door_opening[0]'">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="829" y="41" curvePoint="false"/>
+            <arcpath id="001" x="206" y="42" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="select_1 to going_up_opening'" source="select[1]" target="going_up_opening">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="837" y="272" curvePoint="false"/>
+            <arcpath id="001" x="837" y="297" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="selected[0] to going_down_opening" source="select[0]'" target="going_down_opening">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="71" y="396" curvePoint="false"/>
+            <arcpath id="001" x="71" y="356" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="selected[1] to door_opening_1" source="select[1]'" target="door_opening[1]'">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="78" y="626" curvePoint="false"/>
+            <arcpath id="001" x="642" y="626" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="sensor_obstacle' to door_opening" source="obstacle" target="door_opening[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="667" y="202" curvePoint="false"/>
+            <arcpath id="001" x="431" y="136" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="sensor_obstacle' to user_waiting" source="obstacle" target="user_waiting[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="666" y="212" curvePoint="false"/>
+            <arcpath id="001" x="491" y="248" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="sensor_obstacle to door_opening" source="obstacle'" target="door_opening[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="286" y="437" curvePoint="false"/>
+            <arcpath id="001" x="463" y="529" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="sensor_obstacle to user_1_waiting" source="obstacle'" target="user_waiting[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="287" y="427" curvePoint="false"/>
+            <arcpath id="001" x="477" y="403" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="timeout' to user_in" source="entered[0]" target="user_in[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="783" y="206" curvePoint="false"/>
+            <arcpath id="001" x="822" y="205" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="timeout to user_in[1]" source="entered[1]" target="user_in[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="188" y="458" curvePoint="false"/>
+            <arcpath id="001" x="86" y="461" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_0 to call[0]" source="user[0]" target="call[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="140" y="159" curvePoint="false"/>
+            <arcpath id="001" x="187" y="232" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_1_waiting to enter[1]" source="user_waiting[1]" target="enter[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="478" y="409" curvePoint="false"/>
+            <arcpath id="001" x="257" y="531" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_1 to call[1]" source="user[1]" target="call[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="747" y="511" curvePoint="false"/>
+            <arcpath id="001" x="706" y="522" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_1 to call[1]'" source="user[1]" target="call[1]'">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="753" y="494" curvePoint="false"/>
+            <arcpath id="001" x="706" y="421" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_entering[1] to sensor_obstacle" source="entering[1]" target="obstacle'">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="201" y="525" curvePoint="false"/>
+            <arcpath id="001" x="276" y="432" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_entering[1] to timeout" source="entering[1]" target="entered[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="192" y="522" curvePoint="false"/>
+            <arcpath id="001" x="196" y="465" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_entering to sensor_obstacle'" source="entering[0]" target="obstacle">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="764" y="154" curvePoint="false"/>
+            <arcpath id="001" x="676" y="207" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_entering to timeout'" source="entering[0]" target="entered[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="776" y="161" curvePoint="false"/>
+            <arcpath id="001" x="776" y="199" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_in[1] to go_to[1]" source="user_in[1]" target="select[1]'">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="71" y="476" curvePoint="false"/>
+            <arcpath id="001" x="71" y="619" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_in[1] to selected[0]" source="user_in[1]" target="select[0]'">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="71" y="447" curvePoint="false"/>
+            <arcpath id="001" x="71" y="406" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_in to select_0" source="user_in[0]" target="select[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="836" y="192" curvePoint="false"/>
+            <arcpath id="001" x="836" y="49" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_in to select_1" source="user_in[0]" target="select[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="837" y="221" curvePoint="false"/>
+            <arcpath id="001" x="837" y="262" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user_waiting to enter[0]" source="user_waiting[0]" target="enter[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="490" y="244" curvePoint="false"/>
+            <arcpath id="001" x="666" y="151" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="user[0] to call[0]'" source="user[0]" target="call[0]'">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="146" y="142" curvePoint="false"/>
+            <arcpath id="001" x="187" y="131" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="waiting_open to enter[0]" source="door_open[0]" target="enter[0]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="596" y="133" curvePoint="false"/>
+            <arcpath id="001" x="667" y="141" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+        <arc id="waiting_user_enter to enter[1]" source="door_open[1]" target="enter[1]">
+            <graphics/>
+            <inscription>
+                <value>Default,1</value>
+                <graphics/>
+            </inscription>
+            <tagged>
+                <value>false</value>
+            </tagged>
+            <arcpath id="000" x="297" y="538" curvePoint="false"/>
+            <arcpath id="001" x="256" y="541" curvePoint="false"/>
+            <type value="normal"/>
+        </arc>
+    </net>
+</pnml>

@@ -1,0 +1,155 @@
+\chapter{Design del sistema}
+
+% ======================================================
+%
+% 2.1 - FSP MODEL
+%
+% ======================================================
+\section{Modello FSP}
+Il modello è contenuto nel file \texttt{lift\_system.lts} ed è composto da quattro processi: \texttt{LIFT}, \texttt{USERS}, \texttt{CALL\_QUEUE} e \texttt{FIRE\_ALARM}.
+
+Il sistema completo è definito dalla loro composizione parallela:
+\begin{center}
+  \texttt{||SYS = (LIFT || USERS || CALL\_QUEUE || FIRE\_ALARM).}
+\end{center}
+
+% ======================================================
+% 2.1.1 - ELEVATOR AND SERVICE CYCLE
+% ======================================================
+\subsection{\texttt{LIFT}: Ascensore e ciclo di servizio}
+La cabina dell'ascensore è inizialmente ferma al piano terra e vuota, con le porte chiuse.
+Quando è vuota, l'evento \texttt{request[h][u]} viene sincronizzato con il ticket in testa alla coda (di indice \texttt{u}), avviando il movimento verso il piano \texttt{h}.
+Dopo l'apertura delle porte, l'evento \texttt{enter[h][u]} consente all'utente che possiede il ticket corretto di salire.
+Il passeggero sceglie poi la destinazione (piano \texttt{t}) mediante \texttt{select[h][u][t]}; l'evento \texttt{exit[h][u][t]} conclude la corsa per l'utente.
+
+La capacità della cabina è modellata dal parametro \texttt{p:CABIN\_STATE}, con valori \texttt{EMPTY} e \texttt{FULL}.
+Le guardie sugli eventi \texttt{enter}, \texttt{exit} e \texttt{select} impediscono rispettivamente l'ingresso quando la cabina è occupata, l'uscita quando è vuota e una nuova selezione senza un passeggero a bordo.
+
+L'azione \texttt{alarm}, condivisa con \texttt{FIRE\_ALARM}, è accettata da tutti gli stati di servizio ordinario e viene gestita in base allo stato corrente secondo le specifiche riportate in \cref{sec:allarme}.
+
+Le porte sono state modellate nel modo più realistico possibile.
+Normalmente l'ascensore esegue l'apertura delle porte una volta arrivato al piano, e le chiude dopo che è trascorso un certo intervallo di tempo (\emph{timeout}); la corretta chiusura/apertura viene confermata tramite apposite azioni.
+L'utente presente in cabina può richiedere l'accelerazione di questo processo, facendole chiudere/aprire prima del previsto tramite le azioni dell'ascensore \texttt{close\_door\_button} e \texttt{open\_door\_button}.
+Per motivi di sicurezza, le porte vengono però riaperte nel caso in cui un sensore rilevi un ostacolo nel loro tragitto di chiusura.
+
+Inizialmente erano stati modellati anche i vari passaggi intermedi, quali gli step per l'apertura/chiusura delle porte e lo spostamento progressivo da un piano all'altro.
+Con il progressivo sviluppo del sistema questi step sono stati unificati in singole azioni atomiche (ad esempio direttamente \texttt{door\_closed}), a causa dell'esplosione combinatoria degli stati del modello e della verbosità del codice scritto.
+
+% ======================================================
+% 2.1.2 - USERS
+% ======================================================
+\subsection{\texttt{USERS}: Utenti}
+Per rispettare le specifiche richieste (vedi \cref{subsec:building_users}), nel sistema sono previsti \texttt{M} utenti per piano, ognuno modellato tramite il processo \texttt{USER}.
+Ogni utente è quindi già presente al piano da cui effettuerà la chiamata dell'ascensore tramite l'azione \texttt{call[H][U]} (in cui \texttt{H} corrisponde al numero di piano e \texttt{U} all'id di quell'utente all'interno del piano), aggiungendo il suo ticket alla coda e portando l'utente in stato di \texttt{WAITING}.
+Quando l'ascensore sarà vuoto al piano dell'utente con le porte aperte e il ticket dell'utente sarà in testa alla coda, verrà reso disponibile l'evento \texttt{enter} (sincronizzato con il ticket e l'ascensore), così che l'utente possa entrare in cabina.
+Gli sarà poi permesso di utilizzare la pulsantiera dell'ascensore per scegliere il piano da raggiungere (\texttt{select[H][U][d]}, in cui \texttt{d} è il piano di destinazione), e di scendere una volta arrivato (azione \texttt{exit}).
+
+Nel caso si sia attivato l'allarme antincendio durante l'utilizzo dell'ascensore, una volta che la cabina sarà arrivata al piano terra verrà resa possibile l'azione \texttt{evacuate}, così da permettere all'utente di abbandonare la cabina.
+
+Il sistema complessivo \texttt{USERS} è ottenuto tramite la composizione \texttt{forall}, che istanzia un processo \texttt{USER} per ogni coppia piano-utente ($U_{tot}$ processi in totale, vedi
+\cref{subsec:call_queue}):
+\begin{center}
+  \texttt{||USERS = (forall[h:FLOORS][u:USER\_IDX] USER(h,u)).}
+\end{center}
+
+% ======================================================
+% 2.1.3 - FIFO QUEUE
+% ======================================================
+\subsection{\texttt{CALL\_QUEUE}: Coda FIFO}
+\label{subsec:call_queue}
+A ogni utente corrisponde un processo \texttt{TICKET}, i cui contatori assumono valori nell'insieme $T = \{0, \dots, U_{tot}-1\}$, con $U_{tot} = \texttt{N\_USERS} = (\texttt{MAX\_FLOOR} - \texttt{MIN\_FLOOR} + 1) \cdot \texttt{M}$, dove \texttt{M} è il numero di utenti per piano.
+
+Un ticket può trovarsi in due stati:
+\begin{itemize}
+  \item \texttt{OUT[n]}: l'utente non è ancora in coda, e \texttt{n}
+    è il numero di altri utenti attualmente in attesa;
+  \item \texttt{WAIT[k][m]}: l'utente è in coda, con \texttt{k}
+    utenti davanti e \texttt{m} dietro.
+\end{itemize}
+
+Nello stato \texttt{OUT}, il valore \texttt{n} corrisponde alla posizione che l'utente occuperà se chiama l'ascensore, come in un sistema a numeretti.
+Se l'azione \texttt{call} proviene dall'utente stesso, il ticket passa a \texttt{WAIT[n][0]}: \texttt{n} utenti davanti e nessuno dietro.
+Se invece proviene da un altro utente, viene solo incrementato \texttt{n}.
+Quando un utente entra nell'ascensore (azione \texttt{enter}), lascia la coda, quindi \texttt{n} viene decrementato.
+
+Nello stato \texttt{WAIT}, il ticket tiene traccia della propria posizione tramite \texttt{k} e \texttt{m}.
+Quando un altro utente esegue \texttt{call}, si accoda dietro all'utente del ticket e quindi viene incrementato solo \texttt{m}.
+Quando un altro utente esegue \texttt{enter}, si tratta necessariamente di un utente che lo precede, e quindi viene decrementato solo \texttt{k}.
+Solo quando \texttt{k == 0}, ovvero l'utente è in testa alla coda, il ticket può sincronizzare \texttt{request[H][U]} ed \texttt{enter[H][U]}, rendendo esplicita la politica FIFO.
+L'azione \texttt{request[H][U]} lascia il ticket nello stato \texttt{WAIT}, mentre \texttt{enter[H][U]} lo riporta in \texttt{OUT[m]}.
+
+Gli stati \texttt{ERROR} rappresentano il caso di coda piena e non sono raggiungibili nel sistema composto.
+
+Infine, come succede per gli utenti, viene eseguita la composizione di $U_{tot}$ processi \texttt{TICKET} così da creare la coda globale delle chiamate:
+\begin{center}
+  \texttt{||CALL\_QUEUE = (forall[h:FLOORS][u:USER\_IDX] TICKET(h,u)).}
+\end{center}
+
+% ======================================================
+% 2.1.4 - FIRE ALARM
+% ======================================================
+\subsection{\texttt{FIRE\_ALARM}: Allarme antincendio}
+Il processo \texttt{FIRE\_ALARM} modella il sistema antincendio esterno in modo volutamente astratto:
+\begin{center}
+  \texttt{FIRE\_ALARM = (alarm -> alarm\_solved -> FIRE\_ALARM).}
+\end{center}
+
+Alterna all'infinito le azioni \texttt{alarm} e \texttt{alarm\_solved}, senza rappresentare i dettagli dell'emergenza, poiché non sono rilevanti ai fini del modello.
+Questa astrazione è sufficiente, perché per l'ascensore qualunque tipo di allarme richiede la stessa risposta: scendere al piano terra, far evacuare la cabina e attendere la risoluzione.
+
+% ======================================================
+%
+% 2.2 - PETRI NETS
+%
+% ======================================================
+\section{Reti di Petri}
+Per la rete di Petri si è scelto un modello più astratto rispetto alla traduzione letterale dell'FSP, che avrebbe prodotto una rete molto grande e incomprensibile senza aggiungere informazione utile.
+La rete, contenuta nel file \texttt{lift\_petri\_net.xml} e creata con lo strumento PIPE v4.3.0, è riportata in \cref{fig:petri_net}.
+
+% ======================================================
+% 2.2.1 - STRUCTURE
+% ======================================================
+\subsection{Struttura}
+Le etichette di posti e transizioni relativi a un piano, ne riportano tra parentesi quadre l'indice: \texttt{etichetta[f]} si riferisce al piano $\texttt{f}$.
+A titolo di esempio è riportato un modello composto da 2 piani e 3 utenti per piano.
+
+La cabina è rappresentata da un unico token che cambia posto a seconda dello stato dell'ascensore.
+Proprio perché il token è uno solo e gli archi entranti nelle transizioni hanno tutti peso 1, la capacità unitaria della cabina è garantita dalla struttura stessa della rete.
+I singoli utenti sono rappresentati dai token nei posti \texttt{user[f]} e \texttt{user\_waiting[f]} (in attesa dell'ascensore).
+Quando un utente arriva a destinazione, il suo token viene aggiunto agli utenti fermi al piano di arrivo (\texttt{user[f]}), da cui potrà effettuare una nuova chiamata.
+
+Le transizioni \texttt{call}, \texttt{at}, \texttt{door\_opened}, \texttt{enter}, \texttt{select} ed \texttt{exit} corrispondono alle azioni omonime del modello FSP.
+La transizione \texttt{obstacle} modella il sensore di ostacolo: interrompe l'ingresso (\texttt{entering}), riapre le porte e riporta l'utente in attesa.
+
+Alcune etichette riportano il simbolo apice (\texttt{\textquotesingle}): questo perché sono presenti più etichette che hanno la stessa semantica ma non è possibile avere etichette ripetute con lo stesso nome. Ad esempio le transizioni \texttt{call[0]} e \texttt{call[0]\textquotesingle} servono entrambe agli utenti del piano 0 per chiamare l'ascensore, ma la prima prevede che l'ascensore sia già presente al piano, mentre l'altra che l'ascensore debba prima arrivare.
+
+\begin{landscape}
+  \begin{figure}[p]
+    \centering
+    \includegraphics[width=0.83\linewidth]{petri_net.png}
+    \caption{Rete di Petri dell'ascensore, con 2 piani e 3 utenti per piano.}
+    \label{fig:petri_net}
+  \end{figure}
+\end{landscape}
+
+% ======================================================
+% 2.2.2 - LIMITS
+% ======================================================
+\subsection{Limiti}
+Le semplificazioni fatte nella creazione della rete di Petri hanno portato ad alcune limitazioni, descritte nei paragrafi seguenti.
+
+\subsubsection{Allarme antincendio non modellato}
+La rete descrive solo il comportamento ordinario del sistema.
+La gestione dell'allarme, che richiede di poter interrompere l'ascensore in qualsiasi stato, è trattata nel modello FSP e verificata con LTSA.
+Nella rete potrebbe essere aggiunta tramite due posti (allarme attivo/spento) connessi da una transizione che segnala l'allarme.
+Un arco inibitore dal posto di allarme attivo a ciascuna transizione ordinaria ne bloccherebbe lo scatto, interrompendo qualsiasi attività in corso.
+Per ogni stato in cui può trovarsi la cabina servirebbe poi una transizione di evacuazione, abilitata dalla presenza del token di allarme, che porti la cabina al piano terra con le porte aperte.
+Se a bordo c'è un passeggero, la stessa transizione lo rilascia al piano terra, rimettendolo tra gli utenti fermi, come l'azione \texttt{evacuate} dell'FSP.
+La cabina resterebbe in attesa finché una transizione di fine allarme non ripristinasse il servizio.
+
+\subsubsection{Nessuna coda FIFO}
+Le chiamate sono possibili solo con la cabina ferma (\texttt{idle[f]}); chi chiama per primo è deciso da una scelta non deterministica.
+
+\subsubsection{Astrazione di porte e movimento}
+Non sono modellati i timeout di chiusura né i pulsanti di apertura/chiusura delle porte della cabina.
+Anche il percorso tra piani è stato ridotto a un singolo passo.

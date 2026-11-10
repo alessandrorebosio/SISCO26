@@ -1,0 +1,56 @@
+\documentclass[12pt,a4paper]{report}
+
+% ====================================================
+%
+% PACCHETTI
+%
+% ====================================================
+\usepackage{alltt, fancyvrb, url}
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{geometry}
+\usepackage{pdfpages}
+\usepackage{hyperref}
+\usepackage{textcomp}
+\usepackage{siunitx}
+\usepackage[italian]{babel}
+\usepackage[capitalise, italian]{cleveref}
+\usepackage{pdflscape}
+\usepackage{needspace}
+
+% ====================================================
+%
+% CONFIGURAZIONI
+%
+% ====================================================
+\geometry{margin=1in}
+\emergencystretch=3em
+\graphicspath{ {./img/} }
+\textwidth=450pt\oddsidemargin=0pt
+
+% ====================================================
+%
+% CORPO
+%
+% ====================================================
+\begin{document}
+
+\include{chapters/0-Cover}
+
+\pagenumbering{roman}
+\tableofcontents
+
+\cleardoublepage
+\pagenumbering{arabic}
+\include{chapters/1-Analysis}
+\include{chapters/2-Design}
+\include{chapters/3-Test}
+
+\end{document}

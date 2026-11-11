@@ -23,3 +23,7 @@ Thumbs.db
 *.synctex.gz
 *.synctex.blg
 *.toc
+
+# Gradle build output (tools/jpf/build/ holds prebuilt jars and stays tracked)
+.gradle/
+assignments/**/build/

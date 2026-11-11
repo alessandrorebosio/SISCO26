@@ -20,7 +20,9 @@ assignments/
 │   ├── lift_petri_net.xml   # Petri net model for the lift system
 │   └── docs/                # Assignment report sources
 └── assignment-02/
-    └── README.md            # Assignment description and requirements
+    ├── README.md            # Assignment description and requirements
+    ├── nbody/               # N-body simulation (Gradle, Java 21, MVC)
+    └── docs/                # Assignment report sources
 ```
 
 Both tools require Java. On macOS/Linux, run:
@@ -42,6 +44,14 @@ otherwise set `JPF_JAVA_HOME` to a JDK 11 installation:
 ```bash
 javac --release 11 -d out MyModel.java
 ./scripts/run-jpf.sh MyModel.jpf
+```
+
+The N-body simulation of assignment-02 is a Gradle project that uses Java 21
+through a Gradle toolchain. Run it from its folder with the wrapper:
+
+```bash
+cd assignments/assignment-02/nbody
+./gradlew build
 ```
 
 The assignment-specific documentation is available in:

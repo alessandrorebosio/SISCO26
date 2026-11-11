@@ -54,6 +54,12 @@ cd assignments/assignment-02/nbody
 ./gradlew build
 ```
 
+The build fails on any compiler warning (`-Xlint:all -Werror`), on missing or
+malformed Javadoc of public/protected code, and on Checkstyle, PMD or SpotBugs
+violations. Their rules live in `assignments/assignment-02/nbody/config/` and
+are derived from [gradle-java-qa](https://github.com/DanySK/gradle-java-qa).
+JaCoCo writes the test coverage report to `build/reports/jacoco/`.
+
 The assignment-specific documentation is available in:
 
 - [`assignments/assignment-01/README.md`](assignments/assignment-01/README.md)

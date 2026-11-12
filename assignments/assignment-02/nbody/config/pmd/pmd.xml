@@ -13,6 +13,7 @@
         <exclude name="AccessorMethodGeneration" />
         <exclude name="ConstantsInInterface" />
         <exclude name="GuardLogStatement" />
+        <exclude name="ImplicitFunctionalInterface" />
         <exclude name="UnitTestAssertionsShouldIncludeMessage" />
         <exclude name="UnitTestContainsTooManyAsserts" />
         <exclude name="UnitTestShouldIncludeAssert" />

@@ -2,6 +2,8 @@ package it.unibo.sisco.view.impl;
 
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.view.api.SimulationView;
+import it.unibo.sisco.view.impl.panel.BodyShape;
+import it.unibo.sisco.view.impl.panel.VisualiserPanel;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import javax.swing.JFrame;

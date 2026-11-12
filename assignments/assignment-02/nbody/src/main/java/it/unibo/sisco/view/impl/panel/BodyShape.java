@@ -1,4 +1,6 @@
-package it.unibo.sisco.view.impl;
+package it.unibo.sisco.view.impl.panel;
+
+import java.io.Serializable;
 
 /**
  * Snapshot of a body taken for rendering, decoupled from the live model.
@@ -7,5 +9,5 @@ package it.unibo.sisco.view.impl;
  * @param y the y coordinate of the body
  * @param radius the radius of the body
  */
-record BodyShape(double x, double y, double radius) {
+public record BodyShape(double x, double y, double radius) implements Serializable {
 }

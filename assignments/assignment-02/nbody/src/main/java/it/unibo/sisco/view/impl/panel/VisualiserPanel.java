@@ -1,6 +1,5 @@
-package it.unibo.sisco.view.impl;
+package it.unibo.sisco.view.impl.panel;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -12,12 +11,10 @@ import javax.swing.JPanel;
 
 /**
  * Panel that draws the bodies. It must be accessed only from the Event Dispatch Thread.
+ *
+ * @serial exclude
  */
-@SuppressFBWarnings(
-    value = "SE_TRANSIENT_FIELD_NOT_RESTORED",
-    justification = "Swing components of this view are never serialized"
-)
-final class VisualiserPanel extends JPanel {
+public final class VisualiserPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private static final double ZOOM_IN = 1.1;
@@ -29,7 +26,7 @@ final class VisualiserPanel extends JPanel {
 
     private final long dx;
     private final long dy;
-    private transient List<BodyShape> bodies = List.of();
+    private BodyShape[] bodies = new BodyShape[0];
     private long iteration;
     private int framePerSec;
     private double vt;
@@ -41,7 +38,7 @@ final class VisualiserPanel extends JPanel {
      * @param w the width of the panel
      * @param h the height of the panel
      */
-    VisualiserPanel(final int w, final int h) {
+    public VisualiserPanel(final int w, final int h) {
         super();
         setSize(w, h);
         dx = w / 2 - MARGIN;
@@ -69,8 +66,8 @@ final class VisualiserPanel extends JPanel {
      * @param steps the number of steps executed so far
      * @param fps the frames rendered per second
      */
-    void display(final List<BodyShape> shapes, final double time, final long steps, final int fps) {
-        this.bodies = List.copyOf(shapes);
+    public void display(final List<BodyShape> shapes, final double time, final long steps, final int fps) {
+        this.bodies = shapes.toArray(new BodyShape[0]);
         this.vt = time;
         this.iteration = steps;
         this.framePerSec = fps;
@@ -88,7 +85,7 @@ final class VisualiserPanel extends JPanel {
             g2.drawOval(getXcoord(b.x()), getYcoord(b.y()), radius, radius);
         }
         final String time = String.format(Locale.ROOT, "%.2f", vt);
-        g2.drawString("Bodies: " + bodies.size() + " - vt: " + time + " - nIter: " + iteration
+        g2.drawString("Bodies: " + bodies.length + " - vt: " + time + " - nIter: " + iteration
             + " - frames/sec: " + framePerSec, TEXT_X, FIRST_LINE_Y);
         g2.drawString("Commands: UP for zoom in, DOWN for zoom out", TEXT_X, SECOND_LINE_Y);
     }

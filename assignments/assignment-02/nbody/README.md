@@ -35,6 +35,20 @@ nbody/
     └── test/java/it/unibo/sisco/
 ```
 
+## Run
+
+Run the simulation without GUI (prints the elapsed time):
+
+```bash
+./gradlew run
+```
+
+Run the simulation with the GUI (UP/DOWN arrows to zoom):
+
+```bash
+./gradlew runGui
+```
+
 ## Build and checks
 
 Build the project, run the tests and all the checks:
@@ -77,9 +91,6 @@ The build fails on:
 
 Checkstyle, PMD and SpotBugs also have a `…Test` variant
 (for example `./gradlew checkstyleTest`) that checks the test sources.
-
-`./gradlew javadoc` fails until the project contains at least one public
-class.
 
 ## Reports
 

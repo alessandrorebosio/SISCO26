@@ -3,6 +3,7 @@ import com.github.spotbugs.snom.Effort
 
 plugins {
     java
+    application
     checkstyle
     pmd
     jacoco
@@ -20,6 +21,20 @@ java {
 
 repositories {
     mavenCentral()
+}
+
+// `./gradlew run` starts the simulation without GUI.
+application {
+    mainClass = "it.unibo.sisco.SimulationMain"
+}
+
+// `./gradlew runGui` starts the simulation with the Swing GUI.
+tasks.register<JavaExec>("runGui") {
+    group = "application"
+    description = "Runs the simulation with the GUI."
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass = "it.unibo.sisco.SimulationMainWithGUI"
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
 }
 
 val spotbugsVersion = "4.10.5"

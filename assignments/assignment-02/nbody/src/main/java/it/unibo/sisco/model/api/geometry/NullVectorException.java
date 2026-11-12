@@ -2,6 +2,8 @@ package it.unibo.sisco.model.api.geometry;
 
 /**
  * Thrown when an operation is not defined on the null vector.
+ *
+ * @see V2d#normalize()
  */
 public final class NullVectorException extends Exception {
 

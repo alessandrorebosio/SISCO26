@@ -1,8 +1,10 @@
 package it.unibo.sisco.model.api;
 
 /**
- * Thrown when the gravitational force between two bodies is infinite,
- * that is when the two bodies are in the same position.
+ * Thrown when the gravitational force between two bodies is infinite, that is when the two
+ * bodies are in the same position.
+ *
+ * @see Body#computeGForceBy(Body)
  */
 public final class InfiniteForceException extends Exception {
 
@@ -19,7 +21,7 @@ public final class InfiniteForceException extends Exception {
     /**
      * Builds a new exception with a cause.
      *
-     * @param cause the cause of the exception
+     * @param cause the cause of the exception, for example a {@code NullVectorException}
      */
     public InfiniteForceException(final Throwable cause) {
         super(MESSAGE, cause);

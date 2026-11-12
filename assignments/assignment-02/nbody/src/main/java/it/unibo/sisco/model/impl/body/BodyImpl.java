@@ -7,7 +7,10 @@ import it.unibo.sisco.model.api.geometry.P2d;
 import it.unibo.sisco.model.api.geometry.V2d;
 
 /**
- * Default implementation of {@link Body}. Two bodies are equal if they have the same identifier.
+ * Default implementation of {@link Body}, with a scaled gravitational constant
+ * {@code G = 0.001}.
+ *
+ * <p>Two bodies are equal if they have the same identifier. The class is not thread-safe.
  */
 public final class BodyImpl implements Body {
 

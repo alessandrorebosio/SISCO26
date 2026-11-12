@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Factory of body sets to initialise a simulation.
+ * Factory of body sets to initialise a simulation. Every set is an unmodifiable list of new
+ * bodies, with identifiers from {@code 0} to {@code size - 1}.
  */
 public final class BodySets {
 
@@ -53,10 +54,12 @@ public final class BodySets {
     }
 
     /**
-     * Builds a set of bodies with random position, velocity and mass, seeded with the current time.
+     * Builds a set of bodies with random position, velocity and mass, seeded with the current
+     * time, so the set is not reproducible.
      *
      * @param nBodies the number of bodies
      * @return the body set
+     * @see #random(int, long)
      */
     public static List<Body> random(final int nBodies) {
         return random(nBodies, System.currentTimeMillis());
@@ -64,7 +67,9 @@ public final class BodySets {
 
     /**
      * Builds a set of bodies with random position, velocity and mass.
-     * Positions are in [-1, 1) on both axes.
+     *
+     * <p>Positions are in {@code [-1, 1)} on both axes, velocity components in
+     * {@code [-0.1, 0.1)}, masses in {@code [1, 10)} and every radius is {@code 0.01}.
      *
      * @param nBodies the number of bodies
      * @param seed the seed of the random generator, to get reproducible sets

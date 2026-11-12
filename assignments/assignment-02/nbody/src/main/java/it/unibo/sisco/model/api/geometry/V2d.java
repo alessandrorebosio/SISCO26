@@ -1,7 +1,8 @@
 package it.unibo.sisco.model.api.geometry;
 
 /**
- * An immutable vector in a 2D space.
+ * An immutable vector in a 2D space. Every operation returns a new vector, so instances can
+ * be shared among threads without synchronisation.
  *
  * @param x the x component
  * @param y the y component
@@ -54,7 +55,8 @@ public record V2d(double x, double y) {
     }
 
     /**
-     * Computes the unit vector with the same direction of this one.
+     * Computes the unit vector with the same direction of this one, that is a vector with
+     * module {@code 1}.
      *
      * @return the normalized vector
      * @throws NullVectorException if this vector is the null vector

@@ -1,7 +1,8 @@
 package it.unibo.sisco.model.api.geometry;
 
 /**
- * An immutable point in a 2D space.
+ * An immutable point in a 2D space. Being immutable, it can be shared among threads
+ * without synchronisation.
  *
  * @param x the x coordinate
  * @param y the y coordinate
@@ -12,7 +13,7 @@ public record P2d(double x, double y) {
      * Translates this point by a vector.
      *
      * @param v the translation vector
-     * @return the translated point
+     * @return a new point, translated by {@code v}
      */
     public P2d sum(final V2d v) {
         return new P2d(x + v.x(), y + v.y());

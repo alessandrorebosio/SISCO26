@@ -7,8 +7,11 @@ import java.util.Optional;
 import java.util.stream.LongStream;
 
 /**
- * Default implementation of {@link Controller}: executes the steps of the
- * simulation and displays every stage on the view, if any.
+ * Default implementation of {@link Controller}: executes the steps of the simulation one
+ * after the other and, if a view is present, displays the state reached after each step.
+ *
+ * <p>The view is initialised once at the beginning of {@link #run(long)}. Since the view is
+ * updated between two steps, it always sees a consistent state of the bodies.
  */
 public final class SimulationController implements Controller {
 
@@ -16,7 +19,8 @@ public final class SimulationController implements Controller {
     private final NBodySimulation simulation;
 
     /**
-     * Builds a controller without a view.
+     * Builds a controller without a view, for example to measure the performance of the
+     * simulation.
      *
      * @param simulation the simulation to drive
      */
@@ -29,7 +33,7 @@ public final class SimulationController implements Controller {
      * Builds a controller that displays every stage on a view.
      *
      * @param simulation the simulation to drive
-     * @param view       the view to update at every step
+     * @param view the view to update at every step
      */
     public SimulationController(final NBodySimulation simulation, final SimulationView view) {
         this.simulation = simulation;

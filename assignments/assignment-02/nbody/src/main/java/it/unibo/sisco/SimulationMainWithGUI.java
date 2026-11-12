@@ -6,7 +6,9 @@ import it.unibo.sisco.model.impl.simulation.SequentialNBodySimulation;
 import it.unibo.sisco.view.impl.SwingSimulationView;
 
 /**
- * N-body simulation, simple sequential version with a GUI.
+ * Entry point of the N-body simulation with GUI: it runs the sequential simulation of 5000
+ * random bodies for 50,000 steps, displaying every step. Start it with
+ * {@code ./gradlew runGui}.
  */
 public final class SimulationMainWithGUI {
 
@@ -20,7 +22,7 @@ public final class SimulationMainWithGUI {
     /**
      * Runs the simulation, displaying every step.
      *
-     * @param args unused
+     * @param args command-line arguments, ignored
      */
     public static void main(final String[] args) {
         new SimulationController(

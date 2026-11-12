@@ -10,7 +10,10 @@ import java.util.Locale;
 import javax.swing.JPanel;
 
 /**
- * Panel that draws the bodies. It must be accessed only from the Event Dispatch Thread.
+ * Panel that draws the bodies, centred on the origin. The UP and DOWN arrow keys zoom in and
+ * out.
+ *
+ * <p>It must be accessed only from the Event Dispatch Thread.
  *
  * @serial exclude
  */
@@ -59,7 +62,8 @@ public final class VisualiserPanel extends JPanel {
     }
 
     /**
-     * Updates the stage to draw.
+     * Updates the stage to draw. The shapes are copied; the panel is redrawn at the next
+     * repaint.
      *
      * @param shapes the bodies to draw
      * @param time the current virtual time

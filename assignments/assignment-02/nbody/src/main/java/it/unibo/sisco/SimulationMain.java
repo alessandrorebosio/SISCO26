@@ -8,7 +8,9 @@ import it.unibo.sisco.model.impl.simulation.SequentialNBodySimulation;
 import java.util.logging.Logger;
 
 /**
- * N-body simulation, simple sequential version without GUI.
+ * Entry point of the N-body simulation without GUI: it runs the sequential simulation of
+ * 5000 random bodies for 100 steps and logs the elapsed time. Start it with
+ * {@code ./gradlew run}.
  */
 public final class SimulationMain {
 
@@ -22,7 +24,7 @@ public final class SimulationMain {
     /**
      * Runs the simulation and logs its duration.
      *
-     * @param args unused
+     * @param args command-line arguments, ignored
      */
     public static void main(final String[] args) {
         final NBodySimulation sim = new SequentialNBodySimulation(BodySets.random(N_BODIES));

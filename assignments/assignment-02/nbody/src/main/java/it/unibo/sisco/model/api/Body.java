@@ -1,5 +1,8 @@
 package it.unibo.sisco.model.api;
 
+import it.unibo.sisco.model.api.geometry.P2d;
+import it.unibo.sisco.model.api.geometry.V2d;
+
 /**
  * A body of the simulation, with a position, a velocity, a mass and a radius.
  */
@@ -71,18 +74,4 @@ public interface Body {
      * @param dt the virtual time elapsed
      */
     void updatePos(double dt);
-
-    /**
-     * Replaces the velocity of the body.
-     *
-     * @param newVel the new velocity
-     */
-    void changeVel(V2d newVel);
-
-    /**
-     * Translates the body by a vector, regardless of its velocity.
-     *
-     * @param v the translation vector
-     */
-    void forceTranslation(V2d v);
 }

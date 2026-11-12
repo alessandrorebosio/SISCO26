@@ -1,4 +1,4 @@
-package it.unibo.sisco.model.api;
+package it.unibo.sisco.model.api.geometry;
 
 /**
  * Thrown when an operation is not defined on the null vector.

@@ -3,8 +3,8 @@ package it.unibo.sisco;
 import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.controller.impl.SimulationController;
 import it.unibo.sisco.model.api.NBodySimulation;
-import it.unibo.sisco.model.impl.BodySets;
-import it.unibo.sisco.model.impl.SequentialNBodySimulation;
+import it.unibo.sisco.model.impl.body.BodySets;
+import it.unibo.sisco.model.impl.simulation.SequentialNBodySimulation;
 import java.util.logging.Logger;
 
 /**

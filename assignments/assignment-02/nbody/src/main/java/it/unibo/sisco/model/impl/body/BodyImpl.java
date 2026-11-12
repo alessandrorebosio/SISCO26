@@ -1,10 +1,10 @@
-package it.unibo.sisco.model.impl;
+package it.unibo.sisco.model.impl.body;
 
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.InfiniteForceException;
-import it.unibo.sisco.model.api.NullVectorException;
-import it.unibo.sisco.model.api.P2d;
-import it.unibo.sisco.model.api.V2d;
+import it.unibo.sisco.model.api.geometry.NullVectorException;
+import it.unibo.sisco.model.api.geometry.P2d;
+import it.unibo.sisco.model.api.geometry.V2d;
 
 /**
  * Default implementation of {@link Body}. Two bodies are equal if they have the same identifier.
@@ -89,16 +89,6 @@ public final class BodyImpl implements Body {
     @Override
     public void updatePos(final double dt) {
         pos = pos.sum(vel.scalarMul(dt));
-    }
-
-    @Override
-    public void changeVel(final V2d newVel) {
-        this.vel = newVel;
-    }
-
-    @Override
-    public void forceTranslation(final V2d v) {
-        pos = pos.sum(v);
     }
 
     @Override

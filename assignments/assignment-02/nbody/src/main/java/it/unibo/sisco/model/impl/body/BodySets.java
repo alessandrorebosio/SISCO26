@@ -1,8 +1,8 @@
-package it.unibo.sisco.model.impl;
+package it.unibo.sisco.model.impl.body;
 
 import it.unibo.sisco.model.api.Body;
-import it.unibo.sisco.model.api.P2d;
-import it.unibo.sisco.model.api.V2d;
+import it.unibo.sisco.model.api.geometry.P2d;
+import it.unibo.sisco.model.api.geometry.V2d;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

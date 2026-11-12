@@ -1,8 +1,8 @@
 package it.unibo.sisco;
 
 import it.unibo.sisco.controller.impl.SimulationController;
-import it.unibo.sisco.model.impl.BodySets;
-import it.unibo.sisco.model.impl.SequentialNBodySimulation;
+import it.unibo.sisco.model.impl.body.BodySets;
+import it.unibo.sisco.model.impl.simulation.SequentialNBodySimulation;
 import it.unibo.sisco.view.impl.SwingSimulationView;
 
 /**

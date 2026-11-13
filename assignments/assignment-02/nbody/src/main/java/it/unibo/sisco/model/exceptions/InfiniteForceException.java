@@ -1,4 +1,6 @@
-package it.unibo.sisco.model.api;
+package it.unibo.sisco.model.exceptions;
+
+import it.unibo.sisco.model.api.Body;
 
 /**
  * Thrown when the gravitational force between two bodies is infinite, that is when the two

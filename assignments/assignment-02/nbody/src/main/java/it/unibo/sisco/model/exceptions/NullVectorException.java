@@ -1,9 +1,11 @@
-package it.unibo.sisco.model.api.geometry;
+package it.unibo.sisco.model.exceptions;
+
+import it.unibo.sisco.model.impl.geometry.Vector2D;
 
 /**
  * Thrown when an operation is not defined on the null vector.
  *
- * @see V2d#normalize()
+ * @see Vector2D#normalize()
  */
 public final class NullVectorException extends Exception {
 

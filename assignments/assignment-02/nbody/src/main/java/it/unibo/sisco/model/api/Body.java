@@ -1,7 +1,8 @@
 package it.unibo.sisco.model.api;
 
-import it.unibo.sisco.model.api.geometry.P2d;
-import it.unibo.sisco.model.api.geometry.V2d;
+import it.unibo.sisco.model.exceptions.InfiniteForceException;
+import it.unibo.sisco.model.impl.geometry.Point2D;
+import it.unibo.sisco.model.impl.geometry.Vector2D;
 
 /**
  * A body of the simulation: a point mass that moves in a 2D space.
@@ -25,14 +26,14 @@ public interface Body {
      *
      * @return the current position
      */
-    P2d getPos();
+    Point2D getPos();
 
     /**
      * Returns the current velocity of the body.
      *
      * @return the current velocity
      */
-    V2d getVel();
+    Vector2D getVel();
 
     /**
      * Returns the mass of the body.
@@ -68,7 +69,7 @@ public interface Body {
      * @return the force exerted by {@code b}
      * @throws InfiniteForceException if the two bodies are in the same position
      */
-    V2d computeGForceBy(Body b) throws InfiniteForceException;
+    Vector2D computeGForceBy(Body b) throws InfiniteForceException;
 
     /**
      * Updates the velocity, given the instant acceleration: {@code vel = vel + acc * dt}.
@@ -77,7 +78,7 @@ public interface Body {
      * @param acc the instant acceleration
      * @param dt the virtual time elapsed
      */
-    void updateVelocity(V2d acc, double dt);
+    void updateVelocity(Vector2D acc, double dt);
 
     /**
      * Updates the position, according to the current velocity: {@code pos = pos + vel * dt}.

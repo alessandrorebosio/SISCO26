@@ -1,10 +1,10 @@
 package it.unibo.sisco.model.impl.body;
 
 import it.unibo.sisco.model.api.Body;
-import it.unibo.sisco.model.api.InfiniteForceException;
-import it.unibo.sisco.model.api.geometry.NullVectorException;
-import it.unibo.sisco.model.api.geometry.P2d;
-import it.unibo.sisco.model.api.geometry.V2d;
+import it.unibo.sisco.model.exceptions.InfiniteForceException;
+import it.unibo.sisco.model.exceptions.NullVectorException;
+import it.unibo.sisco.model.impl.geometry.Point2D;
+import it.unibo.sisco.model.impl.geometry.Vector2D;
 
 /**
  * Default implementation of {@link Body}, with a scaled gravitational constant
@@ -19,8 +19,8 @@ public final class BodyImpl implements Body {
     private final int id;
     private final double mass;
     private final double radius;
-    private P2d pos;
-    private V2d vel;
+    private Point2D pos;
+    private Vector2D vel;
 
     /**
      * Builds a new body.
@@ -31,7 +31,7 @@ public final class BodyImpl implements Body {
      * @param radius the radius
      * @param mass the mass
      */
-    public BodyImpl(final int id, final P2d pos, final V2d vel, final double radius, final double mass) {
+    public BodyImpl(final int id, final Point2D pos, final Vector2D vel, final double radius, final double mass) {
         this.id = id;
         this.pos = pos;
         this.vel = vel;
@@ -45,12 +45,12 @@ public final class BodyImpl implements Body {
     }
 
     @Override
-    public P2d getPos() {
+    public Point2D getPos() {
         return pos;
     }
 
     @Override
-    public V2d getVel() {
+    public Vector2D getVel() {
         return vel;
     }
 
@@ -70,11 +70,11 @@ public final class BodyImpl implements Body {
     }
 
     @Override
-    public V2d computeGForceBy(final Body b) throws InfiniteForceException {
+    public Vector2D computeGForceBy(final Body b) throws InfiniteForceException {
         final double dist = getDistanceFrom(b);
         if (dist > 0) {
             try {
-                return V2d.between(pos, b.getPos())
+                return Vector2D.between(pos, b.getPos())
                     .normalize()
                     .scalarMul(b.getMass() * G_CONST_SCALED / (dist * dist));
             } catch (final NullVectorException e) {
@@ -85,7 +85,7 @@ public final class BodyImpl implements Body {
     }
 
     @Override
-    public void updateVelocity(final V2d acc, final double dt) {
+    public void updateVelocity(final Vector2D acc, final double dt) {
         vel = vel.sum(acc.scalarMul(dt));
     }
 

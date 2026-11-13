@@ -1,9 +1,10 @@
 package it.unibo.sisco.model.impl.simulation;
 
 import it.unibo.sisco.model.api.Body;
-import it.unibo.sisco.model.api.InfiniteForceException;
 import it.unibo.sisco.model.api.NBodySimulation;
-import it.unibo.sisco.model.api.geometry.V2d;
+import it.unibo.sisco.model.exceptions.InfiniteForceException;
+import it.unibo.sisco.model.impl.geometry.Vector2D;
+
 import java.util.List;
 
 /**
@@ -62,7 +63,7 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
      * @param b the body to update
      */
     protected final void updateVelocity(final Body b) {
-        final V2d acc = computeTotalForceOn(b).scalarMul(1.0 / b.getMass());
+        final Vector2D acc = computeTotalForceOn(b).scalarMul(1.0 / b.getMass());
         b.updateVelocity(acc, dt);
     }
 
@@ -104,8 +105,8 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
         return dt;
     }
 
-    private V2d computeTotalForceOn(final Body b) {
-        V2d totalForce = V2d.ZERO;
+    private Vector2D computeTotalForceOn(final Body b) {
+        Vector2D totalForce = Vector2D.ZERO;
         for (final Body other : bodies) {
             if (!b.equals(other)) {
                 try {

@@ -1,8 +1,9 @@
 package it.unibo.sisco.model.impl.body;
 
 import it.unibo.sisco.model.api.Body;
-import it.unibo.sisco.model.api.geometry.P2d;
-import it.unibo.sisco.model.api.geometry.V2d;
+import it.unibo.sisco.model.impl.geometry.Point2D;
+import it.unibo.sisco.model.impl.geometry.Vector2D;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -32,8 +33,8 @@ public final class BodySets {
     public static List<Body> twoBodies() {
         // CHECKSTYLE: MagicNumber OFF
         return List.of(
-            new BodyImpl(0, new P2d(-0.3, 0), V2d.ZERO, TEST_RADIUS, 1),
-            new BodyImpl(1, new P2d(0.3, 0), V2d.ZERO, TEST_RADIUS, 1)
+            new BodyImpl(0, new Point2D(-0.3, 0), Vector2D.ZERO, TEST_RADIUS, 1),
+            new BodyImpl(1, new Point2D(0.3, 0), Vector2D.ZERO, TEST_RADIUS, 1)
         );
         // CHECKSTYLE: MagicNumber ON
     }
@@ -46,9 +47,9 @@ public final class BodySets {
     public static List<Body> threeBodies() {
         // CHECKSTYLE: MagicNumber OFF
         return List.of(
-            new BodyImpl(0, new P2d(0, 0), V2d.ZERO, TEST_RADIUS, 20),
-            new BodyImpl(1, new P2d(0.3, 0), new V2d(0, 0.25), TEST_RADIUS, 1),
-            new BodyImpl(2, new P2d(-0.5, 0), new V2d(0, -0.15), TEST_RADIUS, 1)
+            new BodyImpl(0, new Point2D(0, 0), Vector2D.ZERO, TEST_RADIUS, 20),
+            new BodyImpl(1, new Point2D(0.3, 0), new Vector2D(0, 0.25), TEST_RADIUS, 1),
+            new BodyImpl(2, new Point2D(-0.5, 0), new Vector2D(0, -0.15), TEST_RADIUS, 1)
         );
         // CHECKSTYLE: MagicNumber ON
     }
@@ -84,7 +85,7 @@ public final class BodySets {
             final double vx = -MAX_SPEED + 2 * MAX_SPEED * rand.nextDouble();
             final double vy = -MAX_SPEED + 2 * MAX_SPEED * rand.nextDouble();
             final double m = MIN_MASS + rand.nextDouble() * MASS_RANGE;
-            bodies.add(new BodyImpl(i, new P2d(x, y), new V2d(vx, vy), RANDOM_RADIUS, m));
+            bodies.add(new BodyImpl(i, new Point2D(x, y), new Vector2D(vx, vy), RANDOM_RADIUS, m));
         }
         return List.copyOf(bodies);
     }

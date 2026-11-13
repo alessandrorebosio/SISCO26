@@ -1,4 +1,6 @@
-package it.unibo.sisco.model.api.geometry;
+package it.unibo.sisco.model.impl.geometry;
+
+import it.unibo.sisco.model.exceptions.NullVectorException;
 
 /**
  * An immutable vector in a 2D space. Every operation returns a new vector, so instances can
@@ -7,12 +9,12 @@ package it.unibo.sisco.model.api.geometry;
  * @param x the x component
  * @param y the y component
  */
-public record V2d(double x, double y) {
+public record Vector2D(double x, double y) {
 
     /**
      * The null vector.
      */
-    public static final V2d ZERO = new V2d(0, 0);
+    public static final Vector2D ZERO = new Vector2D(0, 0);
 
     /**
      * Builds the vector that goes from one point to another.
@@ -21,8 +23,8 @@ public record V2d(double x, double y) {
      * @param to the ending point
      * @return the vector from {@code from} to {@code to}
      */
-    public static V2d between(final P2d from, final P2d to) {
-        return new V2d(to.x() - from.x(), to.y() - from.y());
+    public static Vector2D between(final Point2D from, final Point2D to) {
+        return new Vector2D(to.x() - from.x(), to.y() - from.y());
     }
 
     /**
@@ -31,8 +33,8 @@ public record V2d(double x, double y) {
      * @param v the vector to add
      * @return the sum of the two vectors
      */
-    public V2d sum(final V2d v) {
-        return new V2d(x + v.x(), y + v.y());
+    public Vector2D sum(final Vector2D v) {
+        return new Vector2D(x + v.x(), y + v.y());
     }
 
     /**
@@ -41,8 +43,8 @@ public record V2d(double x, double y) {
      * @param k the scalar
      * @return the scaled vector
      */
-    public V2d scalarMul(final double k) {
-        return new V2d(x * k, y * k);
+    public Vector2D scalarMul(final double k) {
+        return new Vector2D(x * k, y * k);
     }
 
     /**
@@ -61,10 +63,10 @@ public record V2d(double x, double y) {
      * @return the normalized vector
      * @throws NullVectorException if this vector is the null vector
      */
-    public V2d normalize() throws NullVectorException {
+    public Vector2D normalize() throws NullVectorException {
         final double mod = module();
         if (mod > 0) {
-            return new V2d(x / mod, y / mod);
+            return new Vector2D(x / mod, y / mod);
         }
         throw new NullVectorException();
     }

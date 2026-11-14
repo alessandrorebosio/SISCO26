@@ -1,11 +1,12 @@
 package it.unibo.sisco;
 
+import java.util.logging.Logger;
+
 import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.controller.impl.SimulationController;
 import it.unibo.sisco.model.api.NBodySimulation;
 import it.unibo.sisco.model.impl.body.BodySets;
-import it.unibo.sisco.model.impl.simulation.SequentialNBodySimulation;
-import java.util.logging.Logger;
+import it.unibo.sisco.model.impl.simulation.ThreadNBodySimulation;
 
 /**
  * Entry point of the N-body simulation without GUI: it runs the sequential simulation of
@@ -27,7 +28,9 @@ public final class SimulationMain {
      * @param args command-line arguments, ignored
      */
     public static void main(final String[] args) {
-        final NBodySimulation sim = new SequentialNBodySimulation(BodySets.random(N_BODIES));
+        //final NBodySimulation sim = new SequentialNBodySimulation(BodySets.random(N_BODIES));
+        final NBodySimulation sim = new ThreadNBodySimulation(BodySets.random(N_BODIES));
+
         final Controller controller = new SimulationController(sim);
         LOGGER.info(() -> "Starting simulation with " + sim.getNumBodies() + " bodies - " + N_STEPS + " steps...");
         final long startTime = System.currentTimeMillis();

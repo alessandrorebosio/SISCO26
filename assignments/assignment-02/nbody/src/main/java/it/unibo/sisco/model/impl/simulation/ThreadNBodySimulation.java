@@ -40,11 +40,17 @@ public final class ThreadNBodySimulation extends AbstractNBodySimulation {
      */
     public ThreadNBodySimulation(final List<? extends Body> bodies, final double dt) {
         super(bodies, dt);
-        final List<Body> simulationBodies = getBodies();
-        this.barrier = new CyclicBarrier(simulationBodies.size() + 1);
-        this.workers = simulationBodies.stream()
+        this.barrier = new CyclicBarrier(getBodies().size() + 1);
+        this.workers = getBodies().stream()
                 .map(BodyWorker::new)
                 .toList();
+        /*
+            final List<BodyWorker> list = new ArrayList<>();
+            for (final Body body : getBodies()) {
+                list.add(new BodyWorker(body));
+            }
+            this.workers = List.copyOf(list);
+        */
         this.started = false;
     }
 

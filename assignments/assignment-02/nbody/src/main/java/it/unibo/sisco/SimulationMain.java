@@ -6,7 +6,7 @@ import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.controller.impl.SimulationController;
 import it.unibo.sisco.model.api.NBodySimulation;
 import it.unibo.sisco.model.impl.body.BodySets;
-import it.unibo.sisco.model.impl.simulation.ThreadNBodySimulation;
+import it.unibo.sisco.model.impl.simulation.ThreadNBodySimu;
 
 /**
  * Entry point of the N-body simulation without GUI: it runs the sequential simulation of
@@ -29,7 +29,9 @@ public final class SimulationMain {
      */
     public static void main(final String[] args) {
         //final NBodySimulation sim = new SequentialNBodySimulation(BodySets.random(N_BODIES));
-        final NBodySimulation sim = new ThreadNBodySimulation(BodySets.random(N_BODIES));
+        //final NBodySimulation sim = new ThreadNBodySimulation(BodySets.random(N_BODIES));
+        final NBodySimulation sim = new ThreadNBodySimu(BodySets.random(N_BODIES));
+        
 
         final Controller controller = new SimulationController(sim);
         LOGGER.info(() -> "Starting simulation with " + sim.getNumBodies() + " bodies - " + N_STEPS + " steps...");

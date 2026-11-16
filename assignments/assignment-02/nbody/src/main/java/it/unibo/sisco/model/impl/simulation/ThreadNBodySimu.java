@@ -8,49 +8,54 @@ import it.unibo.sisco.model.api.Barrier;
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.impl.barrier.BarrierImpl;
 
+/**
+ * Thread-based implementation of the N-body simulation using Java platform threads
+ * and a custom monitor barrier.
+ */
 public final class ThreadNBodySimu extends AbstractNBodySimulation {
 
+    /**
+     * Default virtual time elapsed at each step.
+     */
     public static final double DEFAULT_DT = 0.001;
 
     private final List<BodyWorker> workers;
     private final Barrier barrier;
     private boolean started;
 
+    /**
+     * Builds a simulation over a set of bodies, with the default time step.
+     *
+     * @param bodies the bodies of the simulation
+     */
     public ThreadNBodySimu(final List<? extends Body> bodies) {
         this(bodies, DEFAULT_DT);
     }
 
-    public ThreadNBodySimu(final List<? extends Body> bodies, final double dt) {
-        this(bodies, dt, Runtime.getRuntime().availableProcessors() + 1);
-    }
-
     /**
-     * Costruttore con numero di worker configurabile (utile anche per benchmark/test).
+     * Builds a simulation over a set of bodies.
+     *
+     * @param bodies the bodies of the simulation
+     * @param dt the virtual time elapsed at each step
+     * @throws IllegalArgumentException if {@code dt} is not positive
      */
-    public ThreadNBodySimu(
-            final List<? extends Body> bodies,
-            final double dt,
-            final int numWorkers) {
+    public ThreadNBodySimu(final List<? extends Body> bodies, final double dt) {
         super(bodies, dt);
         final List<Body> simulationBodies = getBodies();
         final int nBodies = simulationBodies.size();
+        final int numWorkers = Math.min(nBodies, Runtime.getRuntime().availableProcessors() + 1);
 
-        // Se ci sono meno corpi dei thread richiesti, usa al massimo nBodies worker
-        final int effectiveWorkers = nBodies == 0 ? 0 : Math.max(1, Math.min(numWorkers, nBodies));
+        this.barrier = new BarrierImpl(numWorkers + 1);
+        this.workers = new ArrayList<>(numWorkers);
 
-        this.barrier = new BarrierImpl(effectiveWorkers + 1);
-        this.workers = new ArrayList<>(effectiveWorkers);
-
-        if (effectiveWorkers > 0) {
-            final int baseChunkSize = nBodies / effectiveWorkers;
-            final int remainder = nBodies % effectiveWorkers;
+        if (numWorkers > 0) {
+            final int baseChunkSize = nBodies / numWorkers;
+            final int remainder = nBodies % numWorkers;
             int startIndex = 0;
 
-            for (int i = 0; i < effectiveWorkers; i++) {
-                final int currentChunkSize = baseChunkSize + (i < remainder ? 1 : 0);
-                final int endIndex = startIndex + currentChunkSize;
-                final List<Body> chunk = simulationBodies.subList(startIndex, endIndex);
-                this.workers.add(new BodyWorker(chunk, i));
+            for (int i = 0; i < numWorkers; i++) {
+                final int endIndex = startIndex + baseChunkSize + (i < remainder ? 1 : 0);
+                this.workers.add(new BodyWorker(simulationBodies.subList(startIndex, endIndex), i));
                 startIndex = endIndex;
             }
         }
@@ -66,9 +71,9 @@ public final class ThreadNBodySimu extends AbstractNBodySimulation {
             this.started = true;
         }
         try {
-            this.barrier.await(); // Via alla Fase 1 (velocità)
-            this.barrier.await(); // Fine Fase 1 -> Via alla Fase 2 (posizione)
-            this.barrier.await(); // Fine Fase 2 -> Step completato
+            this.barrier.await();
+            this.barrier.await();
+            this.barrier.await();
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Simulation step interrupted", e);
@@ -104,7 +109,7 @@ public final class ThreadNBodySimu extends AbstractNBodySimulation {
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (final BrokenBarrierException ignored) {
-                // Chiusura pulita
+                // Barrier broken during shutdown
             }
         }
     }

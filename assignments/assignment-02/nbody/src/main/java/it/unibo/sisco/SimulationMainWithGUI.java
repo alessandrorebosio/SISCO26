@@ -2,7 +2,7 @@ package it.unibo.sisco;
 
 import it.unibo.sisco.controller.impl.SimulationController;
 import it.unibo.sisco.model.impl.body.BodySets;
-import it.unibo.sisco.model.impl.simulation.SequentialNBodySimulation;
+import it.unibo.sisco.model.impl.simulation.ThreadNBodySimu;
 import it.unibo.sisco.view.impl.SwingSimulationView;
 
 /**
@@ -26,7 +26,9 @@ public final class SimulationMainWithGUI {
      */
     public static void main(final String[] args) {
         new SimulationController(
-                new SequentialNBodySimulation(BodySets.random(N_BODIES)),
+                //new SequentialNBodySimulation(BodySets.random(N_BODIES)),
+                //new ThreadNBodySimulation(BodySets.random(N_BODIES)),
+                new ThreadNBodySimu(BodySets.random(N_BODIES)),
                 new SwingSimulationView(WINDOW_SIZE, WINDOW_SIZE)).run(N_STEPS);
     }
 }

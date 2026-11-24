@@ -1,0 +1,189 @@
+/*
+ * ASSIGNMENT FOR THE "CONCURRENT SYSTEMS" COURSE
+ * Master's Degree in Computer Science and Engineering
+ * Academic Year 2026/2027
+ * Prof. A. Ricci
+ *
+ * Authors:
+ *	- Bartocetti Enrico, enrico.bartocetti@studio.unibo.it
+ *	- Rebosio Alessandro, alessandro.rebosio@studio.unibo.it
+ *  - Matteo Monari, matteo.monari@studio.unibo.it
+*/
+
+/*
+	+--------------------------------------+
+	|           SYSTEM CONSTANTS           |
+	+--------------------------------------+
+*/
+// Simulation configuration
+const N_BODIES	= 5									// Number of bodies
+const STEPS		= 2									// Number of simulation steps
+// Thread configuration
+const N_WORKERS	= 2									// Number of worker threads, e.g. one per core
+const MASTER_ID	= 0									// Identifier of the master thread, i.e. the one that calls step()
+
+/*
+	+--------------------------------------+
+	|               RANGES                 |
+	+--------------------------------------+
+*/
+range BODIES	= 0..N_BODIES-1						// Body indices
+range WORKERS	= 1..N_WORKERS						// Worker thread identifiers
+range THREADS	= MASTER_ID..N_WORKERS				// Master and worker thread identifiers
+range STEP_IDX	= 0..STEPS							// Steps already executed
+
+/*
+	+--------------------------------------+
+	|               BARRIER                |
+	+--------------------------------------+
+
+	Cyclic barrier monitor for P parties: the first P-1 threads that call await() are suspended,
+	the P-th one wakes them all up and the barrier is reset for the next use.
+
+	Index dictionary:
+	- P = number of parties
+	- F = identifier of the first thread that uses the barrier, MASTER_ID or the first worker
+	- c = number of threads that have already arrived at the barrier
+	- t = thread identifier
+*/
+
+// INITIAL STATE
+BARRIER(P=1, F=0) = COUNT[0],
+
+// c THREADS WAITING AT THE BARRIER
+COUNT[c:0..P] =
+	(when (c < P) arrive[t:F..N_WORKERS] -> COUNT[c+1]							// A thread calls await() and is suspended
+	|when (c == P) release -> COUNT[0]											// The last thread arrived: everybody is released and the barrier is reset
+	|when (c == 0) shutdown -> END).											// Nobody is waiting: the barrier is no longer used
+
+// BARRIER THAT ALSO SUPPORTS THE SHUTDOWN OF THE SIMULATION
+STEP_BARRIER(P=1, F=0) = STEP_COUNT[0],
+STEP_COUNT[c:0..P] =
+	(when (c < P) arrive[t:F..N_WORKERS] -> STEP_COUNT[c+1]						// A thread calls await() and is suspended
+	|when (c == P) release -> STEP_COUNT[0]										// Everybody is there, master included: a new step starts
+	|when (c == P - 1) shutdown -> END).										// Only the workers are waiting: the master terminates them
+
+// THE THREE BARRIERS OF A STEP
+||BARRIERS =
+	(start:STEP_BARRIER(N_WORKERS+1, MASTER_ID)									// Start of the step: master and workers
+	|| phase:BARRIER(N_WORKERS, 1)												// Between the two phases: workers only
+	|| end:BARRIER(N_WORKERS+1, MASTER_ID))										// End of the step: master and workers
+	/{shutdown/{start, phase, end}.shutdown}.									// The shutdown is shared by all the threads and barriers
+
+/*
+	+--------------------------------------+
+	|               WORKER                 |
+	+--------------------------------------+
+
+	The bodies are split into N_WORKERS contiguous blocks of almost the same size, and each worker
+	owns one block: worker I owns the bodies from (I-1)*N_BODIES/N_WORKERS to I*N_BODIES/N_WORKERS - 1.
+	For example, with 5000 bodies and 10 workers each worker owns 500 bodies.
+	In the first phase a worker reads the positions of all the bodies and writes only the velocities
+	of its own bodies, in the second phase it reads and writes only its own bodies.
+
+	Index dictionary:
+	- I = worker identifier
+	- b = index of the next body of the block to process
+*/
+
+// INITIAL STATE: WAITING FOR A NEW STEP
+WORKER(I=1) =
+	(start.arrive[I] ->
+		(start.release -> VELOCITY[(I-1)*N_BODIES/N_WORKERS]					// The master started a new step: begin from the first body of the block
+		|shutdown -> END)),														// The master stopped the simulation: the thread terminates
+
+// FIRST PHASE: computes the velocity of every body of the block
+VELOCITY[b:(I-1)*N_BODIES/N_WORKERS..I*N_BODIES/N_WORKERS] =
+	if (b < I*N_BODIES/N_WORKERS)
+	then (compute_velocity[b] -> VELOCITY[b+1])									// Reads all the positions, writes velocity b
+	else (phase.arrive[I] -> phase.release -> POSITION[(I-1)*N_BODIES/N_WORKERS]),	// Block completed: waits until every velocity has been computed
+
+// SECOND PHASE: updates the position of every body of the block
+POSITION[b:(I-1)*N_BODIES/N_WORKERS..I*N_BODIES/N_WORKERS] =
+	if (b < I*N_BODIES/N_WORKERS)
+	then (update_position[b] -> POSITION[b+1])									// Reads and writes position b
+	else (end.arrive[I] -> end.release -> WORKER).								// Block completed: waits until every position has been updated
+
+// COMPOSITION OF ALL WORKERS
+||WORKER_POOL = (forall[i:WORKERS] WORKER(i)).									// One worker for each block of bodies
+
+/*
+	+--------------------------------------+
+	|                MASTER                |
+	+--------------------------------------+
+
+	The master, i.e. the thread that calls step(), executes STEPS steps of the simulation and then stops
+	the workers.
+
+	Index dictionary:
+	- s = number of steps already executed
+*/
+
+// INITIAL STATE
+MASTER = MASTER[0],
+
+// s STEPS ALREADY EXECUTED
+MASTER[s:STEP_IDX] =
+	if (s < STEPS)
+	then (start.arrive[MASTER_ID] -> start.release ->							// Starts a new step
+		  end.arrive[MASTER_ID] -> end.release ->								// Waits for the workers to complete it
+		  next_step -> MASTER[s+1])												// Updates virtual time and iteration
+	else (shutdown -> TERMINATED),												// Every step has been executed: stop the workers
+
+// SIMULATION TERMINATED: workers and barriers are in END, the master keeps signalling it
+TERMINATED = (terminated -> TERMINATED).
+
+/*
+	+--------------------------------------+
+	|          SYSTEM COMPOSITION          |
+	+--------------------------------------+
+*/
+||SIM = (MASTER || WORKER_POOL || BARRIERS).										// Whole system
+
+/*
+	+--------------------------------------+
+	|          FLUENTS (FLTL)              |
+	+--------------------------------------+
+
+	A step starts with start.release: from then on, the fluents keep track of what has already
+	been done on each body in the current step.
+
+	Index dictionary:
+	- b = body index
+*/
+
+fluent VELOCITY_DONE[b:BODIES] = <compute_velocity[b], start.release>			// The velocity of body b has been computed in the current step
+fluent POSITION_DONE[b:BODIES] = <update_position[b], start.release>			// The position of body b has been updated in the current step
+fluent STEP_RUNNING = <start.release, end.release>								// A step is in progress
+
+/*
+	+--------------------------------------+
+	|          PROPERTIES (FLTL)           |
+	+--------------------------------------+
+
+	Index dictionary:
+	- b, c = body indices
+*/
+
+// SAFETY: a velocity is computed only when no position of the current step has been updated yet,
+// so every velocity is computed from the positions of the previous step
+assert CONSISTENT_READ = forall[b:BODIES] [](compute_velocity[b] -> forall[c:BODIES] !POSITION_DONE[c])
+
+// SAFETY: a position is updated only after every velocity of the current step has been computed
+assert PHASE_SEPARATION = forall[b:BODIES] [](update_position[b] -> forall[c:BODIES] VELOCITY_DONE[c])
+
+// SAFETY: each body is updated exactly once per step
+assert ONCE_PER_STEP = forall[b:BODIES] [](update_position[b] -> X(!update_position[b] W start.release))
+
+// SAFETY: the master uses the state of the bodies, to update the virtual time, only when the step
+// is complete, i.e. when every position has been updated
+assert CONSISTENT_STATE = [](next_step -> (!STEP_RUNNING && forall[b:BODIES] POSITION_DONE[b]))
+
+// LIVENESS: every step that starts eventually completes
+assert STEP_COMPLETION = [](start.release -> <>next_step)
+
+// LIVENESS: in every step each body is eventually updated
+assert BODY_PROGRESS = forall[b:BODIES] [](start.release -> <>update_position[b])
+
+// LIVENESS: the simulation eventually terminates after STEPS steps
+assert SIM_TERMINATION = <>terminated

@@ -25,7 +25,18 @@
 \usepackage{pdflscape}
 \usepackage{needspace}
 \usepackage{tikz}
-\usetikzlibrary{positioning, arrows.meta, automata, calc}
+\usetikzlibrary{positioning, arrows.meta, automata, calc, fit}
+\lstdefinestyle{fsp}{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries\color{blue!50!black},
+  morekeywords={when, if, then, else, END, fluent, forall},
+  backgroundcolor=\color{gray!6},
+  frame=leftline, framerule=2pt, rulecolor=\color{blue!40!black},
+  xleftmargin=8pt, framexleftmargin=6pt,
+  aboveskip=10pt, belowskip=10pt,
+  columns=fullflexible, keepspaces=true,
+  showstringspaces=false
+}
 
 % ====================================================
 %

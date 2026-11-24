@@ -1,4 +1,7 @@
 \chapter{Modello FSP e proprietà di correttezza}
+\label{chap:fsp}
+Il modello della versione multithread è nel file \texttt{nbody.lts}.
+Le proprietà sono scritte in FLTL e verificate con LTSA.
 
 % ======================================================
 %
@@ -6,6 +9,115 @@
 %
 % ======================================================
 \section{Modello FSP}
+Il modello rappresenta solo la sincronizzazione tra i thread, non i calcoli: il lavoro sul corpo \texttt{b} è descritto dalle azioni \texttt{compute\_velocity[b]} e \texttt{update\_position[b]}.
+I processi e le barriere che condividono sono riportati in \cref{fig:struttura_fsp}.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+      proc/.style={draw, rounded corners=3pt, fill=gray!8, minimum width=2.6cm,
+        minimum height=0.8cm, font=\ttfamily\small},
+      bar/.style={draw, rounded corners=3pt, fill=blue!10, minimum width=1.6cm,
+        minimum height=0.7cm, font=\ttfamily\small},
+      link/.style={thick, gray!70!black}]
+    \node[proc] (master) at (0.4, 0) {MASTER};
+    \node[bar] (start) at (5, 1.1) {start};
+    \node[bar] (phase) at (5, 0) {phase};
+    \node[bar] (end) at (5, -1.1) {end};
+    \node[draw, dashed, rounded corners=4pt, fit=(start)(end), inner sep=6pt,
+      label={[font=\ttfamily\small]below:BARRIERS}] (bars) {};
+    \node[proc] (w1) at (10.8, 0.6) {WORKER(1)};
+    \node[proc] (w2) at (10.8, -0.6) {WORKER(2)};
+    \node[draw, dashed, rounded corners=4pt, fit=(w1)(w2), inner sep=6pt,
+      label={[font=\ttfamily\small]below:WORKER\_POOL}] (pool) {};
+    \draw[link] (master) -- node[font=\ttfamily\footnotesize, above] {start, end} (bars);
+    \draw[link] (pool) -- node[font=\ttfamily\footnotesize, above, align=center] {start, phase,\\end} (bars);
+  \end{tikzpicture}
+  \caption{Struttura del sistema \texttt{SIM} con due worker: sulle linee le barriere condivise.}
+  \label{fig:struttura_fsp}
+\end{figure}
+
+Il sistema verificato è la loro composizione:
+\begin{lstlisting}[style=fsp]
+||SIM = (MASTER || WORKER_POOL || BARRIERS).
+\end{lstlisting}
+
+% ======================================================
+% 3.1.1 - BARRIERS
+% ======================================================
+\subsection{\texttt{BARRIERS}: Barriere}
+La barriera conta i thread arrivati con \texttt{arrive}; quando ci sono tutti, \texttt{release} li sblocca insieme e il contatore torna a zero:
+\begin{lstlisting}[style=fsp]
+BARRIER(P=1, F=0) = COUNT[0],
+COUNT[c:0..P] =
+    (when (c < P)  arrive[t:F..N_WORKERS] -> COUNT[c+1]
+    |when (c == P) release -> COUNT[0]
+    |when (c == 0) shutdown -> END).
+\end{lstlisting}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+      st/.style={circle, draw, fill=blue!10, minimum size=0.9cm, font=\small},
+      tr/.style={-{Stealth}, thick},
+      lbl/.style={font=\ttfamily\footnotesize}]
+    \node[st, double] (c0) at (0, 0) {0};
+    \node[st] (c1) at (2.4, 0) {1};
+    \node[st] (c2) at (4.8, 0) {2};
+    \node[st] (c3) at (7.2, 0) {3};
+    \node[st, fill=gray!15] (e) at (0, -2) {\scriptsize END};
+    \draw[tr] (c0) -- node[lbl, above] {arrive} (c1);
+    \draw[tr] (c1) -- node[lbl, above] {arrive} (c2);
+    \draw[tr] (c2) -- node[lbl, above] {arrive} (c3);
+    \draw[tr] (c3) to[bend left=35] node[lbl, below] {release} (c0);
+    \draw[tr] (c0) -- node[lbl, left] {shutdown} (e);
+  \end{tikzpicture}
+  \caption{Una barriera per tre thread: il numero nello stato è il contatore \texttt{c}.}
+  \label{fig:barriera}
+\end{figure}
+
+Le barriere sono \texttt{start}, \texttt{phase} ed \texttt{end}, come nel \cref{sec:design_thread}.
+Su \texttt{start} il master può anche fare \texttt{shutdown}, che termina tutti i thread e tutte le barriere.
+
+% ======================================================
+% 3.1.2 - WORKERS
+% ======================================================
+\subsection{\texttt{WORKER\_POOL}: Worker}
+Il worker \texttt{I} gestisce un blocco di corpi.
+Prima calcola le velocità, poi aspetta su \texttt{phase}, poi aggiorna le posizioni e infine aspetta su \texttt{end}:
+\begin{lstlisting}[style=fsp]
+WORKER(I=1) =
+    (start.arrive[I] ->
+        (start.release -> VELOCITY[(I-1)*N_BODIES/N_WORKERS]
+        |shutdown -> END)),
+VELOCITY[b:(I-1)*N_BODIES/N_WORKERS..I*N_BODIES/N_WORKERS] =
+    if (b < I*N_BODIES/N_WORKERS)
+    then (compute_velocity[b] -> VELOCITY[b+1])
+    else (phase.arrive[I] -> phase.release ->
+          POSITION[(I-1)*N_BODIES/N_WORKERS]),
+POSITION[b:(I-1)*N_BODIES/N_WORKERS..I*N_BODIES/N_WORKERS] =
+    if (b < I*N_BODIES/N_WORKERS)
+    then (update_position[b] -> POSITION[b+1])
+    else (end.arrive[I] -> end.release -> WORKER).
+\end{lstlisting}
+Il range di \texttt{b} è limitato al blocco del worker.
+Con \texttt{0..N\_BODIES}, infatti, LTSA dava a ogni worker le azioni di tutti i corpi e il sistema andava in deadlock.
+
+% ======================================================
+% 3.1.3 - MASTER
+% ======================================================
+\subsection{\texttt{MASTER}: Master}
+Il master, cioè il thread che chiama \texttt{step()}, esegue \texttt{STEPS} passi e poi termina i worker:
+\begin{lstlisting}[style=fsp]
+MASTER[s:STEP_IDX] =
+    if (s < STEPS)
+    then (start.arrive[MASTER_ID] -> start.release ->
+          end.arrive[MASTER_ID] -> end.release ->
+          next_step -> MASTER[s+1])
+    else (shutdown -> TERMINATED),
+TERMINATED = (terminated -> TERMINATED).
+\end{lstlisting}
+Il ciclo su \texttt{terminated} serve solo perché LTSA non scambi la fine della simulazione per un deadlock.
 
 % ======================================================
 %
@@ -13,20 +125,47 @@
 %
 % ======================================================
 \section{Proprietà di correttezza}
+Per scrivere le proprietà servono alcuni fluenti, cioè condizioni che diventano vere o false in base alle azioni.
+Un passo inizia con \texttt{start.release}, che riporta a falso i fluenti dei corpi:
+\begin{lstlisting}[style=fsp, basicstyle=\ttfamily\footnotesize]
+fluent VELOCITY_DONE[b:BODIES] = <compute_velocity[b], start.release>
+fluent POSITION_DONE[b:BODIES] = <update_position[b], start.release>
+fluent STEP_RUNNING = <start.release, end.release>
+\end{lstlisting}
+\begin{description}
+  \item[\texttt{VELOCITY\_DONE[b]}] la velocità del corpo \texttt{b} è già stata calcolata in questo passo;
+  \item[\texttt{POSITION\_DONE[b]}] la posizione del corpo \texttt{b} è già stata aggiornata in questo passo;
+  \item[\texttt{STEP\_RUNNING}] un passo è in corso.
+\end{description}
 
 % ======================================================
 % 3.2.1 - SAFETY PROPERTIES
 % ======================================================
 \subsection{Proprietà di Safety}
+Le proprietà di safety dicono che non succede mai niente di sbagliato.
+Gli indici \texttt{b} e \texttt{c} variano su tutti i corpi.
+\begin{description}
+  \item[\texttt{CONSISTENT\_READ}] le velocità si calcolano con le posizioni del passo precedente:
+    \[\Box\,(\texttt{compute\_velocity[b]} \Rightarrow \textstyle\bigwedge_{c} \neg\texttt{POSITION\_DONE[c]})\]
+  \item[\texttt{PHASE\_SEPARATION}] le posizioni si aggiornano solo dopo tutte le velocità:
+    \[\Box\,(\texttt{update\_position[b]} \Rightarrow \textstyle\bigwedge_{c} \texttt{VELOCITY\_DONE[c]})\]
+  \item[\texttt{ONCE\_PER\_STEP}] ogni corpo si aggiorna una sola volta per passo:
+    \[\Box\,(\texttt{update\_position[b]} \Rightarrow \mathsf{X}\,(\neg\texttt{update\_position[b]}\ \mathsf{W}\ \texttt{start.release}))\]
+  \item[\texttt{CONSISTENT\_STATE}] il master legge lo stato solo a passo finito:
+    \[\Box\,(\texttt{next\_step} \Rightarrow (\neg\texttt{STEP\_RUNNING} \land \textstyle\bigwedge_{b} \texttt{POSITION\_DONE[b]}))\]
+\end{description}
 
 % ======================================================
 % 3.2.2 - PROGRESS PROPERTIES
 % ======================================================
 \subsection{Proprietà di Progress}
-
-% ======================================================
-%
-% 3.3 - VERIFICATION RESULTS
-%
-% ======================================================
-\section{Esito della verifica}
+Le proprietà di progress dicono che prima o poi succede qualcosa di buono.
+Il sistema termina dopo \texttt{STEPS} passi, quindi il controllo di progress standard di LTSA non ha senso: si usano invece queste proprietà di liveness.
+\begin{description}
+  \item[\texttt{STEP\_COMPLETION}] ogni passo iniziato finisce:
+    \[\Box\,(\texttt{start.release} \Rightarrow \Diamond\,\texttt{next\_step})\]
+  \item[\texttt{BODY\_PROGRESS}] in ogni passo ogni corpo viene aggiornato:
+    \[\Box\,(\texttt{start.release} \Rightarrow \Diamond\,\texttt{update\_position[b]})\]
+  \item[\texttt{SIM\_TERMINATION}] la simulazione termina:
+    \[\Diamond\,\texttt{terminated}\]
+\end{description}

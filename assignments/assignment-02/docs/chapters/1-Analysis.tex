@@ -11,11 +11,43 @@
 % 1.1.1 - N-BODY PROBLEM
 % ======================================================
 \subsection{Il problema N-Body}
+Si vuole simulare il moto di $N$ corpi che si attraggono a vicenda per gravità, senza altre forze in gioco.
+Ogni corpo ha una posizione, una velocità e una massa.
+Dato lo stato iniziale, si vuole sapere come si muovono i corpi nel tempo.
+
+Per più di due corpi non esiste una soluzione esatta, quindi il moto viene approssimato con una simulazione a passi discreti.
+Nel nostro caso i corpi si muovono in uno spazio a due dimensioni e vengono generati in modo casuale.
+
+La forza con cui il corpo $j$ attrae il corpo $i$ è
+\[
+  F_{ij} = G \cdot \frac{m_i \, m_j}{d_{ij}^2}
+\]
+dove $d_{ij}$ è la distanza tra i due corpi.
+Se due corpi sono nella stessa posizione la forza sarebbe infinita, e quindi viene ignorata.
 
 % ======================================================
 % 1.1.2 - SEQUENTIAL ALGORITHM
 % ======================================================
 \subsection{Algoritmo sequenziale di riferimento}
+L'algoritmo fornito è il seguente:
+\begin{lstlisting}[basicstyle=\ttfamily\small]
+vt = 0                       // tempo virtuale
+dt = 0.01                    // durata di un passo
+inizializza i corpi (posizione, massa, velocita')
+
+loop {
+  per ogni corpo b[i]:
+    calcola la forza totale degli altri corpi b[j]
+    calcola l'accelerazione (forza / massa)
+    aggiorna la velocita' dopo il tempo dt
+  aggiorna la posizione di ogni corpo dopo il tempo dt
+  vt = vt + dt
+  visualizza lo stato (se c'e' la GUI)
+}
+\end{lstlisting}
+
+Ogni passo ha quindi due fasi: prima si aggiornano le velocità, poi le posizioni.
+La prima è la più pesante ($O(N^2)$), ed è quella che conviene parallelizzare.
 
 % ======================================================
 %
@@ -23,21 +55,38 @@
 %
 % ======================================================
 \section{Aspetti rilevanti per la concorrenza}
+\label{sec:aspetti_concorrenza}
 
 % ======================================================
 % 1.2.1 - WORK DECOMPOSITION
 % ======================================================
 \subsection{Decomposizione del lavoro}
+Dentro una fase i corpi si possono elaborare in parallelo, perché non dipendono l'uno dall'altro.
+Si dividono quindi i corpi in blocchi, circa uno per core: ad esempio 5\,000 corpi su 10 core danno 500 corpi per blocco.
+I passi invece vanno eseguiti uno dopo l'altro, perché ognuno parte dal risultato del precedente.
 
 % ======================================================
 % 1.2.2 - SHARED STATE
 % ======================================================
 \subsection{Stato condiviso}
+I dati condivisi sono i corpi:
+\begin{itemize}
+  \item nella prima fase ogni thread legge le posizioni di \textbf{tutti} i corpi, ma scrive solo le velocità dei \textbf{propri};
+  \item nella seconda fase ogni thread legge e scrive solo i \textbf{propri} corpi.
+\end{itemize}
+Ogni corpo viene modificato da un solo thread, quindi non serve mutua esclusione.
+Bisogna però fare attenzione a \emph{quando} si scrive.
 
 % ======================================================
 % 1.2.3 - SYNCHRONIZATION BETWEEN PHASES
 % ======================================================
 \subsection{Sincronizzazione tra le fasi}
+Servono due punti di attesa per ogni passo:
+\begin{enumerate}
+  \item \textbf{tra le due fasi}: nessuno può aggiornare le posizioni finché tutti non hanno finito di calcolare le velocità, altrimenti qualcuno leggerebbe posizioni già cambiate (\emph{race condition});
+  \item \textbf{a fine passo}: il passo successivo e il disegno partono solo quando tutte le posizioni sono aggiornate.
+\end{enumerate}
+In entrambi i casi serve una \emph{barriera}: ogni thread aspetta che anche gli altri abbiano finito.
 
 % ======================================================
 %
@@ -45,13 +94,20 @@
 %
 % ======================================================
 \section{Requisiti}
+\label{sec:requisiti}
 
 % ======================================================
 % 1.3.1 - NO-GUI VERSION
 % ======================================================
 \subsection{Versione senza GUI}
+Esegue $M$ passi su $N$ corpi e punta solo alla velocità.
+Servono due versioni: una con i \textbf{thread} e una con l'\textbf{Executor Framework}.
+Per coordinare i thread si usano monitor scritti da noi.
+Il risultato deve essere uguale a quello sequenziale, senza deadlock, e le prestazioni devono crescere con il numero di core.
 
 % ======================================================
 % 1.3.2 - GUI VERSION
 % ======================================================
 \subsection{Versione con GUI}
+Mostra ogni passo e ha i comandi \textbf{start}, \textbf{stop}, \textbf{pause}, \textbf{resume} e \textbf{step} (un passo alla volta).
+L'interfaccia non deve bloccarsi e deve mostrare sempre lo stato di fine passo.

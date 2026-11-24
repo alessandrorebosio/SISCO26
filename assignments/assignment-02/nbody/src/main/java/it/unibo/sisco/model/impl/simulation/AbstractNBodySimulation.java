@@ -23,7 +23,10 @@ import java.util.List;
  */
 public abstract class AbstractNBodySimulation implements NBodySimulation {
 
-    private final List<Body> bodies;
+    /**
+     * List containing the {@link Body} objects to simulate.
+     */
+    protected final List<Body> bodies;
     private final double dt;
     private double vt;
     private long iteration;

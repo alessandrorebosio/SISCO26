@@ -1,4 +1,4 @@
-package it.unibo.sisco.model.api.geometry;
+package it.unibo.sisco.model.impl.geometry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import it.unibo.sisco.model.exceptions.NullVectorException;
-import it.unibo.sisco.model.impl.geometry.Point2D;
-import it.unibo.sisco.model.impl.geometry.Vector2D;
 
 class Vector2DTest {
 

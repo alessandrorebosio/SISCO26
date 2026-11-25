@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Factory of the N-body simulations, with one method for each implementation
- * and one that chooses the implementation by name.
+ * Factory of the N-body simulations: it has a method for each implementation,
+ * with the default number of threads or a given one, and methods that choose
+ * the implementation by name, as given on the command line.
  */
 public final class NBodySimulations {
 

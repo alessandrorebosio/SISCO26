@@ -24,8 +24,7 @@ public final class BodySets {
 
     /**
      * Builds a set of bodies with random position, velocity and mass, seeded with
-     * the current
-     * time, so the set is not reproducible.
+     * the current time, so the set is not reproducible.
      *
      * @param nBodies the number of bodies
      * @return the body set

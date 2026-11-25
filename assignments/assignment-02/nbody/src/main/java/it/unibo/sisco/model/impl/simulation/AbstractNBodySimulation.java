@@ -32,10 +32,7 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
      */
     public static final double DEFAULT_DT = 0.001;
 
-    /**
-     * List containing the {@link Body} objects to simulate.
-     */
-    protected final List<Body> bodies;
+    private final List<Body> bodies;
     private final double dt;
     private long iteration;
     private double vt;

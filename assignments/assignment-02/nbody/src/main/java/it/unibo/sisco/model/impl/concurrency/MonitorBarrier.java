@@ -39,7 +39,8 @@ public final class MonitorBarrier implements Barrier {
         if (this.broken) {
             throw new BrokenBarrierException();
         }
-        if (++this.arrived == this.parties) {
+        this.arrived++;
+        if (this.arrived == this.parties) {
             release();
         } else {
             waitForRelease(this.generation);

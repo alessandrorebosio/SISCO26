@@ -1,4 +1,4 @@
-package it.unibo.sisco.model.impl.barrier;
+package it.unibo.sisco.model.impl.concurrency;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import it.unibo.sisco.model.api.concurrency.Barrier;
-import it.unibo.sisco.model.impl.concurrency.MonitorBarrier;
 
 /**
  * Tests of {@link MonitorBarrier}: release of every party, reuse over many
@@ -33,14 +32,14 @@ class MonitorBarrierTest {
     }
 
     @Test
-    void singlePartyIsNeverSuspended() throws Exception {
+    void singlePartyIsNeverSuspended() throws InterruptedException, BrokenBarrierException {
         final Barrier barrier = new MonitorBarrier(1);
         barrier.await();
         barrier.await();
     }
 
     @Test
-    void noThreadPassesBeforeEveryoneArrivedInEveryRound() throws Exception {
+    void noThreadPassesBeforeEveryoneArrivedInEveryRound() throws InterruptedException {
         final Barrier barrier = new MonitorBarrier(PARTIES);
         final AtomicInteger arrivals = new AtomicInteger();
         final Queue<Throwable> failures = new ConcurrentLinkedQueue<>();
@@ -69,7 +68,7 @@ class MonitorBarrierTest {
     }
 
     @Test
-    void interruptingAWaitingThreadBreaksTheBarrier() throws Exception {
+    void interruptingAWaitingThreadBreaksTheBarrier() throws InterruptedException {
         final Barrier barrier = new MonitorBarrier(3);
         final Queue<Throwable> outcomes = new ConcurrentLinkedQueue<>();
         final Runnable waiter = () -> {

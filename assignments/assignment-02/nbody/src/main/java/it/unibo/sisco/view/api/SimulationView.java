@@ -36,7 +36,8 @@ public interface SimulationView {
     /**
      * Notifies the view that the simulation has finished.
      *
-     * @param timeElapsed the elapsed time in milliseconds
+     * @param timeElapsed the time taken by all the steps, drawing included, in
+     *                    milliseconds
      */
     void simulationOver(long timeElapsed);
 }

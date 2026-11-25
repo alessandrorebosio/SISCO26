@@ -75,7 +75,7 @@ public final class ExecutorsNBodySimulation extends AbstractNBodySimulation {
      * @throws java.util.concurrent.CompletionException if a task fails
      */
     private void runPhase(final Consumer<Body> phase) {
-        CompletableFuture.allOf(this.bodies.stream()
+        CompletableFuture.allOf(getBodies().stream()
                 .map(b -> CompletableFuture.runAsync(() -> phase.accept(b), this.executor))
                 .toArray(CompletableFuture[]::new))
                 .join();

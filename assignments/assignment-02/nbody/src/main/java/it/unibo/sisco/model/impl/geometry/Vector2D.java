@@ -58,8 +58,7 @@ public record Vector2D(double x, double y) {
 
     /**
      * Computes the unit vector with the same direction of this one, that is a
-     * vector with
-     * module {@code 1}.
+     * vector with module {@code 1}.
      *
      * @return the normalized vector
      * @throws NullVectorException if this vector is the null vector

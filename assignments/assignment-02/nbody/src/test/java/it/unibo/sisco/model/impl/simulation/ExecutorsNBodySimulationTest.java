@@ -2,58 +2,30 @@ package it.unibo.sisco.model.impl.simulation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.NBodySimulation;
-import it.unibo.sisco.model.impl.body.PointMassBody;
 import it.unibo.sisco.model.impl.body.TestBodies;
-import it.unibo.sisco.model.impl.geometry.Point2D;
-import it.unibo.sisco.model.impl.geometry.Vector2D;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class ExecutorsNBodySimulationTest {
+class ExecutorsNBodySimulationTest extends AbstractNBodySimulationTest {
 
-    private static final double DELTA = 1e-12;
-    private static final double DT = 0.01;
-    private static final int STEPS = 100;
+    private static final int POOL_SIZE = 4;
 
-    @Test
-    void initialStateHasNoStepsAndZeroTime() {
-        final NBodySimulation sim = new ExecutorsNBodySimulation(TestBodies.threeBodies());
-        assertEquals(3, sim.getNumBodies());
-        assertEquals(0, sim.getIteration());
-        assertEquals(0, sim.getVirtualTime(), DELTA);
+    @Override
+    protected AbstractNBodySimulation create(final List<? extends Body> bodies) {
+        return new ExecutorsNBodySimulation(bodies);
+    }
+
+    @Override
+    protected AbstractNBodySimulation create(final List<? extends Body> bodies, final double dt) {
+        return new ExecutorsNBodySimulation(bodies, dt);
     }
 
     @Test
-    void defaultTimeStepIsUsed() {
-        final ExecutorsNBodySimulation sim = new ExecutorsNBodySimulation(TestBodies.twoBodies());
-        assertEquals(AbstractNBodySimulation.DEFAULT_DT, sim.getTimeStep(), DELTA);
-    }
-
-    @Test
-    void everyStepAdvancesIterationAndVirtualTime() {
-        final NBodySimulation sim = new ExecutorsNBodySimulation(TestBodies.threeBodies(), DT);
-        for (int i = 0; i < STEPS; i++) {
-            sim.step();
-        }
-        assertEquals(STEPS, sim.getIteration());
-        assertEquals(STEPS * DT, sim.getVirtualTime(), 1e-9);
-    }
-
-    @Test
-    void nonPositiveTimeStepIsRejected() {
-        final List<Body> bodies = TestBodies.twoBodies();
-        assertThrows(IllegalArgumentException.class, () -> new ExecutorsNBodySimulation(bodies, 0));
-        assertThrows(IllegalArgumentException.class, () -> new ExecutorsNBodySimulation(bodies, -DT));
-    }
-
-    @Test
-    void nonPositiveNumberOfThreadsIsRejected() {
+    void nonPositivePoolSizeIsRejected() {
         final List<Body> bodies = TestBodies.twoBodies();
         assertThrows(IllegalArgumentException.class, () -> new ExecutorsNBodySimulation(bodies, DT, 0));
     }
@@ -61,7 +33,7 @@ public class ExecutorsNBodySimulationTest {
     @Test
     void anySizeOfThePoolGivesTheSameResult() {
         final NBodySimulation one = new ExecutorsNBodySimulation(TestBodies.threeBodies(), DT, 1);
-        final NBodySimulation many = new ExecutorsNBodySimulation(TestBodies.threeBodies(), DT, 4);
+        final NBodySimulation many = new ExecutorsNBodySimulation(TestBodies.threeBodies(), DT, POOL_SIZE);
         for (int i = 0; i < STEPS; i++) {
             one.step();
             many.step();
@@ -69,65 +41,5 @@ public class ExecutorsNBodySimulationTest {
         for (int i = 0; i < one.getNumBodies(); i++) {
             assertEquals(one.getBodies().get(i).getPos(), many.getBodies().get(i).getPos());
         }
-    }
-
-    @Test
-    void bodiesAreCopiedAndUnmodifiable() {
-        final List<Body> bodies = new ArrayList<>(TestBodies.twoBodies());
-        final NBodySimulation sim = new ExecutorsNBodySimulation(bodies);
-        bodies.clear();
-        assertEquals(2, sim.getNumBodies());
-        assertThrows(UnsupportedOperationException.class, () -> sim.getBodies().clear());
-    }
-
-    @Test
-    void isolatedBodyMovesInAStraightLine() {
-        final Body b = new PointMassBody(0, new Point2D(0, 0), new Vector2D(1, -2), 0.1, 1);
-        final NBodySimulation sim = new ExecutorsNBodySimulation(List.of(b), DT);
-        for (int i = 0; i < STEPS; i++) {
-            sim.step();
-        }
-        assertEquals(STEPS * DT, b.getPos().x(), 1e-9);
-        assertEquals(-2 * STEPS * DT, b.getPos().y(), 1e-9);
-        assertEquals(new Vector2D(1, -2), b.getVel());
-    }
-
-    @Test
-    void twoEqualBodiesAttractEachOtherSymmetrically() {
-        final List<Body> bodies = TestBodies.twoBodies();
-        final Body left = bodies.get(0);
-        final Body right = bodies.get(1);
-        final double initialDistance = left.getDistanceFrom(right);
-        final NBodySimulation sim = new ExecutorsNBodySimulation(bodies, DT);
-        for (int i = 0; i < STEPS; i++) {
-            sim.step();
-        }
-        assertTrue(left.getDistanceFrom(right) < initialDistance);
-        assertTrue(left.getVel().x() > 0);
-        assertTrue(right.getVel().x() < 0);
-        assertEquals(-left.getPos().x(), right.getPos().x(), DELTA);
-        assertEquals(0, left.getPos().y(), DELTA);
-        assertEquals(0, right.getPos().y(), DELTA);
-    }
-
-    @Test
-    void velocitiesAreUpdatedBeforeAnyPositionChanges() {
-        /* the force on the second body must be computed from the positions before the step */
-        final Body a = new PointMassBody(0, new Point2D(-0.5, 0), new Vector2D(10, 0), 0.1, 1);
-        final Body b = new PointMassBody(1, new Point2D(0.5, 0), Vector2D.ZERO, 0.1, 1);
-        final NBodySimulation sim = new ExecutorsNBodySimulation(List.of(a, b), DT);
-        sim.step();
-        final double expectedSpeed = 1 * 0.001 / (1.0 * 1.0) * DT;
-        assertEquals(-expectedSpeed, b.getVel().x(), DELTA);
-    }
-
-    @Test
-    void bodiesInTheSamePositionDoNotBreakTheSimulation() {
-        final Body a = new PointMassBody(0, new Point2D(0, 0), Vector2D.ZERO, 0.1, 1);
-        final Body b = new PointMassBody(1, new Point2D(0, 0), Vector2D.ZERO, 0.1, 1);
-        final NBodySimulation sim = new ExecutorsNBodySimulation(List.of(a, b), DT);
-        sim.step();
-        assertEquals(Vector2D.ZERO, a.getVel());
-        assertEquals(Vector2D.ZERO, b.getVel());
     }
 }

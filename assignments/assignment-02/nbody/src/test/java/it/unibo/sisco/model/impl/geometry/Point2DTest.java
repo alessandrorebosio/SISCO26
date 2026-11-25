@@ -1,11 +1,8 @@
-package it.unibo.sisco.model.api.geometry;
+package it.unibo.sisco.model.impl.geometry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-
-import it.unibo.sisco.model.impl.geometry.Point2D;
-import it.unibo.sisco.model.impl.geometry.Vector2D;
 
 class Point2DTest {
 

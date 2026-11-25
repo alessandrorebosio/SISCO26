@@ -76,21 +76,13 @@ public final class VisualiserPanel extends JPanel {
         super.paintComponent(g);
         final Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        drawBodies(g2);
-        drawHeader(g2);
-    }
 
-    /*
-     * The bodies are drawn in the area below the header: the origin is in its
-     * centre and the square [-1, 1] x [-1, 1] fits in it, with a margin on every
-     * side, when the zoom is 1.
-     */
-    private void drawBodies(final Graphics2D g2) {
+        // The bodies are drawn below the header: the origin is in the centre of the
+        // area and, with zoom 1, the square [-1, 1] x [-1, 1] fits in it with a margin
         final int areaHeight = getHeight() - HEADER_HEIGHT;
         final double centreX = getWidth() / 2.0;
         final double centreY = HEADER_HEIGHT + areaHeight / 2.0;
         final double unit = (Math.min(getWidth(), areaHeight) / 2.0 - MARGIN) * this.scale;
-
         final Graphics2D canvas = (Graphics2D) g2.create();
         canvas.clipRect(0, HEADER_HEIGHT, getWidth(), areaHeight);
         for (final BodyState b : this.bodies) {
@@ -101,9 +93,7 @@ public final class VisualiserPanel extends JPanel {
             canvas.drawOval(x, y, diameter, diameter);
         }
         canvas.dispose();
-    }
 
-    private void drawHeader(final Graphics2D g2) {
         g2.drawString(String.format(Locale.ROOT, "Bodies: %d - vt: %.2f - nIter: %d - frames/sec: %d",
                 this.bodies.length, this.vt, this.iteration, this.framePerSec), TEXT_X, FIRST_LINE_Y);
         g2.drawString("Commands: UP for zoom in, DOWN for zoom out", TEXT_X, SECOND_LINE_Y);

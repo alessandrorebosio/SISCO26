@@ -48,17 +48,13 @@ public final class BodySets {
      */
     public static List<Body> random(final int nBodies, final long seed) {
         final Random rand = new Random(seed);
-        return IntStream.range(0, nBodies)
-                .mapToObj(i -> randomBody(i, rand))
-                .toList();
-    }
-
-    private static Body randomBody(final int id, final Random rand) {
-        final double x = -1.0 + 2.0 * rand.nextDouble();
-        final double y = -1.0 + 2.0 * rand.nextDouble();
-        final double vx = -MAX_SPEED + 2 * MAX_SPEED * rand.nextDouble();
-        final double vy = -MAX_SPEED + 2 * MAX_SPEED * rand.nextDouble();
-        final double m = MIN_MASS + rand.nextDouble() * MASS_RANGE;
-        return new PointMassBody(id, new Point2D(x, y), new Vector2D(vx, vy), RANDOM_RADIUS, m);
+        return IntStream.range(0, nBodies).<Body>mapToObj(i -> {
+            final double x = -1.0 + 2.0 * rand.nextDouble();
+            final double y = -1.0 + 2.0 * rand.nextDouble();
+            final double vx = -MAX_SPEED + 2 * MAX_SPEED * rand.nextDouble();
+            final double vy = -MAX_SPEED + 2 * MAX_SPEED * rand.nextDouble();
+            final double m = MIN_MASS + rand.nextDouble() * MASS_RANGE;
+            return new PointMassBody(i, new Point2D(x, y), new Vector2D(vx, vy), RANDOM_RADIUS, m);
+        }).toList();
     }
 }

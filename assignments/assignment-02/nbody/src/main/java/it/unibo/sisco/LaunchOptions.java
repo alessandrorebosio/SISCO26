@@ -41,25 +41,19 @@ public record LaunchOptions(boolean cli, SimulationType simulation, int numThrea
         for (final String arg : args) {
             if (CLI_FLAG.equalsIgnoreCase(arg)) {
                 cli = true;
-            } else if (arg.chars().allMatch(Character::isDigit) && !arg.isEmpty()) {
-                numThreads = positive(arg);
+            } else if (!arg.isEmpty() && arg.chars().allMatch(Character::isDigit)) {
+                try {
+                    numThreads = Integer.parseInt(arg);
+                } catch (final NumberFormatException e) {
+                    throw new IllegalArgumentException("Too many threads: " + arg, e);
+                }
+                if (numThreads < 1) {
+                    throw new IllegalArgumentException("The number of threads must be positive: " + arg);
+                }
             } else {
                 simulation = SimulationType.valueOf(arg.toUpperCase(Locale.ROOT));
             }
         }
         return new LaunchOptions(cli, simulation, numThreads);
-    }
-
-    private static int positive(final String arg) {
-        final int value;
-        try {
-            value = Integer.parseInt(arg);
-        } catch (final NumberFormatException e) {
-            throw new IllegalArgumentException("Too many threads: " + arg, e);
-        }
-        if (value < 1) {
-            throw new IllegalArgumentException("The number of threads must be positive: " + arg);
-        }
-        return value;
     }
 }

@@ -50,21 +50,12 @@ public final class ExecutorsNBodySimulation extends AbstractNBodySimulation {
 
     @Override
     protected void computeStep() {
-        runPhase(this::updateVelocity);
-        runPhase(this::updatePosition);
-    }
-
-    /**
-     * Runs a phase of the step on every body, submitting one task for each body
-     * to the pool, and returns only when all the tasks are complete.
-     *
-     * @param phase the operation to run on each body
-     * @throws java.util.concurrent.CompletionException if a task fails
-     */
-    private void runPhase(final Consumer<Body> phase) {
-        CompletableFuture.allOf(getBodies().stream()
-                .map(b -> CompletableFuture.runAsync(() -> phase.accept(b), this.executor))
-                .toArray(CompletableFuture[]::new))
-                .join();
+        final List<Consumer<Body>> phases = List.of(this::updateVelocity, this::updatePosition);
+        for (final Consumer<Body> phase : phases) {
+            CompletableFuture.allOf(getBodies().stream()
+                    .map(b -> CompletableFuture.runAsync(() -> phase.accept(b), this.executor))
+                    .toArray(CompletableFuture[]::new))
+                    .join();
+        }
     }
 }

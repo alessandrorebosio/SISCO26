@@ -1,5 +1,6 @@
 package it.unibo.sisco.view.api;
 
+import it.unibo.sisco.controller.api.ControlState;
 import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.model.api.SimulationState;
 
@@ -19,6 +20,15 @@ public interface SimulationView {
      * @param controller the controller of the simulation
      */
     void setController(Controller controller);
+
+    /**
+     * Notifies the view that the state of the simulation has changed, so that it
+     * can show which commands are allowed. It may be called from any thread,
+     * also while the caller holds a lock: it must return without waiting.
+     *
+     * @param state the new state
+     */
+    void controlChanged(ControlState state);
 
     /**
      * Prepares the view before the first step, for example resetting its

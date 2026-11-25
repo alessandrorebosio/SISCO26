@@ -1,5 +1,6 @@
 package it.unibo.sisco.view.impl;
 
+import it.unibo.sisco.controller.api.ControlState;
 import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.model.api.SimulationState;
 import it.unibo.sisco.view.api.SimulationView;
@@ -25,6 +26,11 @@ public final class ConsoleSimulationView implements SimulationView {
     @Override
     public void setController(final Controller controller) {
         // The terminal takes no commands: the simulation is started by the main
+    }
+
+    @Override
+    public void controlChanged(final ControlState state) {
+        // The terminal shows no commands
     }
 
     @Override

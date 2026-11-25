@@ -5,30 +5,29 @@ package it.unibo.sisco.controller.api;
  *
  * <p>
  * The steps are executed on a thread of the controller, so the commands return
- * immediately and can be given from any thread, the GUI one included. The
- * simulation is over after its configured number of steps: from then on the
- * commands have no effect.
+ * immediately and can be given from any thread, the GUI one included. A command
+ * that is not allowed in the current {@link ControlState} has no effect. The
+ * simulation stops by itself after its configured number of steps.
  */
 public interface Controller {
 
-    /**
-     * Executes the steps one after the other, until {@link #stop()} is called or
-     * the simulation is over. It has no effect if the steps are already running.
-     */
+    /** Starts executing the steps one after the other. */
     void start();
 
-    /**
-     * Pauses the simulation after the step in progress.
-     */
+    /** Suspends the simulation after the step in progress. */
+    void pause();
+
+    /** Resumes a suspended simulation. */
+    void resume();
+
+    /** Executes a single step, then suspends the simulation. */
+    void step();
+
+    /** Stops the simulation for good, after the step in progress. */
     void stop();
 
     /**
-     * Executes a single step. It has no effect while the steps are running.
-     */
-    void step();
-
-    /**
-     * Waits until the simulation is over.
+     * Waits until the simulation is stopped.
      *
      * @throws InterruptedException if the calling thread is interrupted while
      *                              waiting

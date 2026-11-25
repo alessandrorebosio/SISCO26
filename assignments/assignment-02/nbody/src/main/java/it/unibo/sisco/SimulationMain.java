@@ -18,8 +18,9 @@ import java.util.List;
  *
  * <p>
  * By default it opens the Swing GUI, which displays every step and is driven
- * by its Start, Stop and Step buttons; with {@value LaunchOptions#CLI_FLAG} it
- * runs every step at once on the terminal and only logs the elapsed time.
+ * by its Start, Pause/Resume, Step and Stop buttons; with
+ * {@value LaunchOptions#CLI_FLAG} it runs every step at once on the terminal
+ * and only logs the elapsed time.
  */
 public final class SimulationMain {
 
@@ -46,7 +47,6 @@ public final class SimulationMain {
                 : new SwingSimulationView(WINDOW_SIZE, WINDOW_SIZE);
         try (NBodySimulation simulation = NBodySimulations.of(options.simulation(), bodies, options.numThreads())) {
             final Controller controller = new SimulationController(view, simulation, N_STEPS);
-            view.setController(controller);
             if (options.cli()) {
                 controller.start();
             }

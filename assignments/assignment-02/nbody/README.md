@@ -37,8 +37,9 @@ nbody/
 
 ## Run
 
-Run the simulation with the GUI: the Start, Stop and Step buttons run, pause
-and advance it by one step, the UP/DOWN arrows zoom:
+Run the simulation with the GUI: the Start, Pause/Resume, Step and Stop
+buttons start, suspend and resume it, advance it by one step and end it; the
+UP/DOWN arrows zoom:
 
 ```bash
 ./gradlew run

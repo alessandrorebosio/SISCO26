@@ -1,11 +1,11 @@
 package it.unibo.sisco.view.impl;
 
+import it.unibo.sisco.controller.api.ControlState;
 import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.model.api.SimulationState;
 import it.unibo.sisco.view.api.SimulationView;
 import it.unibo.sisco.view.impl.panel.VisualiserPanel;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.lang.reflect.InvocationTargetException;
@@ -19,8 +19,9 @@ import javax.swing.SwingUtilities;
 /**
  * Swing implementation of {@link SimulationView}: a window that draws the
  * bodies and shows the virtual time, the number of steps and the frames
- * rendered per second. The Start, Stop and Step buttons below the drawing send
- * the commands to the controller.
+ * rendered per second. The Start, Pause/Resume, Step and Stop buttons below
+ * the drawing send the commands to the controller, and only the ones allowed in
+ * the current state are enabled.
  *
  * <p>
  * Every Swing component is created and updated on the Event Dispatch Thread.
@@ -37,9 +38,13 @@ public final class SwingSimulationView implements SimulationView {
 
     private JFrame frame;
     private VisualiserPanel panel;
-    private JPanel buttons;
-    // Read and written only on the Event Dispatch Thread
+    // The controller and the buttons are used only on the Event Dispatch Thread
     private Controller controller;
+    private ControlState controlState = ControlState.READY;
+    private JButton start;
+    private JButton pause;
+    private JButton step;
+    private JButton stop;
     private long nFramesRendered;
     private long startTime;
 
@@ -59,22 +64,30 @@ public final class SwingSimulationView implements SimulationView {
             this.panel.setPreferredSize(new Dimension(w, h));
             this.frame.add(this.panel, BorderLayout.CENTER);
 
-            // One row of buttons of the same width, enabled once the controller is set
-            final JButton start = new JButton("Start");
-            final JButton stop = new JButton("Stop");
-            final JButton step = new JButton("Step");
-            start.addActionListener(e -> this.controller.start());
-            stop.addActionListener(e -> this.controller.stop());
-            step.addActionListener(e -> this.controller.step());
-            this.buttons = new JPanel(new GridLayout(1, 0, GAP, 0));
-            this.buttons.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
-            for (final JButton b : List.of(start, stop, step)) {
+            // One row of buttons of the same width, enabled by the state of the simulation
+            this.start = new JButton("Start");
+            this.pause = new JButton("Pause");
+            this.step = new JButton("Step");
+            this.stop = new JButton("Stop");
+            this.start.addActionListener(e -> this.controller.start());
+            this.pause.addActionListener(e -> {
+                if (this.controlState == ControlState.PAUSED) {
+                    this.controller.resume();
+                } else {
+                    this.controller.pause();
+                }
+            });
+            this.step.addActionListener(e -> this.controller.step());
+            this.stop.addActionListener(e -> this.controller.stop());
+            final JPanel buttons = new JPanel(new GridLayout(1, 0, GAP, 0));
+            buttons.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
+            for (final JButton b : List.of(this.start, this.pause, this.step, this.stop)) {
                 // The buttons never take the focus, which stays on the panel for the zoom keys
                 b.setFocusable(false);
                 b.setEnabled(false);
-                this.buttons.add(b);
+                buttons.add(b);
             }
-            this.frame.add(this.buttons, BorderLayout.SOUTH);
+            this.frame.add(buttons, BorderLayout.SOUTH);
             this.frame.pack();
             this.frame.setLocationRelativeTo(null);
             this.frame.setVisible(true);
@@ -84,11 +97,19 @@ public final class SwingSimulationView implements SimulationView {
 
     @Override
     public void setController(final Controller newController) {
-        runOnEdt(() -> {
-            this.controller = newController;
-            for (final Component b : this.buttons.getComponents()) {
-                b.setEnabled(true);
-            }
+        runOnEdt(() -> this.controller = newController);
+    }
+
+    @Override
+    public void controlChanged(final ControlState newState) {
+        // invokeLater, not invokeAndWait: the caller may be the Event Dispatch Thread or hold the monitor lock
+        SwingUtilities.invokeLater(() -> {
+            this.controlState = newState;
+            this.start.setEnabled(newState == ControlState.READY);
+            this.pause.setEnabled(newState == ControlState.RUNNING || newState == ControlState.PAUSED);
+            this.pause.setText(newState == ControlState.PAUSED ? "Resume" : "Pause");
+            this.step.setEnabled(newState == ControlState.READY || newState == ControlState.PAUSED);
+            this.stop.setEnabled(newState != ControlState.STOPPED);
         });
     }
 

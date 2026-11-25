@@ -22,13 +22,24 @@ public class ExecutorsNBodySimulation extends AbstractNBodySimulation {
     private final int taskNumber;
 
     /**
+     * Builds an executor-based simulation over a set of bodies.
+     *
+     * @param bodies the bodies of the simulation
+     * @param dt the virtual time elapsed at each step
+     * @throws IllegalArgumentException if {@code dt} is not positive
+     */
+    public ExecutorsNBodySimulation(final List<? extends Body> bodies, final double dt) {
+        super(bodies, dt);
+        this.taskNumber = Runtime.getRuntime().availableProcessors() + 1;
+    }
+
+    /**
      * Builds an executor-based simulation using the default time step.
      *
      * @param bodies the bodies of the simulation
      */
     public ExecutorsNBodySimulation(List<? extends Body> bodies) {
-        super(bodies, ExecutorsNBodySimulation.DEFAULT_DT);
-        this.taskNumber = Runtime.getRuntime().availableProcessors() + 1;
+        this(bodies, ExecutorsNBodySimulation.DEFAULT_DT);
     }
 
     @Override

@@ -15,15 +15,6 @@ public final class SequentialNBodySimulation extends AbstractNBodySimulation {
     public static final double DEFAULT_DT = 0.001;
 
     /**
-     * Builds a simulation over a set of bodies, with the default time step.
-     *
-     * @param bodies the bodies of the simulation
-     */
-    public SequentialNBodySimulation(final List<? extends Body> bodies) {
-        this(bodies, DEFAULT_DT);
-    }
-
-    /**
      * Builds a simulation over a set of bodies.
      *
      * @param bodies the bodies of the simulation
@@ -32,6 +23,15 @@ public final class SequentialNBodySimulation extends AbstractNBodySimulation {
      */
     public SequentialNBodySimulation(final List<? extends Body> bodies, final double dt) {
         super(bodies, dt);
+    }
+
+    /**
+     * Builds a simulation over a set of bodies, with the default time step.
+     *
+     * @param bodies the bodies of the simulation
+     */
+    public SequentialNBodySimulation(final List<? extends Body> bodies) {
+        this(bodies, DEFAULT_DT);
     }
 
     @Override

@@ -1,10 +1,12 @@
 package it.unibo.sisco.view.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 import it.unibo.sisco.controller.api.Configuration;
 import it.unibo.sisco.controller.api.Controller;
+import it.unibo.sisco.controller.api.SimulationEvents;
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.SimulatorTypes;
 import it.unibo.sisco.view.api.SimulationView;
@@ -57,7 +59,11 @@ public class ConsoleSimulationView implements SimulationView {
             default -> SimulatorTypes.SEQUENTIAL;
         };
 
-        this.controller.setConfiguration(new Configuration(sim, this.nBodies, this.iterations));
+        this.controller.handleEvent(
+            SimulationEvents.SET_CONFIGURATION,
+            Optional.of(new Configuration(sim, this.nBodies, this.iterations))
+        );
+        this.controller.handleEvent(SimulationEvents.START, Optional.empty());
     }
 
     @Override

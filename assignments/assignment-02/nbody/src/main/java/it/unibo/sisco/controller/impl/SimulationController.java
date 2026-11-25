@@ -2,19 +2,22 @@ package it.unibo.sisco.controller.impl;
 
 import it.unibo.sisco.controller.api.Configuration;
 import it.unibo.sisco.controller.api.Controller;
+import it.unibo.sisco.controller.api.SimulationEvents;
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.NBodySimulation;
 import it.unibo.sisco.model.api.SimulatorTypes;
 import it.unibo.sisco.model.impl.body.BodySets;
 import it.unibo.sisco.model.impl.simulation.ExecutorsNBodySimulation;
-import it.unibo.sisco.model.impl.simulation.SequentialNBodySimulation;
 import it.unibo.sisco.model.impl.simulation.FixedThreadNBodySimulation;
 import it.unibo.sisco.model.impl.simulation.NThreadNBodySimulation;
+import it.unibo.sisco.model.impl.simulation.SequentialNBodySimulation;
 import it.unibo.sisco.view.api.SimulationView;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.stream.LongStream;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Default implementation of {@link Controller}: executes the steps of the
@@ -31,7 +34,13 @@ public final class SimulationController implements Controller {
     private SimulationView view;
     private NBodySimulation simulator;
     private Configuration config;
-    private final CountDownLatch configurationReady = new CountDownLatch(1);
+    private final Object stateLock = new Object();
+    private Set<SimulationEvents> nextEvents = Set.of(SimulationEvents.SET_CONFIGURATION);
+    private boolean running;
+    private boolean finished;
+    private int pendingSteps;
+    private long stepsCompleted;
+    private boolean stepInProgress;
 
     /**
      * Creates a controller for an N-body simulation.
@@ -43,20 +52,67 @@ public final class SimulationController implements Controller {
     public void run() {
         if (this.view != null)
             this.view.init();
-        try {
-            this.configurationReady.await();
-        } catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return;
+        synchronized (this.stateLock) {
+            while (this.config == null) {
+                try {
+                    this.stateLock.wait();
+                } catch (final InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
         }
-        final long startTime = System.currentTimeMillis();
-        LongStream.range(0, config.iterations()).forEach(this::simulationStep);
-        final long elapsed = System.currentTimeMillis() - startTime;
+        if (this.view != null) {
+            this.view.display(
+                this.simulator.getBodies(),
+                this.simulator.getVirtualTime(),
+                this.simulator.getIteration()
+            );
+        }
+        long startTime = 0;
+        boolean simulationStarted = false;
+        while (true) {
+            final boolean singleStep;
+            synchronized (this.stateLock) {
+                while (!this.running && this.pendingSteps == 0 && !this.finished) {
+                    try {
+                        this.stateLock.wait();
+                    } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+                if (this.finished)
+                    break;
+                singleStep = this.pendingSteps > 0;
+                if (singleStep)
+                    this.pendingSteps--;
+                this.stepInProgress = true;
+            }
+
+            if (!simulationStarted) {
+                startTime = System.nanoTime();
+                simulationStarted = true;
+            }
+            this.simulationStep();
+
+            synchronized (this.stateLock) {
+                this.stepInProgress = false;
+                this.stepsCompleted++;
+                if (this.stepsCompleted >= this.config.iterations()) {
+                    this.finished = true;
+                    this.running = false;
+                    this.pendingSteps = 0;
+                }
+                this.stateLock.notifyAll();
+            }
+        }
+        final long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
         if (this.view != null)
             this.view.simulationOver(elapsed);
     }
 
-    private void simulationStep(final long stepNumber) {
+    private void simulationStep() {
         this.simulator.step();
         if (this.view != null) {
             this.view.display(
@@ -77,18 +133,51 @@ public final class SimulationController implements Controller {
     }
 
     @Override
-    public void setConfiguration(final Configuration config) {
-        this.config = config;
+    public void handleEvent(final SimulationEvents event, final Optional<?> data) {
+        Objects.requireNonNull(event);
+        Objects.requireNonNull(data);
+        synchronized (this.stateLock) {
+            if (this.finished) {
+                throw new IllegalStateException("The configured number of steps has been reached.");
+            }
+            if (!this.nextEvents.contains(event)) {
+                throw new IllegalStateException("Invalid event received: " + event);
+            }
+            switch (event) {
+                case SET_CONFIGURATION -> {
+                    if (data.isEmpty() || !(data.get() instanceof Configuration configuration)) {
+                        throw new IllegalArgumentException("SET_CONFIGURATION requires a Configuration payload.");
+                    }
+                    this.configure(configuration);
+                }
+                case START -> this.running = true;
+                case PAUSE -> this.running = false;
+                case STEP -> {
+                    final long outstandingSteps = this.stepsCompleted + this.pendingSteps + (this.stepInProgress ? 1 : 0);
+                    if (outstandingSteps >= this.config.iterations()) {
+                        throw new IllegalStateException("The configured number of steps has been reached.");
+                    }
+                    this.pendingSteps++;
+                }
+            }
+            this.nextEvents = event.getNextPossibleEvents();
+            this.stateLock.notifyAll();
+        }
+    }
+
+    private void configure(final Configuration config) {
+        Objects.requireNonNull(config);
         final List<Body> bodies = BodySets.random(config.bodies());
-        this.simulator = switch (config.simulator()) {
+        final NBodySimulation configuredSimulator = switch (config.simulator()) {
             case SimulatorTypes.SEQUENTIAL -> new SequentialNBodySimulation(bodies);
             case SimulatorTypes.N_SYSTEM_THREAD -> new NThreadNBodySimulation(bodies);
             case SimulatorTypes.FIXED_SYSTEM_THREAD -> new FixedThreadNBodySimulation(bodies);
             case SimulatorTypes.EXECUTORS -> new ExecutorsNBodySimulation(bodies);
         };
-        this.configurationReady.countDown();
-        if (this.view != null) {
+        if (this.view != null)
             this.view.selectedConfiguration(config);
-        }
+        this.simulator = configuredSimulator;
+        this.config = config;
+        this.stepsCompleted = 0;
     }
 }

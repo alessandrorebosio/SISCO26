@@ -4,13 +4,15 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.KeyAdapter;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 /**
  * Panel that draws the bodies of the simulation as circles, centred on the
@@ -30,13 +32,9 @@ public final class DrawPanel extends JPanel {
     private static final double ZOOM_OUT = 0.9;
     private static final int MARGIN = 20;
     private static final int TEXT_X = 2;
-    private static final int FIRST_LINE_Y = 20;
-    private static final int SECOND_LINE_Y = 40;
+    private static final int COMMANDS_Y = 20;
 
     private transient List<BodyShape> shapes = List.of();
-    private long iteration;
-    private int framePerSec;
-    private double vt;
     private double scale = 1;
 
     /**
@@ -45,16 +43,24 @@ public final class DrawPanel extends JPanel {
     public DrawPanel() {
         super();
         this.setBackground(Color.WHITE);
-        this.addKeyListener(new KeyAdapter() {
+        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "zoomIn");
+        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "zoomOut");
+        this.getActionMap().put("zoomIn", new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
             @Override
-            public void keyPressed(final KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_UP) {
-                    scale *= ZOOM_IN;
-                    repaint();
-                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    scale *= ZOOM_OUT;
-                    repaint();
-                }
+            public void actionPerformed(final ActionEvent e) {
+                scale *= ZOOM_IN;
+                repaint();
+            }
+        });
+        this.getActionMap().put("zoomOut", new AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                scale *= ZOOM_OUT;
+                repaint();
             }
         });
         this.setFocusable(true);
@@ -65,16 +71,9 @@ public final class DrawPanel extends JPanel {
      * Updates the stage to draw. The caller is responsible for repainting.
      *
      * @param newShapes the bodies to draw
-     * @param time      the current virtual time
-     * @param steps     the number of steps executed so far
-     * @param fps       the frames rendered per second
      */
-    public void display(final List<BodyShape> newShapes, final double time,
-            final long steps, final int fps) {
+    public void display(final List<BodyShape> newShapes) {
         this.shapes = List.copyOf(Objects.requireNonNull(newShapes));
-        this.vt = time;
-        this.iteration = steps;
-        this.framePerSec = fps;
     }
 
     @Override
@@ -97,10 +96,6 @@ public final class DrawPanel extends JPanel {
             g2.drawOval(x, y, radius * 2, radius * 2);
         }
 
-        final String time = String.format(Locale.ROOT, "%.2f", this.vt);
-        g2.drawString("Bodies: " + this.shapes.size() + " - vt: " + time
-                + " - nIter: " + this.iteration + " - frames/sec: " + this.framePerSec,
-                TEXT_X, FIRST_LINE_Y);
-        g2.drawString("Commands: UP for zoom in, DOWN for zoom out", TEXT_X, SECOND_LINE_Y);
+        g2.drawString("Zoom: UP / DOWN", TEXT_X, COMMANDS_Y);
     }
 }

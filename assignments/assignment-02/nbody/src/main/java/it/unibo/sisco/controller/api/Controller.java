@@ -2,6 +2,8 @@ package it.unibo.sisco.controller.api;
 
 import it.unibo.sisco.view.api.SimulationView;
 
+import java.util.Optional;
+
 /**
  * Controller that drives an N-body simulation and, if present, keeps its view
  * up to date.
@@ -25,9 +27,16 @@ public interface Controller {
     void attachView(SimulationView view);
 
     /**
-     * Sets the simulation configuration to run.
+     * Handles a simulation lifecycle event.
      *
-     * @param config the configuration to use
+     * <p>
+     * {@link SimulationEvents#SET_CONFIGURATION} requires a
+     * {@link Configuration} payload. All other events require an empty payload.
+     *
+     * @param event the event to handle
+     * @param data optional event data
+     * @throws IllegalArgumentException if the payload does not match the event
+     * @throws IllegalStateException if the event cannot follow the previous event or no steps remain
      */
-    void setConfiguration(Configuration config);
+    void handleEvent(SimulationEvents event, Optional<?> data);
 }

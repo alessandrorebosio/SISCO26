@@ -11,7 +11,7 @@ import it.unibo.sisco.view.impl.SwingSimulationView;
  */
 public final class SimulationMainWithGUI {
 
-    private static final int WINDOW_SIZE = 620;
+    private static final int WINDOW_SIZE = 600;
 
     private SimulationMainWithGUI() { }
 
@@ -22,7 +22,7 @@ public final class SimulationMainWithGUI {
      */
     public static void main(final String[] args) {
         final Controller simulation = new SimulationController();
-        simulation.attachView(new SwingSimulationView(simulation, WINDOW_SIZE + 300, WINDOW_SIZE));
+        simulation.attachView(new SwingSimulationView(simulation, WINDOW_SIZE + 200, WINDOW_SIZE));
         //simulation.setSimulator(SimulatorTypes.N_SYSTEM_THREAD);
         simulation.run();
     }

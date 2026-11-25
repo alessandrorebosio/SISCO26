@@ -2,15 +2,16 @@ package it.unibo.sisco.view.impl;
 
 import it.unibo.sisco.controller.api.Configuration;
 import it.unibo.sisco.controller.api.Controller;
+import it.unibo.sisco.controller.api.SimulationEvents;
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.view.api.SimulationView;
 import it.unibo.sisco.view.impl.panel.BodyShape;
-import it.unibo.sisco.view.impl.panel.DrawPanel;
 import it.unibo.sisco.view.impl.panel.InitPanel;
 import it.unibo.sisco.view.impl.panel.SimulationPanel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -57,7 +58,10 @@ public final class SwingSimulationView implements SimulationView {
     @Override
     public void init() {
         runOnEdt(() -> {
-            this.currentPanel = new InitPanel(controller::setConfiguration);
+            this.currentPanel = new InitPanel(config -> controller.handleEvent(
+                SimulationEvents.SET_CONFIGURATION,
+                Optional.of(config)
+            ));
             this.frame.setContentPane(this.currentPanel);
             this.startTime = System.currentTimeMillis();
             this.nFramesRendered = 0;
@@ -68,7 +72,10 @@ public final class SwingSimulationView implements SimulationView {
     @Override
     public void selectedConfiguration(final Configuration config) {
         runOnEdt(() -> {
-            this.currentPanel = new SimulationPanel();
+            this.currentPanel = new SimulationPanel(
+                config,
+                event -> this.controller.handleEvent(event, Optional.empty())
+            );
             this.frame.setContentPane(this.currentPanel);
             this.frame.revalidate();
             this.frame.repaint();
@@ -84,12 +91,10 @@ public final class SwingSimulationView implements SimulationView {
         final long elapsed = Math.max(1, System.currentTimeMillis() - this.startTime);
         final int framePerSec = (int) (this.nFramesRendered / (double) elapsed * MILLIS_PER_SECOND);
         final List<BodyShape> shapes = bodies.stream()
-                .map(b -> new BodyShape(b.getPos().x(), b.getPos().y(), b.getRadius()))
-                .toList();
+            .map(b -> new BodyShape(b.getPos().x(), b.getPos().y(), b.getRadius()))
+            .toList();
         runOnEdt(() -> {
-            final DrawPanel drawPanel = ((SimulationPanel) this.currentPanel).getDrawPanel();
-            drawPanel.display(shapes, vt, iteration, framePerSec);
-            drawPanel.repaint();
+            ((SimulationPanel) this.currentPanel).display(shapes, vt, iteration, framePerSec);
         });
     }
 
@@ -109,8 +114,9 @@ public final class SwingSimulationView implements SimulationView {
 
     @Override
     public void simulationOver(final long timeElapsed) {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method
-        // 'simulationOver'");
+        runOnEdt(() -> {
+            if (this.currentPanel instanceof SimulationPanel panel)
+                panel.showSimulationOver(timeElapsed);
+        });
     }
 }

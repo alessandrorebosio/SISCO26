@@ -11,7 +11,6 @@ import it.unibo.sisco.model.impl.simulation.ThreadNBodySimulation;
 import it.unibo.sisco.view.api.SimulationView;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.LongStream;
 
 /**
@@ -24,9 +23,9 @@ import java.util.stream.LongStream;
 public final class SimulationController implements Controller {
 
     private static final int N_BODIES = 5000;
-    private static final int N_STEPS = 200;
-    private Optional<SimulationView> view = Optional.empty();
-    private Optional<NBodySimulation> simulator = Optional.empty();
+    private static final int N_STEPS = 100;
+    private SimulationView view;
+    private NBodySimulation simulator;
 
     /**
      * Creates a controller for an N-body simulation.
@@ -36,43 +35,42 @@ public final class SimulationController implements Controller {
 
     @Override
     public void run() {
-        this.view.ifPresent(SimulationView::init);
-        while (this.simulator.isEmpty()) { }
+        if (this.view != null) this.view.init();
+        while (this.simulator == null) { }
         final long startTime = System.currentTimeMillis();
         LongStream.range(0, N_STEPS).forEach(this::simulationStep);
         final long elapsed = System.currentTimeMillis() - startTime;
-        this.view.ifPresent(v -> v.simulationOver(elapsed));
+        if (this.view != null) this.view.simulationOver(elapsed);
     }
 
     private void simulationStep(final long stepNumber) {
-        this.simulator.ifPresent(NBodySimulation::step);
-        this.view.ifPresent(v -> {
-            v.display(
-                this.simulator.get().getBodies(),
-                this.simulator.get().getVirtualTime(),
-                this.simulator.get().getIteration()
+        this.simulator.step();
+        if (this.view != null) {
+            this.view.display(
+                this.simulator.getBodies(),
+                this.simulator.getVirtualTime(),
+                this.simulator.getIteration()
             );
-        });
+        }
     }
 
     @Override
     public void attachView(final SimulationView view) {
-        this.view.ifPresentOrElse(
-            t -> { throw new IllegalStateException("View already attached."); },
-            () -> this.view = Optional.of(view)
-        );
+        if (this.view == null) {
+            this.view = view;
+        } else {
+            throw new IllegalStateException("View already attached.");
+        }
     }
 
     @Override
     public void setSimulator(final SimulatorTypes simulator) {
         final List<Body> bodies = BodySets.random(N_BODIES);
-        this.simulator = Optional.of(
-            switch (simulator) {
-                case SimulatorTypes.SEQUENTIAL -> new SequentialNBodySimulation(bodies);
-                case SimulatorTypes.SYSTEM_THREAD -> new ThreadNBodySimulation(bodies);
-                case SimulatorTypes.EXECUTORS -> new ExecutorsNBodySimulation(bodies);
-            }
-        );
-        this.view.ifPresent(v -> v.selectedSimulator(simulator));
+        this.simulator = switch (simulator) {
+            case SimulatorTypes.SEQUENTIAL -> new SequentialNBodySimulation(bodies);
+            case SimulatorTypes.SYSTEM_THREAD -> new ThreadNBodySimulation(bodies);
+            case SimulatorTypes.EXECUTORS -> new ExecutorsNBodySimulation(bodies);
+        };
+        if (this.view != null) this.view.selectedSimulator(simulator);
     }
 }

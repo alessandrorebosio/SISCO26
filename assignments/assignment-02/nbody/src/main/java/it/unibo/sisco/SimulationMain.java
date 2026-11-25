@@ -1,5 +1,6 @@
 package it.unibo.sisco;
 
+import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.controller.impl.SimulationController;
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.NBodySimulation;
@@ -16,9 +17,9 @@ import java.util.List;
  * which implementation is used: {@code [cli] [sequential|threads|executors] [numThreads]}.
  *
  * <p>
- * By default it opens the Swing GUI, which displays every step; with
- * {@value LaunchOptions#CLI_FLAG} it runs on the terminal and only logs the
- * elapsed time.
+ * By default it opens the Swing GUI, which displays every step and is driven
+ * by its Start, Stop and Step buttons; with {@value LaunchOptions#CLI_FLAG} it
+ * runs every step at once on the terminal and only logs the elapsed time.
  */
 public final class SimulationMain {
 
@@ -34,15 +35,22 @@ public final class SimulationMain {
      *
      * @param args {@code [cli] [sequential|threads|executors] [numThreads]}, in
      *             any order
+     * @throws InterruptedException if the main thread is interrupted while the
+     *                              simulation runs
      */
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws InterruptedException {
         final LaunchOptions options = LaunchOptions.parse(args);
         final List<Body> bodies = BodySets.random(N_BODIES);
         final SimulationView view = options.cli()
                 ? new ConsoleSimulationView()
                 : new SwingSimulationView(WINDOW_SIZE, WINDOW_SIZE);
         try (NBodySimulation simulation = NBodySimulations.of(options.simulation(), bodies, options.numThreads())) {
-            new SimulationController(view, simulation, N_STEPS).run();
+            final Controller controller = new SimulationController(view, simulation, N_STEPS);
+            view.setController(controller);
+            if (options.cli()) {
+                controller.start();
+            }
+            controller.awaitTermination();
         }
     }
 }

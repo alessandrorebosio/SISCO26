@@ -1,32 +1,45 @@
 package it.unibo.sisco.view.impl;
 
+import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.model.api.SimulationState;
 import it.unibo.sisco.view.api.SimulationView;
 import it.unibo.sisco.view.impl.panel.VisualiserPanel;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 /**
  * Swing implementation of {@link SimulationView}: a window that draws the
  * bodies and shows the virtual time, the number of steps and the frames
- * rendered per second.
+ * rendered per second. The Start, Stop and Step buttons below the drawing send
+ * the commands to the controller.
  *
  * <p>
  * Every Swing component is created and updated on the Event Dispatch Thread.
  * {@link #display(SimulationState)} hands the snapshot of the bodies to the
  * Event Dispatch Thread and waits until it has received it, so the simulation
- * never runs ahead of the view. Closing the window
- * terminates the application.
+ * never runs ahead of the view. Closing the window terminates the
+ * application.
  */
 public final class SwingSimulationView implements SimulationView {
 
     private static final String TITLE = "Bodies Simulation";
     private static final double MILLIS_PER_SECOND = 1000.0;
+    private static final int GAP = 8;
 
     private JFrame frame;
     private VisualiserPanel panel;
+    private JPanel buttons;
+    // Read and written only on the Event Dispatch Thread
+    private Controller controller;
     private long nFramesRendered;
     private long startTime;
 
@@ -44,11 +57,38 @@ public final class SwingSimulationView implements SimulationView {
             this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             this.panel = new VisualiserPanel();
             this.panel.setPreferredSize(new Dimension(w, h));
-            this.frame.add(this.panel);
+            this.frame.add(this.panel, BorderLayout.CENTER);
+
+            // One row of buttons of the same width, enabled once the controller is set
+            final JButton start = new JButton("Start");
+            final JButton stop = new JButton("Stop");
+            final JButton step = new JButton("Step");
+            start.addActionListener(e -> this.controller.start());
+            stop.addActionListener(e -> this.controller.stop());
+            step.addActionListener(e -> this.controller.step());
+            this.buttons = new JPanel(new GridLayout(1, 0, GAP, 0));
+            this.buttons.setBorder(BorderFactory.createEmptyBorder(GAP, GAP, GAP, GAP));
+            for (final JButton b : List.of(start, stop, step)) {
+                // The buttons never take the focus, which stays on the panel for the zoom keys
+                b.setFocusable(false);
+                b.setEnabled(false);
+                this.buttons.add(b);
+            }
+            this.frame.add(this.buttons, BorderLayout.SOUTH);
             this.frame.pack();
             this.frame.setLocationRelativeTo(null);
             this.frame.setVisible(true);
             this.panel.requestFocusInWindow();
+        });
+    }
+
+    @Override
+    public void setController(final Controller newController) {
+        runOnEdt(() -> {
+            this.controller = newController;
+            for (final Component b : this.buttons.getComponents()) {
+                b.setEnabled(true);
+            }
         });
     }
 

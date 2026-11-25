@@ -1,5 +1,6 @@
 package it.unibo.sisco.view.api;
 
+import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.model.api.SimulationState;
 
 /**
@@ -10,6 +11,14 @@ import it.unibo.sisco.model.api.SimulationState;
  * steps.
  */
 public interface SimulationView {
+
+    /**
+     * Gives the view the controller that receives the commands of the user, if
+     * the view has any. It is called once, before the simulation starts.
+     *
+     * @param controller the controller of the simulation
+     */
+    void setController(Controller controller);
 
     /**
      * Prepares the view before the first step, for example resetting its

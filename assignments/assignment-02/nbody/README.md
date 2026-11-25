@@ -37,7 +37,8 @@ nbody/
 
 ## Run
 
-Run the simulation with the GUI (UP/DOWN arrows to zoom):
+Run the simulation with the GUI: the Start, Stop and Step buttons run, pause
+and advance it by one step, the UP/DOWN arrows zoom:
 
 ```bash
 ./gradlew run
@@ -46,7 +47,7 @@ Run the simulation with the GUI (UP/DOWN arrows to zoom):
 The arguments, in any order, choose the implementation (`threads` by
 default), the number of threads of `threads` and `executors` (one for each
 processor by default) and, with `cli`, run the simulation on the terminal,
-which prints only the elapsed time:
+which runs every step at once and prints only the elapsed time:
 
 ```bash
 ./gradlew run --args="executors"         # GUI, Executor framework

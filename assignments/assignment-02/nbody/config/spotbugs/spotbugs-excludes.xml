@@ -56,4 +56,9 @@
     <Match>
         <Package name="~.*\.biochemistrydsl"/>
     </Match>
+    <!-- The controller drives the view it is given: sharing it is intended -->
+    <Match>
+        <Class name="it.unibo.sisco.controller.impl.SimulationController"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
 </FindBugsFilter>

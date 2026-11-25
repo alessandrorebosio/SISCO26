@@ -1,5 +1,6 @@
 package it.unibo.sisco.view.impl;
 
+import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.model.api.SimulationState;
 import it.unibo.sisco.view.api.SimulationView;
 
@@ -19,6 +20,11 @@ public final class ConsoleSimulationView implements SimulationView {
      */
     public ConsoleSimulationView() {
         // Nothing to set up: the logger is shared by every instance
+    }
+
+    @Override
+    public void setController(final Controller controller) {
+        // The terminal takes no commands: the simulation is started by the main
     }
 
     @Override

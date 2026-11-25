@@ -1,43 +1,48 @@
 package it.unibo.sisco;
 
-import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.controller.impl.SimulationController;
-import it.unibo.sisco.model.api.SimulatorTypes;
+import it.unibo.sisco.model.api.Body;
+import it.unibo.sisco.model.api.NBodySimulation;
+import it.unibo.sisco.model.impl.body.BodySets;
+import it.unibo.sisco.model.impl.simulation.NBodySimulations;
+import it.unibo.sisco.view.api.SimulationView;
 import it.unibo.sisco.view.impl.ConsoleSimulationView;
 import it.unibo.sisco.view.impl.SwingSimulationView;
 
+import java.util.List;
+
 /**
- * Entry point of the N-body simulation.
+ * Entry point of the N-body simulation. The arguments choose where it runs and
+ * which implementation is used: {@code [cli] [sequential|threads|executors] [numThreads]}.
  *
- * <p>By default it opens the Swing GUI, which displays every step. With the
- * {@value #CLI_FLAG} argument it runs without GUI and logs the elapsed time
- * on the terminal instead. Start it with {@code ./gradlew run} or
- * {@code ./gradlew run --args=cli}.
+ * <p>
+ * By default it opens the Swing GUI, which displays every step; with
+ * {@value LaunchOptions#CLI_FLAG} it runs on the terminal and only logs the
+ * elapsed time.
  */
 public final class SimulationMain {
 
-    /** Command-line argument that selects the terminal version. */
-    public static final String CLI_FLAG = "cli";
-
     private static final int WINDOW_SIZE = 620;
+    private static final int N_BODIES = 5000;
 
     private SimulationMain() {
     }
 
     /**
-     * Runs the simulation with the GUI, or on the terminal if
-     * {@value #CLI_FLAG} is given.
+     * Runs the simulation chosen by the arguments.
      *
-     * @param args command-line arguments: none, or {@value #CLI_FLAG}
+     * @param args {@code [cli] [sequential|threads|executors] [numThreads]}, in
+     *             any order
      */
     public static void main(final String[] args) {
-        final Controller simulation = new SimulationController();
-        if (args.length > 0 && CLI_FLAG.equals(args[0])) {
-            simulation.attachView(new ConsoleSimulationView(simulation));
-        } else {
-            simulation.attachView(new SwingSimulationView(WINDOW_SIZE, WINDOW_SIZE));
-            simulation.setSimulator(SimulatorTypes.FIXED_SYSTEM_THREAD);
-        }
-        simulation.run();
+        final LaunchOptions options = LaunchOptions.parse(args);
+        final List<Body> bodies = BodySets.random(N_BODIES);
+        final NBodySimulation simulation = options.numThreads().isPresent()
+                ? NBodySimulations.byName(options.simulation(), bodies, options.numThreads().getAsInt())
+                : NBodySimulations.byName(options.simulation(), bodies);
+        final SimulationView view = options.cli()
+                ? new ConsoleSimulationView()
+                : new SwingSimulationView(WINDOW_SIZE, WINDOW_SIZE);
+        new SimulationController(view, simulation).run();
     }
 }

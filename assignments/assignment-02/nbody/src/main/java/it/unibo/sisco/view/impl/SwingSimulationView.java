@@ -1,7 +1,6 @@
 package it.unibo.sisco.view.impl;
 
 import it.unibo.sisco.model.api.Body;
-import it.unibo.sisco.model.api.SimulatorTypes;
 import it.unibo.sisco.view.api.SimulationView;
 import it.unibo.sisco.view.impl.panel.BodyShape;
 import it.unibo.sisco.view.impl.panel.VisualiserPanel;
@@ -42,50 +41,43 @@ public final class SwingSimulationView implements SimulationView {
      */
     public SwingSimulationView(final int w, final int h) {
         runOnEdt(() -> {
-            frame = new JFrame(TITLE);
-            frame.setResizable(false);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            panel = new VisualiserPanel();
-            panel.setPreferredSize(new Dimension(w, h));
-            frame.add(panel);
-            frame.pack();
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-            panel.requestFocusInWindow();
+            this.frame = new JFrame(TITLE);
+            this.frame.setResizable(false);
+            this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.panel = new VisualiserPanel();
+            this.panel.setPreferredSize(new Dimension(w, h));
+            this.frame.add(this.panel);
+            this.frame.pack();
+            this.frame.setLocationRelativeTo(null);
+            this.frame.setVisible(true);
+            this.panel.requestFocusInWindow();
         });
     }
 
     @Override
     public void init() {
-        startTime = System.currentTimeMillis();
-        nFramesRendered = 0;
+        this.startTime = System.currentTimeMillis();
+        this.nFramesRendered = 0;
     }
 
     @Override
     public void display(final List<Body> bodies, final double vt, final long iteration) {
-        nFramesRendered++;
-        final long elapsed = Math.max(1, System.currentTimeMillis() - startTime);
-        final int framePerSec = (int) (nFramesRendered * MILLIS_PER_SECOND / elapsed);
+        this.nFramesRendered++;
+        final long elapsed = Math.max(1, System.currentTimeMillis() - this.startTime);
+        final int framePerSec = (int) (this.nFramesRendered * MILLIS_PER_SECOND / elapsed);
         // The snapshot is taken by the simulation thread, so the EDT never reads the live model
         final List<BodyShape> shapes = bodies.stream()
                 .map(b -> new BodyShape(b.getPos().x(), b.getPos().y(), b.getRadius()))
                 .toList();
         runOnEdt(() -> {
-            panel.display(shapes, vt, iteration, framePerSec);
-            panel.repaint();
+            this.panel.display(shapes, vt, iteration, framePerSec);
+            this.panel.repaint();
         });
     }
 
     @Override
-    public void selectedSimulator(final SimulatorTypes simulator) {
-        runOnEdt(() -> frame.setTitle(TITLE + " - " + simulator));
-        // TODO
-    }
-
-    @Override
     public void simulationOver(final long timeElapsed) {
-        runOnEdt(() -> frame.setTitle(frame.getTitle() + " - over in " + timeElapsed + " ms"));
-        // TODO
+        runOnEdt(() -> this.frame.setTitle(TITLE + " - over in " + timeElapsed + " ms"));
     }
 
     private static void runOnEdt(final Runnable action) {

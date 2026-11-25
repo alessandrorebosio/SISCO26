@@ -43,10 +43,17 @@ Run the simulation with the GUI (UP/DOWN arrows to zoom):
 ./gradlew run
 ```
 
-Run the simulation on the terminal only, without GUI (prints the elapsed time):
+The arguments, in any order, choose the implementation (`threads` by
+default), the number of threads of `threads` and `executors` (one for each
+processor by default) and, with `cli`, run the simulation on the terminal,
+which prints only the elapsed time:
 
 ```bash
-./gradlew run --args=cli
+./gradlew run --args="executors"         # GUI, Executor framework
+./gradlew run --args="cli sequential"    # terminal, sequential
+./gradlew run --args="cli threads"       # terminal, one thread per processor
+./gradlew run --args="cli threads 4"     # terminal, 4 threads
+./gradlew run --args="executors 16"      # GUI, pool of 16 threads
 ```
 
 ## Build and checks

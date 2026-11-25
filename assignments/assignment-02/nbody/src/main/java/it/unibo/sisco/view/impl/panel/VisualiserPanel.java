@@ -39,14 +39,13 @@ public final class VisualiserPanel extends JPanel {
      * Builds the panel and enables the zoom keys.
      */
     public VisualiserPanel() {
-        super();
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(final KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_UP) {
-                    scale *= ZOOM_IN;
+                    VisualiserPanel.this.scale *= ZOOM_IN;
                 } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    scale *= ZOOM_OUT;
+                    VisualiserPanel.this.scale *= ZOOM_OUT;
                 }
                 repaint();
             }
@@ -88,11 +87,11 @@ public final class VisualiserPanel extends JPanel {
         final int areaHeight = getHeight() - HEADER_HEIGHT;
         final double centreX = getWidth() / 2.0;
         final double centreY = HEADER_HEIGHT + areaHeight / 2.0;
-        final double unit = (Math.min(getWidth(), areaHeight) / 2.0 - MARGIN) * scale;
+        final double unit = (Math.min(getWidth(), areaHeight) / 2.0 - MARGIN) * this.scale;
 
         final Graphics2D canvas = (Graphics2D) g2.create();
         canvas.clipRect(0, HEADER_HEIGHT, getWidth(), areaHeight);
-        for (final BodyShape b : bodies) {
+        for (final BodyShape b : this.bodies) {
             // The radius of the model is drawn as the diameter, so the bodies are easier to tell apart
             final int diameter = Math.max(2, (int) Math.round(b.radius() * unit));
             final int x = (int) Math.round(centreX + b.x() * unit - diameter / 2.0);
@@ -104,7 +103,7 @@ public final class VisualiserPanel extends JPanel {
 
     private void drawHeader(final Graphics2D g2) {
         g2.drawString(String.format(Locale.ROOT, "Bodies: %d - vt: %.2f - nIter: %d - frames/sec: %d",
-                bodies.length, vt, iteration, framePerSec), TEXT_X, FIRST_LINE_Y);
+                this.bodies.length, this.vt, this.iteration, this.framePerSec), TEXT_X, FIRST_LINE_Y);
         g2.drawString("Commands: UP for zoom in, DOWN for zoom out", TEXT_X, SECOND_LINE_Y);
     }
 }

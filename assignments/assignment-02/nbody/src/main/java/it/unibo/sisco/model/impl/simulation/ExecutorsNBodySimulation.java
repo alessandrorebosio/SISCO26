@@ -23,7 +23,7 @@ public final class ExecutorsNBodySimulation extends AbstractNBodySimulation {
 
     /**
      * Builds an executor-based simulation over a set of bodies, with the default
-     * time step.
+     * time step and one pool thread for each available processor.
      *
      * @param bodies the bodies of the simulation
      */
@@ -32,18 +32,33 @@ public final class ExecutorsNBodySimulation extends AbstractNBodySimulation {
     }
 
     /**
-     * Builds an executor-based simulation over a set of bodies, with a pool of
-     * one thread more than the available processors.
+     * Builds an executor-based simulation over a set of bodies, with one pool
+     * thread for each available processor.
      *
      * @param bodies the bodies of the simulation
      * @param dt     the virtual time elapsed at each step
      * @throws IllegalArgumentException if {@code dt} is not positive
      */
     public ExecutorsNBodySimulation(final List<? extends Body> bodies, final double dt) {
+        this(bodies, dt, Runtime.getRuntime().availableProcessors());
+    }
+
+    /**
+     * Builds an executor-based simulation over a set of bodies, with a pool of
+     * the given number of threads.
+     *
+     * @param bodies   the bodies of the simulation
+     * @param dt       the virtual time elapsed at each step
+     * @param poolSize the number of threads of the pool
+     * @throws IllegalArgumentException if {@code dt} or {@code poolSize} is not
+     *                                  positive
+     */
+    public ExecutorsNBodySimulation(final List<? extends Body> bodies, final double dt, final int poolSize) {
         super(bodies, dt);
-        this.executor = Executors.newFixedThreadPool(
-                Runtime.getRuntime().availableProcessors() + 1,
-                Thread.ofPlatform().daemon().factory());
+        if (poolSize < 1) {
+            throw new IllegalArgumentException("The size of the pool must be positive: " + poolSize);
+        }
+        this.executor = Executors.newFixedThreadPool(poolSize, Thread.ofPlatform().daemon().factory());
     }
 
     @Override

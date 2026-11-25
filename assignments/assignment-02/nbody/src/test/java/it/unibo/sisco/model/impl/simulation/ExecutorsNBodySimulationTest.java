@@ -53,6 +53,25 @@ public class ExecutorsNBodySimulationTest {
     }
 
     @Test
+    void nonPositiveNumberOfThreadsIsRejected() {
+        final List<Body> bodies = TestBodies.twoBodies();
+        assertThrows(IllegalArgumentException.class, () -> new ExecutorsNBodySimulation(bodies, DT, 0));
+    }
+
+    @Test
+    void anySizeOfThePoolGivesTheSameResult() {
+        final NBodySimulation one = new ExecutorsNBodySimulation(TestBodies.threeBodies(), DT, 1);
+        final NBodySimulation many = new ExecutorsNBodySimulation(TestBodies.threeBodies(), DT, 4);
+        for (int i = 0; i < STEPS; i++) {
+            one.step();
+            many.step();
+        }
+        for (int i = 0; i < one.getNumBodies(); i++) {
+            assertEquals(one.getBodies().get(i).getPos(), many.getBodies().get(i).getPos());
+        }
+    }
+
+    @Test
     void bodiesAreCopiedAndUnmodifiable() {
         final List<Body> bodies = new ArrayList<>(TestBodies.twoBodies());
         final NBodySimulation sim = new ExecutorsNBodySimulation(bodies);

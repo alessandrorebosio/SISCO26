@@ -24,13 +24,15 @@ repositories {
     mavenCentral()
 }
 
-// `./gradlew run` opens the GUI, `./gradlew run --args=cli` runs on the terminal only.
+// `./gradlew run` opens the GUI, `./gradlew run --args="cli [sequential|threads|executors] [numThreads]"` runs on the terminal.
 application {
     mainClass = "it.unibo.sisco.SimulationMain"
 }
 
 tasks.named<JavaExec>("run") {
     standardInput = System.`in`
+    // One line per log record, with the message only
+    systemProperty("java.util.logging.SimpleFormatter.format", "%5\$s%n")
 }
 
 val spotbugsVersion = "4.10.5"

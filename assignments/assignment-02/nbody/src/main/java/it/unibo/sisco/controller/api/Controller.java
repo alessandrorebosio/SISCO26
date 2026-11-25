@@ -1,11 +1,10 @@
 package it.unibo.sisco.controller.api;
 
-import it.unibo.sisco.model.api.SimulatorTypes;
+import it.unibo.sisco.model.api.NBodySimulation;
 import it.unibo.sisco.view.api.SimulationView;
 
 /**
- * Controller that drives an N-body simulation and, if present, keeps its view
- * up to date.
+ * Controller that drives an N-body simulation and keeps its view up to date.
  */
 public interface Controller {
 
@@ -15,20 +14,24 @@ public interface Controller {
      *
      * <p>
      * The method returns only when every step has been executed.
+     *
+     * @throws NullPointerException if no view is attached or no simulation is
+     *                              set
      */
     void run();
 
     /**
-     * Attaches a view to receive simulation updates.
+     * Attaches the view that displays the simulation.
      *
      * @param view the view to attach
+     * @throws IllegalStateException if a view is already attached
      */
     void attachView(SimulationView view);
 
     /**
-     * Selects the simulation implementation to run.
+     * Sets the simulation to run, replacing the previous one if any.
      *
-     * @param simulator the simulation implementation to use
+     * @param simulation the simulation to run
      */
-    void setSimulator(SimulatorTypes simulator);
+    void setSimulator(NBodySimulation simulation);
 }

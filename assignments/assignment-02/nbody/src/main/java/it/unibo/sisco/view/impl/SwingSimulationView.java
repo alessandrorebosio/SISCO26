@@ -1,6 +1,7 @@
 package it.unibo.sisco.view.impl;
 
 import it.unibo.sisco.model.api.Body;
+import it.unibo.sisco.model.api.SimulatorTypes;
 import it.unibo.sisco.view.api.SimulationView;
 import it.unibo.sisco.view.impl.panel.BodyShape;
 import it.unibo.sisco.view.impl.panel.VisualiserPanel;
@@ -74,5 +75,17 @@ public final class SwingSimulationView implements SimulationView {
         } catch (final InvocationTargetException e) {
             throw new IllegalStateException("Error while updating the view", e.getCause());
         }
+    }
+
+    @Override
+    public void selectedSimulator(final SimulatorTypes simulator) {
+        // TODO Auto-generated method stub
+        //throw new UnsupportedOperationException("Unimplemented method 'selectedSimulator'");
+    }
+
+    @Override
+    public void simulationOver(final long timeElapsed) {
+        // TODO Auto-generated method stub
+        //throw new UnsupportedOperationException("Unimplemented method 'simulationOver'");
     }
 }

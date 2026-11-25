@@ -1,6 +1,8 @@
 package it.unibo.sisco.view.api;
 
 import it.unibo.sisco.model.api.Body;
+import it.unibo.sisco.model.api.SimulatorTypes;
+
 import java.util.List;
 
 /**
@@ -26,4 +28,18 @@ public interface SimulationView {
      * @param iteration the number of steps executed so far
      */
     void display(List<Body> bodies, double vt, long iteration);
+
+    /**
+     * Notifies the view of the selected simulation implementation.
+     *
+     * @param simulator the selected simulation implementation
+     */
+    void selectedSimulator(SimulatorTypes simulator);
+
+    /**
+     * Notifies the view that the simulation has finished.
+     *
+     * @param timeElapsed the elapsed time in milliseconds
+     */
+    void simulationOver(long timeElapsed);
 }

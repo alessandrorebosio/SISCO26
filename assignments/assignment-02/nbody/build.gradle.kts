@@ -28,6 +28,10 @@ application {
     mainClass = "it.unibo.sisco.SimulationMain"
 }
 
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
+}
+
 // `./gradlew runGui` starts the simulation with the Swing GUI.
 tasks.register<JavaExec>("runGui") {
     group = "application"

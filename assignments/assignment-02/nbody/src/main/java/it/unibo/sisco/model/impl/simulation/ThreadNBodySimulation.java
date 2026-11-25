@@ -61,7 +61,9 @@ public final class ThreadNBodySimulation extends AbstractNBodySimulation {
                 return;
             }
             if (!this.started) {
-                this.workers.forEach(Thread::start);
+                for (final BodyWorker worker : this.workers) {
+                    worker.start();
+                }
                 this.started = true;
             }
             try {
@@ -86,6 +88,7 @@ public final class ThreadNBodySimulation extends AbstractNBodySimulation {
         private BodyWorker(final Body body) {
             super("BodyWorker-" + body.getId());
             this.body = body;
+            // Set the thread as a daemon so it doesn't prevent the JVM from exiting if the main thread finishes
             this.setDaemon(true);
         }
 

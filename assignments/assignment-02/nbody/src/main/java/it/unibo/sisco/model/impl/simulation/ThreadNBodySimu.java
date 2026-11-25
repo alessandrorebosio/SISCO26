@@ -67,7 +67,9 @@ public final class ThreadNBodySimu extends AbstractNBodySimulation {
             return;
         }
         if (!this.started) {
-            this.workers.forEach(Thread::start);
+            for (final BodyWorker worker : this.workers) {
+                worker.start();
+            }
             this.started = true;
         }
         try {

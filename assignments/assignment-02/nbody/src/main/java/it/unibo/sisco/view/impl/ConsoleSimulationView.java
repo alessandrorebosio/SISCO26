@@ -67,7 +67,7 @@ public class ConsoleSimulationView implements SimulationView {
     }
 
     @Override
-    public void display(List<Body> bodies, double vt, long iteration) {
+    public void display(final List<Body> bodies, final long elapsed, final double vt, final long iteration) {
         // Show nothing
     }
 

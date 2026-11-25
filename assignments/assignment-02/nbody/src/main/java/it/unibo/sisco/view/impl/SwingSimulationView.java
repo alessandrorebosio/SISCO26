@@ -9,6 +9,7 @@ import it.unibo.sisco.view.impl.panel.BodyShape;
 import it.unibo.sisco.view.impl.panel.InitPanel;
 import it.unibo.sisco.view.impl.panel.SimulationPanel;
 
+import java.awt.Dimension;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Optional;
@@ -19,12 +20,12 @@ import javax.swing.SwingUtilities;
 
 /**
  * Swing implementation of {@link SimulationView}: a window that draws the
- * bodies and shows the virtual time, the number of steps and the frames
- * rendered per second.
+ * bodies and shows the virtual time, the number of steps and steps per second
+ * of computation time.
  *
  * <p>
  * Every Swing component is created and updated on the Event Dispatch Thread.
- * {@link #display(List, double, long)} copies the positions of the bodies in
+ * {@link #display(List, long, double, long)} copies the positions of the bodies in
  * the calling thread and waits until the Event Dispatch Thread has received
  * them, so the simulation never runs ahead of the view. Closing the window
  * terminates the application.
@@ -32,9 +33,6 @@ import javax.swing.SwingUtilities;
 public final class SwingSimulationView implements SimulationView {
 
     private static final double MILLIS_PER_SECOND = 1000.0;
-
-    private long nFramesRendered;
-    private long startTime;
 
     private final Controller controller;
     private final JFrame frame;
@@ -51,8 +49,10 @@ public final class SwingSimulationView implements SimulationView {
         this.controller = controller;
         this.frame = new JFrame("Bodies Simulation");
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.frame.setMinimumSize(new Dimension(600, 400));
         this.frame.setSize(w, h);
         this.frame.setLocationByPlatform(true);
+        this.frame.setAlwaysOnTop(true);
     }
 
     @Override
@@ -63,8 +63,6 @@ public final class SwingSimulationView implements SimulationView {
                 Optional.of(config)
             ));
             this.frame.setContentPane(this.currentPanel);
-            this.startTime = System.currentTimeMillis();
-            this.nFramesRendered = 0;
             this.frame.setVisible(true);
         });
     }
@@ -86,15 +84,15 @@ public final class SwingSimulationView implements SimulationView {
     }
 
     @Override
-    public void display(final List<Body> bodies, final double vt, final long iteration) {
-        this.nFramesRendered++;
-        final long elapsed = Math.max(1, System.currentTimeMillis() - this.startTime);
-        final int framePerSec = (int) (this.nFramesRendered / (double) elapsed * MILLIS_PER_SECOND);
+    public void display(final List<Body> bodies, final long millis, final double vt, final long iteration) {
+        final int stepsPerSecond = millis != 0
+            ? (int) (iteration / (double) millis * MILLIS_PER_SECOND)
+            : 0;
         final List<BodyShape> shapes = bodies.stream()
             .map(b -> new BodyShape(b.getPos().x(), b.getPos().y(), b.getRadius()))
             .toList();
         runOnEdt(() -> {
-            ((SimulationPanel) this.currentPanel).display(shapes, vt, iteration, framePerSec);
+            ((SimulationPanel) this.currentPanel).display(shapes, millis, vt, iteration, stepsPerSecond);
         });
     }
 

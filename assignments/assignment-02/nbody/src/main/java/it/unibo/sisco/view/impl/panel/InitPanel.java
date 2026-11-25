@@ -77,10 +77,11 @@ public final class InitPanel extends JPanel {
         // Glue at both ends keeps the content vertically centered
         this.add(Box.createVerticalGlue());
         this.add(title);
-        this.add(Box.createVerticalStrut(SECTION_GAP));
+        this.add(Box.createVerticalStrut(SECTION_GAP * 2));
         this.add(form);
         this.add(Box.createVerticalStrut(SECTION_GAP));
         this.add(confirmButton);
+        this.add(Box.createVerticalGlue());
         this.add(Box.createVerticalGlue());
     }
 

@@ -30,6 +30,10 @@ public interface Controller {
      * Handles a simulation lifecycle event.
      *
      * <p>
+     * Accepted events are processed by the thread executing {@link #run()},
+     * in the order they are received.
+     *
+     * <p>
      * {@link SimulationEvents#SET_CONFIGURATION} requires a
      * {@link Configuration} payload. All other events require an empty payload.
      *

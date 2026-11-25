@@ -28,10 +28,11 @@ public interface SimulationView {
      * next step.
      *
      * @param bodies    the bodies to display
+     * @param millis    accumulated computation time in milliseconds
      * @param vt        the current virtual time
      * @param iteration the number of steps executed so far
      */
-    void display(List<Body> bodies, double vt, long iteration);
+    void display(List<Body> bodies, long millis, double vt, long iteration);
 
     /**
      * Notifies the view of the selected simulation implementation.

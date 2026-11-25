@@ -47,13 +47,14 @@ public final class SimulationPanel extends JPanel {
      * Updates the displayed bodies and the options panel statistics.
      *
      * @param shapes the current body shapes
+     * @param elapsedTime elapsed time in milliseconds
      * @param virtualTime the current virtual time
      * @param iteration the number of completed steps
-     * @param framesPerSecond the rendered frames per second
+     * @param stepsPerSecond simulation steps per second of computation time
      */
-    public void display(final List<BodyShape> shapes, final double virtualTime, final long iteration, final int framesPerSecond) {
+    public void display(final List<BodyShape> shapes, final long elapsedTime, final double virtualTime, final long iteration, final int stepsPerSecond) {
         this.drawPanel.display(shapes);
-        this.optionPanel.updateStatistics(virtualTime, iteration, framesPerSecond);
+        this.optionPanel.updateStatistics(elapsedTime, virtualTime, iteration, stepsPerSecond);
         this.drawPanel.repaint();
     }
 

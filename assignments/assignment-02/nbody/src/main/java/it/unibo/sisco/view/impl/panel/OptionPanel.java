@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
@@ -15,7 +14,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
 import it.unibo.sisco.controller.api.Configuration;
 import it.unibo.sisco.controller.api.SimulationEvents;
@@ -29,7 +27,6 @@ public final class OptionPanel extends JPanel {
     private static final int OPTIONS_PANEL_WIDTH = 200;
     private static final int BUTTON_GAP = 8;
     private static final int OPTIONS_PADDING = 12;
-    private static final int REAL_TIME_UPDATE_INTERVAL_MS = 100;
 
     private final transient Consumer<SimulationEvents> eventHandler;
     private final JButton startButton;
@@ -37,14 +34,11 @@ public final class OptionPanel extends JPanel {
     private final JButton stepButton;
     private final JLabel virtualTimeLabel;
     private final JLabel iterationsLabel;
-    private final JLabel framesPerSecondLabel;
+    private final JLabel stepsPerSecondLabel;
     private final JLabel realTimeLabel;
     private final JLabel statusLabel;
     private final JLabel elapsedTimeLabel;
-    private final transient Timer realTimeTimer;
     private SimulationEvents lastEvent = SimulationEvents.SET_CONFIGURATION;
-    private long realTimeStartNanos;
-    private boolean realTimeStarted;
 
     /**
      * Creates the simulation options panel.
@@ -61,13 +55,12 @@ public final class OptionPanel extends JPanel {
         this.stepButton = new JButton("Step");
         this.virtualTimeLabel = new JLabel("Virtual time: 0.00");
         this.iterationsLabel = new JLabel("Iterations: 0");
-        this.framesPerSecondLabel = new JLabel("Frames/sec: 0");
-        this.realTimeLabel = new JLabel("Real time: 0.000 s");
+        this.stepsPerSecondLabel = new JLabel("Step/sec: 0");
+        this.realTimeLabel = new JLabel("Computation time: 0.0 s");
         this.statusLabel = new JLabel("SIMULATION OVER");
         this.statusLabel.setVisible(false);
         this.elapsedTimeLabel = new JLabel();
         this.elapsedTimeLabel.setVisible(false);
-        this.realTimeTimer = new Timer(REAL_TIME_UPDATE_INTERVAL_MS, e -> updateRealTime());
 
         this.startButton.addActionListener(e -> dispatch(SimulationEvents.START));
         this.pauseButton.addActionListener(e -> dispatch(SimulationEvents.PAUSE));
@@ -99,7 +92,7 @@ public final class OptionPanel extends JPanel {
         sidebarContent.add(Box.createVerticalStrut(BUTTON_GAP));
         sidebarContent.add(this.virtualTimeLabel);
         sidebarContent.add(this.iterationsLabel);
-        sidebarContent.add(this.framesPerSecondLabel);
+        sidebarContent.add(this.stepsPerSecondLabel);
         sidebarContent.add(this.realTimeLabel);
         sidebarContent.add(Box.createVerticalStrut(BUTTON_GAP * 2));
 
@@ -118,16 +111,18 @@ public final class OptionPanel extends JPanel {
     /**
      * Updates the statistics shown in the sidebar.
      *
+     * @param elapsedMillis elapsed time in milliseconds
      * @param virtualTime current virtual time
      * @param iteration number of completed steps
-     * @param framesPerSecond rendered frames per second
+     * @param stepsPerSecond simulation steps per second of computation time
      */
-    public void updateStatistics(final double virtualTime, final long iteration, final int framesPerSecond) {
+    public void updateStatistics(final long elapsedMillis, final double virtualTime, final long iteration, final int stepsPerSecond) {
         this.virtualTimeLabel.setText(
             "Virtual time: " + String.format(Locale.ROOT, "%.2f", virtualTime)
         );
         this.iterationsLabel.setText("Iterations completed: " + iteration);
-        this.framesPerSecondLabel.setText("Frames/sec: " + framesPerSecond);
+        this.stepsPerSecondLabel.setText("Step/sec: " + stepsPerSecond);
+        this.realTimeLabel.setText(formatTime("Computation time", elapsedMillis));
     }
 
     /**
@@ -136,11 +131,9 @@ public final class OptionPanel extends JPanel {
      * @param elapsedMillis elapsed wall-clock time in milliseconds
      */
     public void showSimulationOver(final long elapsedMillis) {
-        this.realTimeTimer.stop();
         this.startButton.setEnabled(false);
         this.pauseButton.setEnabled(false);
         this.stepButton.setEnabled(false);
-        this.realTimeLabel.setText(formatTime("Real time", elapsedMillis));
         this.statusLabel.setVisible(true);
         this.elapsedTimeLabel.setText(formatTime("Elapsed", elapsedMillis));
         this.elapsedTimeLabel.setVisible(true);
@@ -148,24 +141,12 @@ public final class OptionPanel extends JPanel {
 
     private void dispatch(final SimulationEvents event) {
         this.eventHandler.accept(event);
-        if (!this.realTimeStarted && (event == SimulationEvents.START || event == SimulationEvents.STEP)) {
-            this.realTimeStartNanos = System.nanoTime();
-            this.realTimeStarted = true;
-            this.realTimeTimer.start();
-        }
         this.lastEvent = event;
         updateControls();
     }
 
-    private void updateRealTime() {
-        final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(
-            System.nanoTime() - this.realTimeStartNanos
-        );
-        this.realTimeLabel.setText(formatTime("Real time", elapsedMillis));
-    }
-
     private static String formatTime(final String label, final long elapsedMillis) {
-        return String.format(Locale.ROOT, "%s: %.3f s", label, elapsedMillis / 1000.0);
+        return String.format(Locale.ROOT, "%s: %.1f s", label, elapsedMillis / 1000.0);
     }
 
     private void updateControls() {

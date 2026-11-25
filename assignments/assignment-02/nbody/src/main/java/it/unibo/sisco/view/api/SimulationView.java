@@ -1,7 +1,7 @@
 package it.unibo.sisco.view.api;
 
+import it.unibo.sisco.controller.api.Configuration;
 import it.unibo.sisco.model.api.Body;
-import it.unibo.sisco.model.api.SimulatorTypes;
 
 import java.util.List;
 
@@ -36,9 +36,9 @@ public interface SimulationView {
     /**
      * Notifies the view of the selected simulation implementation.
      *
-     * @param simulator the selected simulation implementation
+     * @param config the selected simulation implementation
      */
-    void selectedSimulator(SimulatorTypes simulator);
+    void selectedConfiguration(Configuration config);
 
     /**
      * Notifies the view that the simulation has finished.

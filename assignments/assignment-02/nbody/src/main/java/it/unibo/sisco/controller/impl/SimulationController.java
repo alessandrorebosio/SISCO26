@@ -1,5 +1,6 @@
 package it.unibo.sisco.controller.impl;
 
+import it.unibo.sisco.controller.api.Configuration;
 import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.NBodySimulation;
@@ -12,6 +13,7 @@ import it.unibo.sisco.model.impl.simulation.NThreadNBodySimulation;
 import it.unibo.sisco.view.api.SimulationView;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.LongStream;
 
 /**
@@ -26,10 +28,10 @@ import java.util.stream.LongStream;
  */
 public final class SimulationController implements Controller {
 
-    private static final int N_BODIES = 5000;
-    private static final int N_STEPS = 100;
     private SimulationView view;
     private NBodySimulation simulator;
+    private Configuration config;
+    private final CountDownLatch configurationReady = new CountDownLatch(1);
 
     /**
      * Creates a controller for an N-body simulation.
@@ -41,10 +43,14 @@ public final class SimulationController implements Controller {
     public void run() {
         if (this.view != null)
             this.view.init();
-        while (this.simulator == null) {
+        try {
+            this.configurationReady.await();
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
         }
         final long startTime = System.currentTimeMillis();
-        LongStream.range(0, N_STEPS).forEach(this::simulationStep);
+        LongStream.range(0, config.iterations()).forEach(this::simulationStep);
         final long elapsed = System.currentTimeMillis() - startTime;
         if (this.view != null)
             this.view.simulationOver(elapsed);
@@ -54,9 +60,10 @@ public final class SimulationController implements Controller {
         this.simulator.step();
         if (this.view != null) {
             this.view.display(
-                    this.simulator.getBodies(),
-                    this.simulator.getVirtualTime(),
-                    this.simulator.getIteration());
+                this.simulator.getBodies(),
+                this.simulator.getVirtualTime(),
+                this.simulator.getIteration()
+            );
         }
     }
 
@@ -70,15 +77,18 @@ public final class SimulationController implements Controller {
     }
 
     @Override
-    public void setSimulator(final SimulatorTypes simulator) {
-        final List<Body> bodies = BodySets.random(N_BODIES);
-        this.simulator = switch (simulator) {
+    public void setConfiguration(final Configuration config) {
+        this.config = config;
+        final List<Body> bodies = BodySets.random(config.bodies());
+        this.simulator = switch (config.simulator()) {
             case SimulatorTypes.SEQUENTIAL -> new SequentialNBodySimulation(bodies);
             case SimulatorTypes.N_SYSTEM_THREAD -> new NThreadNBodySimulation(bodies);
             case SimulatorTypes.FIXED_SYSTEM_THREAD -> new FixedThreadNBodySimulation(bodies);
             case SimulatorTypes.EXECUTORS -> new ExecutorsNBodySimulation(bodies);
         };
-        if (this.view != null)
-            this.view.selectedSimulator(simulator);
+        this.configurationReady.countDown();
+        if (this.view != null) {
+            this.view.selectedConfiguration(config);
+        }
     }
 }

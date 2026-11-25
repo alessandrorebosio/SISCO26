@@ -2,7 +2,6 @@ package it.unibo.sisco;
 
 import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.controller.impl.SimulationController;
-import it.unibo.sisco.model.api.SimulatorTypes;
 import it.unibo.sisco.view.impl.SwingSimulationView;
 
 /**
@@ -23,8 +22,8 @@ public final class SimulationMainWithGUI {
      */
     public static void main(final String[] args) {
         final Controller simulation = new SimulationController();
-        simulation.attachView(new SwingSimulationView(WINDOW_SIZE, WINDOW_SIZE));
-        simulation.setSimulator(SimulatorTypes.N_SYSTEM_THREAD);
+        simulation.attachView(new SwingSimulationView(simulation, WINDOW_SIZE + 300, WINDOW_SIZE));
+        //simulation.setSimulator(SimulatorTypes.N_SYSTEM_THREAD);
         simulation.run();
     }
 }

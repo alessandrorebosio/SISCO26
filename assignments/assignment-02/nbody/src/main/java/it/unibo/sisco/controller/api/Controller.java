@@ -1,6 +1,5 @@
 package it.unibo.sisco.controller.api;
 
-import it.unibo.sisco.model.api.SimulatorTypes;
 import it.unibo.sisco.view.api.SimulationView;
 
 /**
@@ -26,9 +25,9 @@ public interface Controller {
     void attachView(SimulationView view);
 
     /**
-     * Selects the simulation implementation to run.
+     * Sets the simulation configuration to run.
      *
-     * @param simulator the simulation implementation to use
+     * @param config the configuration to use
      */
-    void setSimulator(SimulatorTypes simulator);
+    void setConfiguration(Configuration config);
 }

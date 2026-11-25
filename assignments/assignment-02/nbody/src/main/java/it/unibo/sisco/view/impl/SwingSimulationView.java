@@ -1,13 +1,19 @@
 package it.unibo.sisco.view.impl;
 
+import it.unibo.sisco.controller.api.Configuration;
+import it.unibo.sisco.controller.api.Controller;
 import it.unibo.sisco.model.api.Body;
-import it.unibo.sisco.model.api.SimulatorTypes;
 import it.unibo.sisco.view.api.SimulationView;
 import it.unibo.sisco.view.impl.panel.BodyShape;
-import it.unibo.sisco.view.impl.panel.VisualiserPanel;
+import it.unibo.sisco.view.impl.panel.DrawPanel;
+import it.unibo.sisco.view.impl.panel.InitPanel;
+import it.unibo.sisco.view.impl.panel.SimulationPanel;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 /**
@@ -26,55 +32,72 @@ public final class SwingSimulationView implements SimulationView {
 
     private static final double MILLIS_PER_SECOND = 1000.0;
 
-    private VisualiserPanel panel;
     private long nFramesRendered;
     private long startTime;
 
+    private final Controller controller;
+    private final JFrame frame;
+    private JPanel currentPanel;
     /**
      * Builds and shows the window of the view. It blocks until the window is
      * created.
      *
+     * @param controller the controller used to coordinate the simulation
      * @param w the width of the window
      * @param h the height of the window
      */
-    public SwingSimulationView(final int w, final int h) {
-        runOnEdt(() -> {
-            final JFrame frame = new JFrame("Bodies Simulation");
-            frame.setSize(w, h);
-            frame.setResizable(false);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            panel = new VisualiserPanel(w, h);
-            frame.getContentPane().add(panel);
-            frame.setVisible(true);
-            panel.requestFocusInWindow();
-        });
+    public SwingSimulationView(final Controller controller, final int w, final int h) {
+        this.controller = controller;
+        this.frame = new JFrame("Bodies Simulation");
+        this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.frame.setSize(w, h);
+        this.frame.setLocationByPlatform(true);
     }
 
     @Override
     public void init() {
-        startTime = System.currentTimeMillis();
-        nFramesRendered = 0;
+        runOnEdt(() -> {
+            this.currentPanel = new InitPanel(controller::setConfiguration);
+            this.frame.setContentPane(this.currentPanel);
+            this.startTime = System.currentTimeMillis();
+            this.nFramesRendered = 0;
+            this.frame.setVisible(true);
+        });
+    }
+
+    @Override
+    public void selectedConfiguration(final Configuration config) {
+        runOnEdt(() -> {
+            this.currentPanel = new SimulationPanel();
+            this.frame.setContentPane(this.currentPanel);
+            this.frame.revalidate();
+            this.frame.repaint();
+            SwingUtilities.invokeLater(
+                () -> ((SimulationPanel) this.currentPanel).getDrawPanel().requestFocusInWindow()
+            );
+        });
     }
 
     @Override
     public void display(final List<Body> bodies, final double vt, final long iteration) {
-        nFramesRendered++;
-        final long elapsed = Math.max(1, System.currentTimeMillis() - startTime);
-        final int framePerSec = (int) (nFramesRendered / (double) elapsed * MILLIS_PER_SECOND);
-        /*
-         * the snapshot is taken by the simulation thread, so the EDT never reads the
-         * live model
-         */
+        this.nFramesRendered++;
+        final long elapsed = Math.max(1, System.currentTimeMillis() - this.startTime);
+        final int framePerSec = (int) (this.nFramesRendered / (double) elapsed * MILLIS_PER_SECOND);
         final List<BodyShape> shapes = bodies.stream()
                 .map(b -> new BodyShape(b.getPos().x(), b.getPos().y(), b.getRadius()))
                 .toList();
         runOnEdt(() -> {
-            panel.display(shapes, vt, iteration, framePerSec);
-            panel.repaint();
+            final DrawPanel drawPanel = ((SimulationPanel) this.currentPanel).getDrawPanel();
+            drawPanel.display(shapes, vt, iteration, framePerSec);
+            drawPanel.repaint();
         });
     }
 
     private static void runOnEdt(final Runnable action) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            action.run();
+            return;
+        }
         try {
             SwingUtilities.invokeAndWait(action);
         } catch (final InterruptedException e) {
@@ -82,13 +105,6 @@ public final class SwingSimulationView implements SimulationView {
         } catch (final InvocationTargetException e) {
             throw new IllegalStateException("Error while updating the view", e.getCause());
         }
-    }
-
-    @Override
-    public void selectedSimulator(final SimulatorTypes simulator) {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method
-        // 'selectedSimulator'");
     }
 
     @Override

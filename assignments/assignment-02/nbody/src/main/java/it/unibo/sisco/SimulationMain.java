@@ -21,7 +21,7 @@ public final class SimulationMain {
      */
     public static void main(final String[] args) {
         final Controller simulation = new SimulationController();
-        simulation.attachView(new ConsoleSimulationView(simulation));
+        simulation.attachView(new ConsoleSimulationView(simulation, 5000, 100));
         simulation.run();
     }
 }

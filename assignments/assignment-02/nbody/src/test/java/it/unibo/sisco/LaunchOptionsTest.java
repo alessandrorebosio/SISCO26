@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import it.unibo.sisco.model.api.SimulationType;
 
-import java.util.OptionalInt;
 import org.junit.jupiter.api.Test;
 
 class LaunchOptionsTest {
@@ -14,31 +13,32 @@ class LaunchOptionsTest {
 
     @Test
     void withoutArgumentsTheGuiRunsTheThreadsSimulationWithTheDefaultThreads() {
-        assertEquals(new LaunchOptions(false, SimulationType.THREADS, OptionalInt.empty()), LaunchOptions.parse());
+        assertEquals(new LaunchOptions(false, SimulationType.THREADS, LaunchOptions.DEFAULT_THREADS),
+                LaunchOptions.parse());
     }
 
     @Test
     void cliFlagSelectsTheTerminal() {
-        final LaunchOptions expected = new LaunchOptions(true, SimulationType.THREADS, OptionalInt.empty());
+        final LaunchOptions expected = new LaunchOptions(true, SimulationType.THREADS, LaunchOptions.DEFAULT_THREADS);
         assertEquals(expected, LaunchOptions.parse(LaunchOptions.CLI_FLAG));
         assertEquals(expected, LaunchOptions.parse("CLI"));
     }
 
     @Test
     void otherArgumentIsTheSimulationName() {
-        assertEquals(new LaunchOptions(false, SimulationType.EXECUTORS, OptionalInt.empty()),
+        assertEquals(new LaunchOptions(false, SimulationType.EXECUTORS, LaunchOptions.DEFAULT_THREADS),
                 LaunchOptions.parse("executors"));
     }
 
     @Test
     void numericArgumentIsTheNumberOfThreads() {
-        assertEquals(new LaunchOptions(false, SimulationType.THREADS, OptionalInt.of(THREADS)),
+        assertEquals(new LaunchOptions(false, SimulationType.THREADS, THREADS),
                 LaunchOptions.parse(String.valueOf(THREADS)));
     }
 
     @Test
     void argumentsCanBeGivenInAnyOrder() {
-        final LaunchOptions expected = new LaunchOptions(true, SimulationType.EXECUTORS, OptionalInt.of(THREADS));
+        final LaunchOptions expected = new LaunchOptions(true, SimulationType.EXECUTORS, THREADS);
         final String threads = String.valueOf(THREADS);
         assertEquals(expected, LaunchOptions.parse(LaunchOptions.CLI_FLAG, "executors", threads));
         assertEquals(expected, LaunchOptions.parse(threads, "executors", LaunchOptions.CLI_FLAG));

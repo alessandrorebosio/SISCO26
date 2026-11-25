@@ -122,4 +122,12 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
     public final double getTimeStep() {
         return this.dt;
     }
+
+    /**
+     * Does nothing: subclasses that use threads release them here.
+     */
+    @Override
+    public void close() {
+        // No resources to release by default
+    }
 }

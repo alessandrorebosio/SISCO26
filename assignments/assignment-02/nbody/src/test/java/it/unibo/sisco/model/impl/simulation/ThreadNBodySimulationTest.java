@@ -15,25 +15,20 @@ class ThreadNBodySimulationTest extends AbstractNBodySimulationTest {
     private static final int MANY_THREADS = 16;
 
     @Override
-    protected AbstractNBodySimulation create(final List<? extends Body> bodies) {
-        return new ThreadNBodySimulation(bodies);
-    }
-
-    @Override
-    protected AbstractNBodySimulation create(final List<? extends Body> bodies, final double dt) {
+    protected AbstractNBodySimulation newSimulation(final List<? extends Body> bodies, final double dt) {
         return new ThreadNBodySimulation(bodies, dt, Runtime.getRuntime().availableProcessors());
     }
 
     @Test
     void nonPositiveNumberOfThreadsIsRejected() {
         final List<Body> bodies = TestBodies.twoBodies();
-        assertThrows(IllegalArgumentException.class, () -> new ThreadNBodySimulation(bodies, 0));
+        assertThrows(IllegalArgumentException.class, () -> new ThreadNBodySimulation(bodies, DT, 0));
     }
 
     @Test
     void moreThreadsThanBodiesGiveTheSameResultAsOneThread() {
-        final NBodySimulation one = new ThreadNBodySimulation(TestBodies.threeBodies(), DT, 1);
-        final NBodySimulation many = new ThreadNBodySimulation(TestBodies.threeBodies(), DT, MANY_THREADS);
+        final NBodySimulation one = track(new ThreadNBodySimulation(TestBodies.threeBodies(), DT, 1));
+        final NBodySimulation many = track(new ThreadNBodySimulation(TestBodies.threeBodies(), DT, MANY_THREADS));
         for (int i = 0; i < STEPS; i++) {
             one.step();
             many.step();
@@ -45,8 +40,15 @@ class ThreadNBodySimulationTest extends AbstractNBodySimulationTest {
 
     @Test
     void emptySetOfBodiesCanStep() {
-        final NBodySimulation sim = new ThreadNBodySimulation(List.of(), DT, MANY_THREADS);
+        final NBodySimulation sim = track(new ThreadNBodySimulation(List.of(), DT, MANY_THREADS));
         sim.step();
         assertEquals(1, sim.getIteration());
+    }
+
+    @Test
+    void stepAfterCloseFails() {
+        final NBodySimulation sim = create(TestBodies.threeBodies(), DT);
+        sim.close();
+        assertThrows(IllegalStateException.class, sim::step);
     }
 }

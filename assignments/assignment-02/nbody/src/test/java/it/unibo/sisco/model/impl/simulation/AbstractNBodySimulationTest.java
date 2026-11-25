@@ -16,6 +16,7 @@ import it.unibo.sisco.model.impl.body.TestBodies;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -36,13 +37,7 @@ abstract class AbstractNBodySimulationTest {
     private static final int RANDOM_BODIES = 200;
     private static final long SEED = 42;
 
-    /**
-     * Builds the simulation under test with the default time step.
-     *
-     * @param bodies the bodies of the simulation
-     * @return the simulation
-     */
-    protected abstract AbstractNBodySimulation create(List<? extends Body> bodies);
+    private final List<NBodySimulation> created = new ArrayList<>();
 
     /**
      * Builds the simulation under test with the given time step.
@@ -51,7 +46,41 @@ abstract class AbstractNBodySimulationTest {
      * @param dt     the time step
      * @return the simulation
      */
-    protected abstract AbstractNBodySimulation create(List<? extends Body> bodies, double dt);
+    protected abstract AbstractNBodySimulation newSimulation(List<? extends Body> bodies, double dt);
+
+    /**
+     * Registers a simulation, which is closed at the end of the test.
+     *
+     * @param <S>        the type of the simulation
+     * @param simulation the simulation to close
+     * @return the same simulation
+     */
+    protected final <S extends NBodySimulation> S track(final S simulation) {
+        this.created.add(simulation);
+        return simulation;
+    }
+
+    /** Closes every simulation built by the test. */
+    @AfterEach
+    void closeSimulations() {
+        this.created.forEach(NBodySimulation::close);
+    }
+
+    private AbstractNBodySimulation create(final List<? extends Body> bodies) {
+        return create(bodies, AbstractNBodySimulation.DEFAULT_DT);
+    }
+
+    /**
+     * Builds the simulation under test with the given time step; it is closed at
+     * the end of the test.
+     *
+     * @param bodies the bodies of the simulation
+     * @param dt     the time step
+     * @return the simulation
+     */
+    protected final AbstractNBodySimulation create(final List<? extends Body> bodies, final double dt) {
+        return track(newSimulation(bodies, dt));
+    }
 
     @Test
     void initialStateHasNoStepsAndZeroTime() {
@@ -163,9 +192,18 @@ abstract class AbstractNBodySimulationTest {
     }
 
     @Test
+    void closedSimulationCanBeClosedAgainAndRead() {
+        final NBodySimulation sim = create(TestBodies.threeBodies(), DT);
+        sim.step();
+        sim.close();
+        sim.close();
+        assertEquals(1, sim.getState().iteration());
+    }
+
+    @Test
     void resultIsTheSameAsTheSequentialSimulation() {
         /* every body is computed with the same operations in the same order, so the results are identical */
-        final NBodySimulation expected = new SequentialNBodySimulation(BodySets.random(RANDOM_BODIES, SEED), DT);
+        final NBodySimulation expected = track(new SequentialNBodySimulation(BodySets.random(RANDOM_BODIES, SEED), DT));
         final NBodySimulation actual = create(BodySets.random(RANDOM_BODIES, SEED), DT);
         for (int i = 0; i < STEPS; i++) {
             expected.step();

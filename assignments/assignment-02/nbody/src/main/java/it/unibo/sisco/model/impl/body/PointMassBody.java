@@ -3,8 +3,6 @@ package it.unibo.sisco.model.impl.body;
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.geometry.Point2D;
 import it.unibo.sisco.model.api.geometry.Vector2D;
-import it.unibo.sisco.model.exceptions.InfiniteForceException;
-import it.unibo.sisco.model.exceptions.NullVectorException;
 
 import java.util.List;
 
@@ -74,18 +72,14 @@ public final class PointMassBody implements Body {
     }
 
     @Override
-    public Vector2D computeGForceBy(final Body b) throws InfiniteForceException {
+    public Vector2D computeGForceBy(final Body b) {
         final double dist = getDistanceFrom(b);
-        if (dist > 0) {
-            try {
-                return Vector2D.between(this.pos, b.getPos())
-                        .normalize()
-                        .scalarMul(b.getMass() * G_CONST_SCALED / (dist * dist));
-            } catch (final NullVectorException e) {
-                throw new InfiniteForceException(e);
-            }
+        if (dist == 0) {
+            throw new ArithmeticException("Infinite force between bodies in the same position");
         }
-        throw new InfiniteForceException();
+        return Vector2D.between(this.pos, b.getPos())
+                .normalize()
+                .scalarMul(b.getMass() * G_CONST_SCALED / (dist * dist));
     }
 
     /*

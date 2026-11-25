@@ -9,8 +9,12 @@ import java.util.List;
  * The simulation is driven by a single thread, which calls {@link #step()} and
  * reads the state between two steps. Implementations may use other threads
  * inside {@link #step()}, but every step is complete when the method returns.
+ *
+ * <p>
+ * When the simulation is no longer needed it must be closed, so that it
+ * releases the threads it uses.
  */
-public interface NBodySimulation {
+public interface NBodySimulation extends AutoCloseable {
 
     /**
      * Executes one step of the simulation: updates the velocity of every body
@@ -22,6 +26,14 @@ public interface NBodySimulation {
      * so no position may change before every velocity has been updated.
      */
     void step();
+
+    /**
+     * Releases the resources of the simulation, such as its threads. After this
+     * call {@link #step()} must not be called any more, while the state can still
+     * be read. Closing a simulation twice has no effect.
+     */
+    @Override
+    void close();
 
     /**
      * Returns the bodies of the simulation.

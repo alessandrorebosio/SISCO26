@@ -8,6 +8,7 @@ import it.unibo.sisco.model.api.NBodySimulation;
 import it.unibo.sisco.model.impl.body.TestBodies;
 
 import java.util.List;
+import java.util.concurrent.RejectedExecutionException;
 import org.junit.jupiter.api.Test;
 
 class ExecutorsNBodySimulationTest extends AbstractNBodySimulationTest {
@@ -15,13 +16,8 @@ class ExecutorsNBodySimulationTest extends AbstractNBodySimulationTest {
     private static final int POOL_SIZE = 4;
 
     @Override
-    protected AbstractNBodySimulation create(final List<? extends Body> bodies) {
-        return new ExecutorsNBodySimulation(bodies);
-    }
-
-    @Override
-    protected AbstractNBodySimulation create(final List<? extends Body> bodies, final double dt) {
-        return new ExecutorsNBodySimulation(bodies, dt);
+    protected AbstractNBodySimulation newSimulation(final List<? extends Body> bodies, final double dt) {
+        return new ExecutorsNBodySimulation(bodies, dt, POOL_SIZE);
     }
 
     @Test
@@ -32,8 +28,8 @@ class ExecutorsNBodySimulationTest extends AbstractNBodySimulationTest {
 
     @Test
     void anySizeOfThePoolGivesTheSameResult() {
-        final NBodySimulation one = new ExecutorsNBodySimulation(TestBodies.threeBodies(), DT, 1);
-        final NBodySimulation many = new ExecutorsNBodySimulation(TestBodies.threeBodies(), DT, POOL_SIZE);
+        final NBodySimulation one = track(new ExecutorsNBodySimulation(TestBodies.threeBodies(), DT, 1));
+        final NBodySimulation many = track(new ExecutorsNBodySimulation(TestBodies.threeBodies(), DT, POOL_SIZE));
         for (int i = 0; i < STEPS; i++) {
             one.step();
             many.step();
@@ -41,5 +37,12 @@ class ExecutorsNBodySimulationTest extends AbstractNBodySimulationTest {
         for (int i = 0; i < one.getNumBodies(); i++) {
             assertEquals(one.getBodies().get(i).getPos(), many.getBodies().get(i).getPos());
         }
+    }
+
+    @Test
+    void stepAfterCloseFails() {
+        final NBodySimulation sim = create(TestBodies.threeBodies(), DT);
+        sim.close();
+        assertThrows(RejectedExecutionException.class, sim::step);
     }
 }

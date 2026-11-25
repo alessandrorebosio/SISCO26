@@ -4,9 +4,9 @@ import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.geometry.Point2D;
 import it.unibo.sisco.model.api.geometry.Vector2D;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 /**
  * Factory of body sets to initialise a simulation. Every set is an unmodifiable
@@ -48,15 +48,17 @@ public final class BodySets {
      */
     public static List<Body> random(final int nBodies, final long seed) {
         final Random rand = new Random(seed);
-        final List<Body> bodies = new ArrayList<>(nBodies);
-        for (int i = 0; i < nBodies; i++) {
-            final double x = -1.0 + 2.0 * rand.nextDouble();
-            final double y = -1.0 + 2.0 * rand.nextDouble();
-            final double vx = -MAX_SPEED + 2 * MAX_SPEED * rand.nextDouble();
-            final double vy = -MAX_SPEED + 2 * MAX_SPEED * rand.nextDouble();
-            final double m = MIN_MASS + rand.nextDouble() * MASS_RANGE;
-            bodies.add(new PointMassBody(i, new Point2D(x, y), new Vector2D(vx, vy), RANDOM_RADIUS, m));
-        }
-        return List.copyOf(bodies);
+        return IntStream.range(0, nBodies)
+                .mapToObj(i -> randomBody(i, rand))
+                .toList();
+    }
+
+    private static Body randomBody(final int id, final Random rand) {
+        final double x = -1.0 + 2.0 * rand.nextDouble();
+        final double y = -1.0 + 2.0 * rand.nextDouble();
+        final double vx = -MAX_SPEED + 2 * MAX_SPEED * rand.nextDouble();
+        final double vy = -MAX_SPEED + 2 * MAX_SPEED * rand.nextDouble();
+        final double m = MIN_MASS + rand.nextDouble() * MASS_RANGE;
+        return new PointMassBody(id, new Point2D(x, y), new Vector2D(vx, vy), RANDOM_RADIUS, m);
     }
 }

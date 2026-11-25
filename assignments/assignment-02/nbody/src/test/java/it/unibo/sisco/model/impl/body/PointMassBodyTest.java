@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.geometry.Point2D;
 import it.unibo.sisco.model.api.geometry.Vector2D;
-import it.unibo.sisco.model.exceptions.InfiniteForceException;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -54,7 +53,7 @@ class PointMassBodyTest {
     }
 
     @Test
-    void gravitationalForcePointsTowardsTheOtherBody() throws InfiniteForceException {
+    void gravitationalForcePointsTowardsTheOtherBody() {
         final Body a = new PointMassBody(0, new Point2D(0, 0), Vector2D.ZERO, 0.1, 1);
         final Body b = new PointMassBody(1, new Point2D(2, 0), Vector2D.ZERO, 0.1, 4);
         final Vector2D force = a.computeGForceBy(b);
@@ -64,7 +63,7 @@ class PointMassBodyTest {
     }
 
     @Test
-    void gravitationalForceDecreasesWithTheSquareOfTheDistance() throws InfiniteForceException {
+    void gravitationalForceDecreasesWithTheSquareOfTheDistance() {
         final Body a = new PointMassBody(0, new Point2D(0, 0), Vector2D.ZERO, 0.1, 1);
         final Body near = new PointMassBody(1, new Point2D(0, 1), Vector2D.ZERO, 0.1, 1);
         final Body far = new PointMassBody(2, new Point2D(0, 2), Vector2D.ZERO, 0.1, 1);
@@ -72,7 +71,7 @@ class PointMassBodyTest {
     }
 
     @Test
-    void forcesBetweenTwoBodiesHaveOppositeDirections() throws InfiniteForceException {
+    void forcesBetweenTwoBodiesHaveOppositeDirections() {
         final Body a = new PointMassBody(0, new Point2D(-0.3, 0.1), Vector2D.ZERO, 0.1, 2);
         final Body b = new PointMassBody(1, new Point2D(0.5, -0.2), Vector2D.ZERO, 0.1, 2);
         final Vector2D onA = a.computeGForceBy(b);
@@ -85,7 +84,7 @@ class PointMassBodyTest {
     void forceBetweenBodiesInTheSamePositionIsInfinite() {
         final Body a = new PointMassBody(0, new Point2D(1, 1), Vector2D.ZERO, 0.1, 1);
         final Body b = new PointMassBody(1, new Point2D(1, 1), Vector2D.ZERO, 0.1, 1);
-        assertThrows(InfiniteForceException.class, () -> a.computeGForceBy(b));
+        assertThrows(ArithmeticException.class, () -> a.computeGForceBy(b));
     }
 
     @Test
@@ -104,7 +103,7 @@ class PointMassBodyTest {
     }
 
     @Test
-    void totalForceIsTheSumOfTheSingleForcesAndIgnoresCoincidentBodies() throws InfiniteForceException {
+    void totalForceIsTheSumOfTheSingleForcesAndIgnoresCoincidentBodies() {
         final Body a = new PointMassBody(0, new Point2D(0, 0), Vector2D.ZERO, 0.1, 1);
         final Body b = new PointMassBody(1, new Point2D(2, 0), Vector2D.ZERO, 0.1, 4);
         final Body c = new PointMassBody(2, new Point2D(-1, 3), Vector2D.ZERO, 0.1, 2);

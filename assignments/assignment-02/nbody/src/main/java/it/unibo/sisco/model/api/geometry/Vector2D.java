@@ -1,7 +1,5 @@
 package it.unibo.sisco.model.api.geometry;
 
-import it.unibo.sisco.model.exceptions.NullVectorException;
-
 /**
  * An immutable vector in a 2D space. Every operation returns a new vector, so
  * instances can be shared among threads without synchronisation.
@@ -61,13 +59,14 @@ public record Vector2D(double x, double y) {
      * vector with module {@code 1}.
      *
      * @return the normalized vector
-     * @throws NullVectorException if this vector is the null vector
+     * @throws ArithmeticException if this vector is the null vector, which has no
+     *                             direction
      */
-    public Vector2D normalize() throws NullVectorException {
+    public Vector2D normalize() {
         final double mod = module();
         if (mod > 0) {
             return new Vector2D(x / mod, y / mod);
         }
-        throw new NullVectorException();
+        throw new ArithmeticException("The null vector cannot be normalized");
     }
 }

@@ -22,28 +22,6 @@ public final class ExecutorsNBodySimulation extends AbstractNBodySimulation {
     private final ExecutorService executor;
 
     /**
-     * Builds an executor-based simulation over a set of bodies, with the default
-     * time step and one pool thread for each available processor.
-     *
-     * @param bodies the bodies of the simulation
-     */
-    public ExecutorsNBodySimulation(final List<? extends Body> bodies) {
-        this(bodies, DEFAULT_DT);
-    }
-
-    /**
-     * Builds an executor-based simulation over a set of bodies, with one pool
-     * thread for each available processor.
-     *
-     * @param bodies the bodies of the simulation
-     * @param dt     the virtual time elapsed at each step
-     * @throws IllegalArgumentException if {@code dt} is not positive
-     */
-    public ExecutorsNBodySimulation(final List<? extends Body> bodies, final double dt) {
-        this(bodies, dt, Runtime.getRuntime().availableProcessors());
-    }
-
-    /**
      * Builds an executor-based simulation over a set of bodies, with a pool of
      * the given number of threads.
      *
@@ -59,6 +37,15 @@ public final class ExecutorsNBodySimulation extends AbstractNBodySimulation {
             throw new IllegalArgumentException("The size of the pool must be positive: " + poolSize);
         }
         this.executor = Executors.newFixedThreadPool(poolSize, Thread.ofPlatform().daemon().factory());
+    }
+
+    /**
+     * Shuts the pool down: a step started after this call fails with a
+     * {@link java.util.concurrent.RejectedExecutionException}.
+     */
+    @Override
+    public void close() {
+        this.executor.shutdownNow();
     }
 
     @Override

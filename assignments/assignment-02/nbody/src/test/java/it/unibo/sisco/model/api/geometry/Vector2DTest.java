@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import it.unibo.sisco.model.exceptions.NullVectorException;
-
 class Vector2DTest {
 
     private static final double DELTA = 1e-12;
@@ -34,7 +32,7 @@ class Vector2DTest {
     }
 
     @Test
-    void normalizeKeepsTheDirectionWithUnitLength() throws NullVectorException {
+    void normalizeKeepsTheDirectionWithUnitLength() {
         final Vector2D unit = new Vector2D(3, 4).normalize();
         assertEquals(1, unit.module(), DELTA);
         assertEquals(0.6, unit.x(), DELTA);
@@ -43,6 +41,6 @@ class Vector2DTest {
 
     @Test
     void normalizeOfTheNullVectorFails() {
-        assertThrows(NullVectorException.class, Vector2D.ZERO::normalize);
+        assertThrows(ArithmeticException.class, Vector2D.ZERO::normalize);
     }
 }

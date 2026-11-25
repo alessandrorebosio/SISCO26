@@ -9,44 +9,60 @@ import it.unibo.sisco.model.api.NBodySimulation;
 import it.unibo.sisco.model.api.SimulationType;
 import it.unibo.sisco.model.impl.body.TestBodies;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 class NBodySimulationsTest {
 
     private final List<Body> bodies = TestBodies.threeBodies();
+    private final List<NBodySimulation> created = new ArrayList<>();
 
-    @Test
-    void factoryMethodsBuildTheMatchingImplementation() {
-        assertInstanceOf(SequentialNBodySimulation.class, NBodySimulations.sequential(this.bodies));
-        assertInstanceOf(ThreadNBodySimulation.class, NBodySimulations.threads(this.bodies));
-        assertInstanceOf(ExecutorsNBodySimulation.class, NBodySimulations.executors(this.bodies));
+    @AfterEach
+    void closeSimulations() {
+        this.created.forEach(NBodySimulation::close);
+    }
+
+    private NBodySimulation track(final NBodySimulation simulation) {
+        this.created.add(simulation);
+        return simulation;
     }
 
     @Test
     void ofChoosesTheMatchingImplementation() {
-        assertInstanceOf(SequentialNBodySimulation.class, NBodySimulations.of(SimulationType.SEQUENTIAL, this.bodies));
-        assertInstanceOf(ThreadNBodySimulation.class, NBodySimulations.of(SimulationType.THREADS, this.bodies));
-        assertInstanceOf(ExecutorsNBodySimulation.class, NBodySimulations.of(SimulationType.EXECUTORS, this.bodies));
+        assertInstanceOf(SequentialNBodySimulation.class,
+                track(NBodySimulations.of(SimulationType.SEQUENTIAL, this.bodies, 2)));
+        assertInstanceOf(ThreadNBodySimulation.class,
+                track(NBodySimulations.of(SimulationType.THREADS, this.bodies, 2)));
+        assertInstanceOf(ExecutorsNBodySimulation.class,
+                track(NBodySimulations.of(SimulationType.EXECUTORS, this.bodies, 2)));
     }
 
     @Test
-    void ofWithThreadsBuildsTheParallelImplementations() {
-        assertInstanceOf(ThreadNBodySimulation.class, NBodySimulations.of(SimulationType.THREADS, this.bodies, 2));
-        assertInstanceOf(ExecutorsNBodySimulation.class, NBodySimulations.of(SimulationType.EXECUTORS, this.bodies, 2));
+    void ofUsesTheDefaultTimeStep() {
+        final AbstractNBodySimulation sim = (AbstractNBodySimulation) track(
+                NBodySimulations.of(SimulationType.EXECUTORS, this.bodies, 2));
+        assertEquals(AbstractNBodySimulation.DEFAULT_DT, sim.getTimeStep());
     }
 
     @Test
-    void ofWithThreadsRejectsTheSequentialSimulationAndBadCounts() {
+    void sequentialSimulationIgnoresTheNumberOfThreads() {
+        assertInstanceOf(SequentialNBodySimulation.class,
+                track(NBodySimulations.of(SimulationType.SEQUENTIAL, this.bodies, 0)));
+    }
+
+    @Test
+    void parallelSimulationsRejectBadThreadCounts() {
         assertThrows(IllegalArgumentException.class,
-                () -> NBodySimulations.of(SimulationType.SEQUENTIAL, this.bodies, 2));
+                () -> track(NBodySimulations.of(SimulationType.THREADS, this.bodies, 0)));
         assertThrows(IllegalArgumentException.class,
-                () -> NBodySimulations.of(SimulationType.EXECUTORS, this.bodies, 0));
+                () -> track(NBodySimulations.of(SimulationType.EXECUTORS, this.bodies, 0)));
     }
 
     @Test
     void builtSimulationsUseTheGivenBodies() {
-        final NBodySimulation sim = NBodySimulations.of(SimulationType.EXECUTORS, this.bodies);
+        final NBodySimulation sim = track(NBodySimulations.of(SimulationType.EXECUTORS, this.bodies, 2));
         assertEquals(this.bodies.size(), sim.getNumBodies());
     }
 }

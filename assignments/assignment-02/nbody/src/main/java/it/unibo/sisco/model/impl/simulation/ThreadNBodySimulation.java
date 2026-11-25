@@ -1,10 +1,12 @@
 package it.unibo.sisco.model.impl.simulation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.concurrency.Barrier;
+import it.unibo.sisco.model.api.concurrency.Worker;
 import it.unibo.sisco.model.impl.concurrency.BodyWorker;
 import it.unibo.sisco.model.impl.concurrency.MonitorBarrier;
 
@@ -22,30 +24,7 @@ import it.unibo.sisco.model.impl.concurrency.MonitorBarrier;
 public final class ThreadNBodySimulation extends AbstractNBodySimulation {
 
     private final Barrier barrier;
-
-    /**
-     * Builds a simulation over a set of bodies and starts its workers, using one
-     * thread for each processor available to the JVM.
-     *
-     * @param bodies the bodies of the simulation
-     * @see #ThreadNBodySimulation(List, int)
-     */
-    public ThreadNBodySimulation(final List<? extends Body> bodies) {
-        this(bodies, Runtime.getRuntime().availableProcessors());
-    }
-
-    /**
-     * Builds a simulation over a set of bodies and starts its workers, each on
-     * its own thread. At most {@code numThreads} threads are created: if there
-     * are fewer bodies than threads, one thread is created for each body.
-     *
-     * @param bodies     the bodies of the simulation
-     * @param numThreads the maximum number of threads
-     * @throws IllegalArgumentException if {@code numThreads} is not positive
-     */
-    public ThreadNBodySimulation(final List<? extends Body> bodies, final int numThreads) {
-        this(bodies, DEFAULT_DT, numThreads);
-    }
+    private final List<Worker> workers;
 
     /**
      * Builds a simulation over a set of bodies, with the given time step, and
@@ -67,10 +46,22 @@ public final class ThreadNBodySimulation extends AbstractNBodySimulation {
         final int n = getNumBodies();
         final int k = Math.min(n, numThreads);
         this.barrier = new MonitorBarrier(k + 1);
+        final List<Worker> created = new ArrayList<>(k);
         for (int i = 0; i < k; i++) {
-            new BodyWorker("BodyWorker-" + i, getBodies().subList(i * n / k, (i + 1) * n / k),
-                    this.barrier, this::updateVelocity, this::updatePosition).start();
+            created.add(new BodyWorker("BodyWorker-" + i, getBodies().subList(i * n / k, (i + 1) * n / k),
+                    this.barrier, this::updateVelocity, this::updatePosition));
         }
+        this.workers = List.copyOf(created);
+        this.workers.forEach(Worker::start);
+    }
+
+    /**
+     * Stops every worker: a step started after this call fails with an
+     * {@link IllegalStateException}.
+     */
+    @Override
+    public void close() {
+        this.workers.forEach(Worker::stop);
     }
 
     @Override

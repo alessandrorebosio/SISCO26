@@ -38,12 +38,11 @@ public final class SimulationMain {
     public static void main(final String[] args) {
         final LaunchOptions options = LaunchOptions.parse(args);
         final List<Body> bodies = BodySets.random(N_BODIES);
-        final NBodySimulation simulation = options.numThreads().isPresent()
-                ? NBodySimulations.of(options.simulation(), bodies, options.numThreads().getAsInt())
-                : NBodySimulations.of(options.simulation(), bodies);
         final SimulationView view = options.cli()
                 ? new ConsoleSimulationView()
                 : new SwingSimulationView(WINDOW_SIZE, WINDOW_SIZE);
-        new SimulationController(view, simulation, N_STEPS).run();
+        try (NBodySimulation simulation = NBodySimulations.of(options.simulation(), bodies, options.numThreads())) {
+            new SimulationController(view, simulation, N_STEPS).run();
+        }
     }
 }

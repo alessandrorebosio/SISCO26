@@ -20,15 +20,6 @@ public final class SequentialNBodySimulation extends AbstractNBodySimulation {
         super(bodies, dt);
     }
 
-    /**
-     * Builds a simulation over a set of bodies, with the default time step.
-     *
-     * @param bodies the bodies of the simulation
-     */
-    public SequentialNBodySimulation(final List<? extends Body> bodies) {
-        this(bodies, DEFAULT_DT);
-    }
-
     @Override
     protected void computeStep() {
         getBodies().forEach(this::updateVelocity);

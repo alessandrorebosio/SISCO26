@@ -2,7 +2,6 @@ package it.unibo.sisco.model.api;
 
 import it.unibo.sisco.model.api.geometry.Point2D;
 import it.unibo.sisco.model.api.geometry.Vector2D;
-import it.unibo.sisco.model.exceptions.InfiniteForceException;
 
 import java.util.List;
 
@@ -71,9 +70,10 @@ public interface Body {
      *
      * @param b the body exerting the force
      * @return the force exerted by {@code b}
-     * @throws InfiniteForceException if the two bodies are in the same position
+     * @throws ArithmeticException if the two bodies are in the same position, where
+     *                             the force is infinite
      */
-    Vector2D computeGForceBy(Body b) throws InfiniteForceException;
+    Vector2D computeGForceBy(Body b);
 
     /**
      * Computes the total gravitational force exerted on this body by the given

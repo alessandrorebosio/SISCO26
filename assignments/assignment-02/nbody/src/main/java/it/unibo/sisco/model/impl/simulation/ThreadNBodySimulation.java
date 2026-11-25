@@ -5,7 +5,7 @@ import java.util.concurrent.BrokenBarrierException;
 
 import it.unibo.sisco.model.api.Barrier;
 import it.unibo.sisco.model.api.Body;
-import it.unibo.sisco.model.impl.barrier.BarrierImpl;
+import it.unibo.sisco.model.impl.barrier.MonitorBarrier;
 
 /**
  * Thread-based implementation of the N-body simulation using Java threads directly.
@@ -41,7 +41,7 @@ public final class ThreadNBodySimulation extends AbstractNBodySimulation {
      */
     public ThreadNBodySimulation(final List<? extends Body> bodies, final double dt) {
         super(bodies, dt);
-        this.barrier = new BarrierImpl(getBodies().size() + 1);
+        this.barrier = new MonitorBarrier(getBodies().size() + 1);
         this.workers = getBodies().stream()
                 .map(BodyWorker::new)
                 .toList();

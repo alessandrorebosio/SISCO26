@@ -8,7 +8,7 @@ import it.unibo.sisco.model.api.Barrier;
  * Monitor-based implementation of a {@link Barrier} that blocks participating threads
  * until all of them have reached the synchronization point.
  */
-public class BarrierImpl implements Barrier {
+public class MonitorBarrier implements Barrier {
 
     private final int nPartecipants;
     private int nArrived;
@@ -20,7 +20,7 @@ public class BarrierImpl implements Barrier {
      * @param nPartecipants the total number of threads that must invoke {@link #await()}
      *                      before any of them are released
      */
-    public BarrierImpl(final int nPartecipants) {
+    public MonitorBarrier(final int nPartecipants) {
         this.nPartecipants = nPartecipants;
         this.nArrived = 0;
         this.generation = 0;

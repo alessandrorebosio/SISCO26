@@ -32,7 +32,7 @@ public class ExecutorsNBodySimulationTest {
     @Test
     void defaultTimeStepIsUsed() {
         final ExecutorsNBodySimulation sim = new ExecutorsNBodySimulation(TestBodies.twoBodies());
-        assertEquals(ExecutorsNBodySimulation.DEFAULT_DT, sim.getTimeStep(), DELTA);
+        assertEquals(AbstractNBodySimulation.DEFAULT_DT, sim.getTimeStep(), DELTA);
     }
 
     @Test

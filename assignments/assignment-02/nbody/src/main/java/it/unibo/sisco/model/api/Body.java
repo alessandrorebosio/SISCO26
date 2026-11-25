@@ -4,6 +4,8 @@ import it.unibo.sisco.model.exceptions.InfiniteForceException;
 import it.unibo.sisco.model.impl.geometry.Point2D;
 import it.unibo.sisco.model.impl.geometry.Vector2D;
 
+import java.util.List;
+
 /**
  * A body of the simulation: a point mass that moves in a 2D space.
  *
@@ -72,6 +74,16 @@ public interface Body {
      * @throws InfiniteForceException if the two bodies are in the same position
      */
     Vector2D computeGForceBy(Body b) throws InfiniteForceException;
+
+    /**
+     * Computes the total gravitational force exerted on this body by the given
+     * bodies. The bodies in the same position as this one, this body included,
+     * exert no force. Only the positions are read, nothing is written.
+     *
+     * @param bodies the bodies that exert the force
+     * @return the total force on this body
+     */
+    Vector2D computeTotalGForceBy(List<? extends Body> bodies);
 
     /**
      * Updates the velocity, given the instant acceleration:

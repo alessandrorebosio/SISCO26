@@ -10,11 +10,6 @@ import java.util.List;
 public final class SequentialNBodySimulation extends AbstractNBodySimulation {
 
     /**
-     * Default virtual time elapsed at each step.
-     */
-    public static final double DEFAULT_DT = 0.001;
-
-    /**
      * Builds a simulation over a set of bodies.
      *
      * @param bodies the bodies of the simulation

@@ -32,7 +32,7 @@ class SequentialNBodySimulationTest {
     @Test
     void defaultTimeStepIsUsed() {
         final SequentialNBodySimulation sim = new SequentialNBodySimulation(TestBodies.twoBodies());
-        assertEquals(SequentialNBodySimulation.DEFAULT_DT, sim.getTimeStep(), DELTA);
+        assertEquals(AbstractNBodySimulation.DEFAULT_DT, sim.getTimeStep(), DELTA);
     }
 
     @Test

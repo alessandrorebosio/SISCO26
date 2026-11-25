@@ -6,9 +6,11 @@ import it.unibo.sisco.model.exceptions.NullVectorException;
 import it.unibo.sisco.model.impl.geometry.Point2D;
 import it.unibo.sisco.model.impl.geometry.Vector2D;
 
+import java.util.List;
+
 /**
- * Default implementation of {@link Body}, with a scaled gravitational constant
- * {@code G = 0.001}.
+ * {@link Body} modelled as a point mass, attracted by the other bodies with
+ * Newtonian gravity and a scaled gravitational constant {@code G = 0.001}.
  *
  * <p>
  * Two bodies are equal if they have the same identifier. The class is not
@@ -43,32 +45,32 @@ public final class PointMassBody implements Body {
 
     @Override
     public int getId() {
-        return id;
+        return this.id;
     }
 
     @Override
     public Point2D getPos() {
-        return pos;
+        return this.pos;
     }
 
     @Override
     public Vector2D getVel() {
-        return vel;
+        return this.vel;
     }
 
     @Override
     public double getMass() {
-        return mass;
+        return this.mass;
     }
 
     @Override
     public double getRadius() {
-        return radius;
+        return this.radius;
     }
 
     @Override
     public double getDistanceFrom(final Body b) {
-        return pos.distanceFrom(b.getPos());
+        return this.pos.distanceFrom(b.getPos());
     }
 
     @Override
@@ -76,7 +78,7 @@ public final class PointMassBody implements Body {
         final double dist = getDistanceFrom(b);
         if (dist > 0) {
             try {
-                return Vector2D.between(pos, b.getPos())
+                return Vector2D.between(this.pos, b.getPos())
                         .normalize()
                         .scalarMul(b.getMass() * G_CONST_SCALED / (dist * dist));
             } catch (final NullVectorException e) {
@@ -86,28 +88,52 @@ public final class PointMassBody implements Body {
         throw new InfiniteForceException();
     }
 
+    /*
+     * Same formula as computeGForceBy, F = G * m * d / |d|^3, written with
+     * primitive values: it runs once for every pair of bodies at each step, so it
+     * computes one square root and allocates no intermediate vector.
+     */
+    @Override
+    public Vector2D computeTotalGForceBy(final List<? extends Body> bodies) {
+        double fx = 0;
+        double fy = 0;
+        for (final Body other : bodies) {
+            final double dx = other.getPos().x() - this.pos.x();
+            final double dy = other.getPos().y() - this.pos.y();
+            final double dist2 = dx * dx + dy * dy;
+            // dist2 == 0 for this body and for bodies in the same position:
+            // the force is ignored, as in the reference version
+            if (dist2 > 0) {
+                final double k = other.getMass() * G_CONST_SCALED / (dist2 * Math.sqrt(dist2));
+                fx += dx * k;
+                fy += dy * k;
+            }
+        }
+        return new Vector2D(fx, fy);
+    }
+
     @Override
     public void updateVelocity(final Vector2D acc, final double dt) {
-        vel = vel.sum(acc.scalarMul(dt));
+        this.vel = this.vel.sum(acc.scalarMul(dt));
     }
 
     @Override
     public void updatePos(final double dt) {
-        pos = pos.sum(vel.scalarMul(dt));
+        this.pos = this.pos.sum(this.vel.scalarMul(dt));
     }
 
     @Override
     public boolean equals(final Object obj) {
-        return obj instanceof Body other && other.getId() == id;
+        return obj instanceof Body other && other.getId() == this.id;
     }
 
     @Override
     public int hashCode() {
-        return Integer.hashCode(id);
+        return Integer.hashCode(this.id);
     }
 
     @Override
     public String toString() {
-        return "Body[id=" + id + ", pos=" + pos + ", vel=" + vel + "]";
+        return "Body[id=" + this.id + ", pos=" + this.pos + ", vel=" + this.vel + "]";
     }
 }

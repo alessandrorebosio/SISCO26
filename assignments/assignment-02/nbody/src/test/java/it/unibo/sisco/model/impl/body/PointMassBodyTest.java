@@ -10,6 +10,7 @@ import it.unibo.sisco.model.exceptions.InfiniteForceException;
 import it.unibo.sisco.model.impl.geometry.Point2D;
 import it.unibo.sisco.model.impl.geometry.Vector2D;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class PointMassBodyTest {
@@ -100,5 +101,17 @@ class PointMassBodyTest {
     @Test
     void descriptionContainsTheId() {
         assertTrue(new PointMassBody(42, new Point2D(0, 0), Vector2D.ZERO, 0.1, 1).toString().contains("id=42"));
+    }
+
+    @Test
+    void totalForceIsTheSumOfTheSingleForcesAndIgnoresCoincidentBodies() throws InfiniteForceException {
+        final Body a = new PointMassBody(0, new Point2D(0, 0), Vector2D.ZERO, 0.1, 1);
+        final Body b = new PointMassBody(1, new Point2D(2, 0), Vector2D.ZERO, 0.1, 4);
+        final Body c = new PointMassBody(2, new Point2D(-1, 3), Vector2D.ZERO, 0.1, 2);
+        final Body sameAsA = new PointMassBody(3, new Point2D(0, 0), Vector2D.ZERO, 0.1, 7);
+        final Vector2D expected = a.computeGForceBy(b).sum(a.computeGForceBy(c));
+        final Vector2D total = a.computeTotalGForceBy(List.of(a, b, c, sameAsA));
+        assertEquals(expected.x(), total.x(), DELTA);
+        assertEquals(expected.y(), total.y(), DELTA);
     }
 }

@@ -7,7 +7,7 @@ import it.unibo.sisco.model.api.SimulatorTypes;
 import it.unibo.sisco.model.impl.body.BodySets;
 import it.unibo.sisco.model.impl.simulation.ExecutorsNBodySimulation;
 import it.unibo.sisco.model.impl.simulation.SequentialNBodySimulation;
-import it.unibo.sisco.model.impl.simulation.ThreadNBodySimulation;
+import it.unibo.sisco.model.impl.simulation.ThreadNBodySimu;
 import it.unibo.sisco.view.api.SimulationView;
 
 import java.util.List;
@@ -68,7 +68,7 @@ public final class SimulationController implements Controller {
         final List<Body> bodies = BodySets.random(N_BODIES);
         this.simulator = switch (simulator) {
             case SimulatorTypes.SEQUENTIAL -> new SequentialNBodySimulation(bodies);
-            case SimulatorTypes.SYSTEM_THREAD -> new ThreadNBodySimulation(bodies);
+            case SimulatorTypes.SYSTEM_THREAD -> new ThreadNBodySimu(bodies);
             case SimulatorTypes.EXECUTORS -> new ExecutorsNBodySimulation(bodies);
         };
         if (this.view != null) this.view.selectedSimulator(simulator);

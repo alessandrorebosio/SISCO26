@@ -36,7 +36,7 @@ public class MonitorBarrier implements Barrier {
     public synchronized void await() throws InterruptedException, BrokenBarrierException {
         this.nArrived++;
         final int currentG = this.generation;
-        
+
         if(this.nArrived == this.nPartecipants) {
             nArrived = 0;
             generation++;

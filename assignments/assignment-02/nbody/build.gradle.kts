@@ -1,5 +1,6 @@
 import com.github.spotbugs.snom.Confidence
 import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.SpotBugsTask
 
 plugins {
     java
@@ -23,22 +24,13 @@ repositories {
     mavenCentral()
 }
 
-// `./gradlew run` starts the simulation without GUI.
+// `./gradlew run` opens the GUI, `./gradlew run --args=cli` runs on the terminal only.
 application {
     mainClass = "it.unibo.sisco.SimulationMain"
 }
 
 tasks.named<JavaExec>("run") {
     standardInput = System.`in`
-}
-
-// `./gradlew runGui` starts the simulation with the Swing GUI.
-tasks.register<JavaExec>("runGui") {
-    group = "application"
-    description = "Runs the simulation with the GUI."
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass = "it.unibo.sisco.SimulationMainWithGUI"
-    javaLauncher = javaToolchains.launcherFor(java.toolchain)
 }
 
 val spotbugsVersion = "4.10.5"
@@ -52,14 +44,31 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-// Compiler: every warning (raw types, unchecked casts, ...) is an error.
+// Normal compilation only shows warnings, so `./gradlew run` works as long as the code compiles.
 tasks.withType<JavaCompile>().configureEach {
-    options.compilerArgs.addAll(listOf("-Xlint:all", "-Werror"))
+    options.compilerArgs.add("-Xlint:all")
 }
 
-// Javadoc of public/protected production code is checked at compile time as well.
-tasks.compileJava {
-    options.compilerArgs.add("-Xdoclint:all/protected")
+// Strict compilation, part of `check`/`build`: every javac warning (raw types, unchecked casts, ...)
+// and every Javadoc problem on public/protected production code is an error.
+// The output goes to build/lint and is never used to run the application.
+fun registerLintCompile(name: String, sourceSetName: String, extraArgs: List<String>) =
+    tasks.register<JavaCompile>(name) {
+        val sourceSet = sourceSets[sourceSetName]
+        description = "Compiles the $sourceSetName sources treating every warning as an error."
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
+        source = sourceSet.java
+        classpath = sourceSet.compileClasspath
+        destinationDirectory = layout.buildDirectory.dir("lint/$sourceSetName")
+        javaCompiler = javaToolchains.compilerFor(java.toolchain)
+        options.compilerArgs.addAll(listOf("-Werror") + extraArgs)
+    }
+
+val lintMain = registerLintCompile("lintMain", "main", listOf("-Xdoclint:all/protected"))
+val lintTest = registerLintCompile("lintTest", "test", emptyList())
+
+tasks.check {
+    dependsOn(lintMain, lintTest)
 }
 
 tasks.javadoc {
@@ -91,8 +100,25 @@ spotbugs {
     toolVersion = spotbugsVersion
     effort = Effort.MAX
     reportLevel = Confidence.LOW
-    ignoreFailures = false
+    // Failures are raised below, after the bugs have been printed on the console.
+    ignoreFailures = true
     excludeFilter = layout.projectDirectory.file("config/spotbugs/spotbugs-excludes.xml")
+}
+
+// SpotBugs writes its findings only to report files: also print them on the console and fail if there are any.
+tasks.withType<SpotBugsTask>().configureEach {
+    val textReport = layout.buildDirectory.file("reports/spotbugs/$name.txt")
+    reports.create("html")
+    reports.create("text") {
+        outputLocation = textReport
+    }
+    doLast {
+        val bugs = textReport.get().asFile.takeIf { it.exists() }?.readLines()?.filter { it.isNotBlank() }.orEmpty()
+        if (bugs.isNotEmpty()) {
+            bugs.forEach { logger.error(it) }
+            throw GradleException("SpotBugs found ${bugs.size} bug(s) in $name, see the list above.")
+        }
+    }
 }
 
 jacoco {

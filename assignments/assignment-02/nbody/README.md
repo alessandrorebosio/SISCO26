@@ -37,16 +37,16 @@ nbody/
 
 ## Run
 
-Run the simulation without GUI (prints the elapsed time):
+Run the simulation with the GUI (UP/DOWN arrows to zoom):
 
 ```bash
 ./gradlew run
 ```
 
-Run the simulation with the GUI (UP/DOWN arrows to zoom):
+Run the simulation on the terminal only, without GUI (prints the elapsed time):
 
 ```bash
-./gradlew runGui
+./gradlew run --args=cli
 ```
 
 ## Build and checks

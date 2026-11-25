@@ -9,9 +9,11 @@ import java.util.concurrent.BrokenBarrierException;
 public interface Barrier {
 
     /**
-     * Waits until all participating threads have invoked {@code await} on this barrier.
+     * Waits until all participating threads have invoked {@code await} on this
+     * barrier.
      *
-     * @throws InterruptedException if the current thread is interrupted while waiting
+     * @throws InterruptedException   if the current thread is interrupted while
+     *                                waiting
      * @throws BrokenBarrierException if the barrier is broken while waiting
      */
     void await() throws InterruptedException, BrokenBarrierException;

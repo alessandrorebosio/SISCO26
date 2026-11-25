@@ -4,14 +4,17 @@ import it.unibo.sisco.model.api.SimulatorTypes;
 import it.unibo.sisco.view.api.SimulationView;
 
 /**
- * Controller that drives an N-body simulation and, if present, keeps its view up to date.
+ * Controller that drives an N-body simulation and, if present, keeps its view
+ * up to date.
  */
 public interface Controller {
 
     /**
-     * Runs the simulation for its configured number of steps, in the calling thread.
+     * Runs the simulation for its configured number of steps, in the calling
+     * thread.
      *
-     * <p>The method returns only when every step has been executed.
+     * <p>
+     * The method returns only when every step has been executed.
      */
     void run();
 

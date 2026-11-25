@@ -8,18 +8,24 @@ import it.unibo.sisco.model.impl.geometry.Vector2D;
 import java.util.List;
 
 /**
- * Skeleton of an {@link NBodySimulation}: it holds the bodies and the virtual time, and
- * provides the per-body operations of a step.
+ * Skelet on of an {@link NBodySimulation}: it holds the bodies and the virtual
+ * time, andprovides the per-body operations of a step.
  *
- * <p>A step has two phases, and subclasses decide how to execute them (sequentially, with
- * threads, with tasks, ...):
+ * <p>
+ * A step has two phases, and subclasses decide how to execute them
+ * (sequentially, with threads, with tasks, ...):
+ *
  * <ol>
- *   <li>{@link #updateVelocity(Body)} on every body: it reads the positions of all the bodies
- *       and writes only the velocity of its own body;</li>
- *   <li>{@link #updatePosition(Body)} on every body: it reads and writes only its own body.</li>
+ * <li>{@link #updateVelocity(Body)} on every body: it reads the positions of
+ * all the bodies
+ * and writes only the velocity of its own body;</li>
+ * <li>{@link #updatePosition(Body)} on every body: it reads and writes only its
+ * own body.</li>
  * </ol>
- * Within a phase, the operations on different bodies are independent of each other, while
- * the second phase must start only after the first one is complete on every body.
+ *
+ * Within a phase, the operations on different bodies are independent of each
+ * other, whilethe second phase must start only after the first one is complete
+ * on everybody.
  */
 public abstract class AbstractNBodySimulation implements NBodySimulation {
 
@@ -28,14 +34,14 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
      */
     protected final List<Body> bodies;
     private final double dt;
-    private double vt;
     private long iteration;
+    private double vt;
 
     /**
      * Builds a simulation over a set of bodies.
      *
      * @param bodies the bodies of the simulation
-     * @param dt the virtual time elapsed at each step
+     * @param dt     the virtual time elapsed at each step
      * @throws IllegalArgumentException if {@code dt} is not positive
      */
     protected AbstractNBodySimulation(final List<? extends Body> bodies, final double dt) {
@@ -54,13 +60,15 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
     }
 
     /**
-     * Executes the two phases of a step on every body, using {@link #updateVelocity(Body)}
+     * Executes the two phases of a step on every body, using
+     * {@link #updateVelocity(Body)}
      * and {@link #updatePosition(Body)}.
      */
     protected abstract void computeStep();
 
     /**
-     * First phase of a step on a body: updates its velocity according to the total force
+     * First phase of a step on a body: updates its velocity according to the total
+     * force
      * exerted by the other bodies.
      *
      * @param b the body to update
@@ -71,7 +79,8 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
     }
 
     /**
-     * Second phase of a step on a body: updates its position according to its velocity.
+     * Second phase of a step on a body: updates its position according to its
+     * velocity.
      *
      * @param b the body to update
      */
@@ -115,7 +124,8 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
                 try {
                     totalForce = totalForce.sum(b.computeGForceBy(other));
                 } catch (final InfiniteForceException ignored) {
-                    // bodies in the same position: the force is ignored, as in the reference version
+                    // bodies in the same position: the force is ignored, as in the reference
+                    // version
                 }
             }
         }

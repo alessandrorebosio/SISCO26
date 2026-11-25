@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.NBodySimulation;
-import it.unibo.sisco.model.impl.body.BodyImpl;
-import it.unibo.sisco.model.impl.body.BodySets;
+import it.unibo.sisco.model.impl.body.PointMassBody;
+import it.unibo.sisco.model.impl.body.TestBodies;
 import it.unibo.sisco.model.impl.geometry.Point2D;
 import it.unibo.sisco.model.impl.geometry.Vector2D;
 
@@ -23,7 +23,7 @@ class SequentialNBodySimulationTest {
 
     @Test
     void initialStateHasNoStepsAndZeroTime() {
-        final NBodySimulation sim = new SequentialNBodySimulation(BodySets.threeBodies());
+        final NBodySimulation sim = new SequentialNBodySimulation(TestBodies.threeBodies());
         assertEquals(3, sim.getNumBodies());
         assertEquals(0, sim.getIteration());
         assertEquals(0, sim.getVirtualTime(), DELTA);
@@ -31,13 +31,13 @@ class SequentialNBodySimulationTest {
 
     @Test
     void defaultTimeStepIsUsed() {
-        final SequentialNBodySimulation sim = new SequentialNBodySimulation(BodySets.twoBodies());
+        final SequentialNBodySimulation sim = new SequentialNBodySimulation(TestBodies.twoBodies());
         assertEquals(SequentialNBodySimulation.DEFAULT_DT, sim.getTimeStep(), DELTA);
     }
 
     @Test
     void everyStepAdvancesIterationAndVirtualTime() {
-        final NBodySimulation sim = new SequentialNBodySimulation(BodySets.threeBodies(), DT);
+        final NBodySimulation sim = new SequentialNBodySimulation(TestBodies.threeBodies(), DT);
         for (int i = 0; i < STEPS; i++) {
             sim.step();
         }
@@ -47,14 +47,14 @@ class SequentialNBodySimulationTest {
 
     @Test
     void nonPositiveTimeStepIsRejected() {
-        final List<Body> bodies = BodySets.twoBodies();
+        final List<Body> bodies = TestBodies.twoBodies();
         assertThrows(IllegalArgumentException.class, () -> new SequentialNBodySimulation(bodies, 0));
         assertThrows(IllegalArgumentException.class, () -> new SequentialNBodySimulation(bodies, -DT));
     }
 
     @Test
     void bodiesAreCopiedAndUnmodifiable() {
-        final List<Body> bodies = new ArrayList<>(BodySets.twoBodies());
+        final List<Body> bodies = new ArrayList<>(TestBodies.twoBodies());
         final NBodySimulation sim = new SequentialNBodySimulation(bodies);
         bodies.clear();
         assertEquals(2, sim.getNumBodies());
@@ -63,7 +63,7 @@ class SequentialNBodySimulationTest {
 
     @Test
     void isolatedBodyMovesInAStraightLine() {
-        final Body b = new BodyImpl(0, new Point2D(0, 0), new Vector2D(1, -2), 0.1, 1);
+        final Body b = new PointMassBody(0, new Point2D(0, 0), new Vector2D(1, -2), 0.1, 1);
         final NBodySimulation sim = new SequentialNBodySimulation(List.of(b), DT);
         for (int i = 0; i < STEPS; i++) {
             sim.step();
@@ -75,7 +75,7 @@ class SequentialNBodySimulationTest {
 
     @Test
     void twoEqualBodiesAttractEachOtherSymmetrically() {
-        final List<Body> bodies = BodySets.twoBodies();
+        final List<Body> bodies = TestBodies.twoBodies();
         final Body left = bodies.get(0);
         final Body right = bodies.get(1);
         final double initialDistance = left.getDistanceFrom(right);
@@ -94,8 +94,8 @@ class SequentialNBodySimulationTest {
     @Test
     void velocitiesAreUpdatedBeforeAnyPositionChanges() {
         /* the force on the second body must be computed from the positions before the step */
-        final Body a = new BodyImpl(0, new Point2D(-0.5, 0), new Vector2D(10, 0), 0.1, 1);
-        final Body b = new BodyImpl(1, new Point2D(0.5, 0), Vector2D.ZERO, 0.1, 1);
+        final Body a = new PointMassBody(0, new Point2D(-0.5, 0), new Vector2D(10, 0), 0.1, 1);
+        final Body b = new PointMassBody(1, new Point2D(0.5, 0), Vector2D.ZERO, 0.1, 1);
         final NBodySimulation sim = new SequentialNBodySimulation(List.of(a, b), DT);
         sim.step();
         final double expectedSpeed = 1 * 0.001 / (1.0 * 1.0) * DT;
@@ -104,8 +104,8 @@ class SequentialNBodySimulationTest {
 
     @Test
     void bodiesInTheSamePositionDoNotBreakTheSimulation() {
-        final Body a = new BodyImpl(0, new Point2D(0, 0), Vector2D.ZERO, 0.1, 1);
-        final Body b = new BodyImpl(1, new Point2D(0, 0), Vector2D.ZERO, 0.1, 1);
+        final Body a = new PointMassBody(0, new Point2D(0, 0), Vector2D.ZERO, 0.1, 1);
+        final Body b = new PointMassBody(1, new Point2D(0, 0), Vector2D.ZERO, 0.1, 1);
         final NBodySimulation sim = new SequentialNBodySimulation(List.of(a, b), DT);
         sim.step();
         assertEquals(Vector2D.ZERO, a.getVel());

@@ -7,10 +7,11 @@ import it.unibo.sisco.model.impl.geometry.Vector2D;
 /**
  * A body of the simulation: a point mass that moves in a 2D space.
  *
- * <p>Identifier, mass and radius never change, while position and velocity are updated at
- * every step of the simulation. Implementations are not required to be thread-safe: a
- * concurrent simulation must make sure that a body is never written while other threads
- * read or write it.
+ * <p>
+ * Identifier, mass and radius never change, while position and velocity are
+ * updated at every step of the simulation. Implementations are not required to
+ * be thread-safe: a concurrent simulation must make sure that a body is never
+ * written while other threads read or write it.
  */
 public interface Body {
 
@@ -60,10 +61,11 @@ public interface Body {
     /**
      * Computes the gravitational force exerted on this body by another body.
      *
-     * <p>The force points from this body towards {@code b} and its module is
-     * {@code G * m_b / d^2}, where {@code m_b} is the mass of {@code b}, {@code d} the distance
-     * between the two bodies and {@code G} a scaled gravitational constant. Neither body is
-     * modified.
+     * <p>
+     * The force points from this body towards {@code b} and its module is
+     * {@code G * m_b / d^2}, where {@code m_b} is the mass of {@code b}, {@code d}
+     * the distance between the two bodies and {@code G} a scaled gravitational
+     * constant. Neither body is modified.
      *
      * @param b the body exerting the force
      * @return the force exerted by {@code b}
@@ -72,16 +74,18 @@ public interface Body {
     Vector2D computeGForceBy(Body b) throws InfiniteForceException;
 
     /**
-     * Updates the velocity, given the instant acceleration: {@code vel = vel + acc * dt}.
+     * Updates the velocity, given the instant acceleration:
+     * {@code vel = vel + acc * dt}.
      * The position does not change.
      *
      * @param acc the instant acceleration
-     * @param dt the virtual time elapsed
+     * @param dt  the virtual time elapsed
      */
     void updateVelocity(Vector2D acc, double dt);
 
     /**
-     * Updates the position, according to the current velocity: {@code pos = pos + vel * dt}.
+     * Updates the position, according to the current velocity:
+     * {@code pos = pos + vel * dt}.
      * The velocity does not change.
      *
      * @param dt the virtual time elapsed

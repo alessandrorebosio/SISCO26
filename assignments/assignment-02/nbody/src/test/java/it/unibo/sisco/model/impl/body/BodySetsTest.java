@@ -16,12 +16,6 @@ class BodySetsTest {
     private static final long SEED = 42;
 
     @Test
-    void predefinedSetsHaveTheExpectedSize() {
-        assertEquals(2, BodySets.twoBodies().size());
-        assertEquals(3, BodySets.threeBodies().size());
-    }
-
-    @Test
     void randomSetHasTheRequestedSize() {
         assertEquals(N_BODIES, BodySets.random(N_BODIES, SEED).size());
         assertTrue(BodySets.random(0, SEED).isEmpty());

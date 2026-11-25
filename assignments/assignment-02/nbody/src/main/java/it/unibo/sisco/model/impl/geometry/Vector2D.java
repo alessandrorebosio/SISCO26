@@ -3,8 +3,8 @@ package it.unibo.sisco.model.impl.geometry;
 import it.unibo.sisco.model.exceptions.NullVectorException;
 
 /**
- * An immutable vector in a 2D space. Every operation returns a new vector, so instances can
- * be shared among threads without synchronisation.
+ * An immutable vector in a 2D space. Every operation returns a new vector, so
+ * instances can be shared among threads without synchronisation.
  *
  * @param x the x component
  * @param y the y component
@@ -20,7 +20,7 @@ public record Vector2D(double x, double y) {
      * Builds the vector that goes from one point to another.
      *
      * @param from the starting point
-     * @param to the ending point
+     * @param to   the ending point
      * @return the vector from {@code from} to {@code to}
      */
     public static Vector2D between(final Point2D from, final Point2D to) {
@@ -57,7 +57,8 @@ public record Vector2D(double x, double y) {
     }
 
     /**
-     * Computes the unit vector with the same direction of this one, that is a vector with
+     * Computes the unit vector with the same direction of this one, that is a
+     * vector with
      * module {@code 1}.
      *
      * @return the normalized vector

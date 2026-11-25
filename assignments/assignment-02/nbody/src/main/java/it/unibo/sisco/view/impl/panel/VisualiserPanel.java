@@ -10,10 +10,11 @@ import java.util.Locale;
 import javax.swing.JPanel;
 
 /**
- * Panel that draws the bodies, centred on the origin. The UP and DOWN arrow keys zoom in and
- * out.
+ * Panel that draws the bodies, centred on the origin, below a header with the
+ * statistics of the simulation. The UP and DOWN arrow keys zoom in and out.
  *
- * <p>It must be accessed only from the Event Dispatch Thread.
+ * <p>
+ * It must be accessed only from the Event Dispatch Thread.
  *
  * @serial exclude
  */
@@ -22,13 +23,12 @@ public final class VisualiserPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     private static final double ZOOM_IN = 1.1;
     private static final double ZOOM_OUT = 0.9;
-    private static final int MARGIN = 20;
-    private static final int TEXT_X = 2;
+    private static final int HEADER_HEIGHT = 50;
+    private static final int MARGIN = 10;
+    private static final int TEXT_X = 5;
     private static final int FIRST_LINE_Y = 20;
     private static final int SECOND_LINE_Y = 40;
 
-    private final long dx;
-    private final long dy;
     private BodyShape[] bodies = new BodyShape[0];
     private long iteration;
     private int framePerSec;
@@ -36,16 +36,10 @@ public final class VisualiserPanel extends JPanel {
     private double scale = 1;
 
     /**
-     * Builds the panel.
-     *
-     * @param w the width of the panel
-     * @param h the height of the panel
+     * Builds the panel and enables the zoom keys.
      */
-    public VisualiserPanel(final int w, final int h) {
+    public VisualiserPanel() {
         super();
-        setSize(w, h);
-        dx = w / 2 - MARGIN;
-        dy = h / 2 - MARGIN;
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(final KeyEvent e) {
@@ -54,21 +48,20 @@ public final class VisualiserPanel extends JPanel {
                 } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
                     scale *= ZOOM_OUT;
                 }
+                repaint();
             }
         });
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
-        requestFocusInWindow();
     }
 
     /**
-     * Updates the stage to draw. The shapes are copied; the panel is redrawn at the next
-     * repaint.
+     * Updates the stage to draw; the panel is redrawn at the next repaint.
      *
-     * @param shapes the bodies to draw
-     * @param time the current virtual time
-     * @param steps the number of steps executed so far
-     * @param fps the frames rendered per second
+     * @param shapes the bodies to draw, which are copied
+     * @param time   the current virtual time
+     * @param steps  the number of steps executed so far
+     * @param fps    the frames rendered per second
      */
     public void display(final List<BodyShape> shapes, final double time, final long steps, final int fps) {
         this.bodies = shapes.toArray(new BodyShape[0]);
@@ -82,23 +75,36 @@ public final class VisualiserPanel extends JPanel {
         super.paintComponent(g);
         final Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2.clearRect(0, 0, getWidth(), getHeight());
+        drawBodies(g2);
+        drawHeader(g2);
+    }
+
+    /*
+     * The bodies are drawn in the area below the header: the origin is in its
+     * centre and the square [-1, 1] x [-1, 1] fits in it, with a margin on every
+     * side, when the zoom is 1.
+     */
+    private void drawBodies(final Graphics2D g2) {
+        final int areaHeight = getHeight() - HEADER_HEIGHT;
+        final double centreX = getWidth() / 2.0;
+        final double centreY = HEADER_HEIGHT + areaHeight / 2.0;
+        final double unit = (Math.min(getWidth(), areaHeight) / 2.0 - MARGIN) * scale;
+
+        final Graphics2D canvas = (Graphics2D) g2.create();
+        canvas.clipRect(0, HEADER_HEIGHT, getWidth(), areaHeight);
         for (final BodyShape b : bodies) {
-            final int radius = Math.max(1, (int) (b.radius() * dx * scale));
-            g2.drawOval(getXcoord(b.x()), getYcoord(b.y()), radius, radius);
+            // The radius of the model is drawn as the diameter, so the bodies are easier to tell apart
+            final int diameter = Math.max(2, (int) Math.round(b.radius() * unit));
+            final int x = (int) Math.round(centreX + b.x() * unit - diameter / 2.0);
+            final int y = (int) Math.round(centreY - b.y() * unit - diameter / 2.0);
+            canvas.drawOval(x, y, diameter, diameter);
         }
-        final String time = String.format(Locale.ROOT, "%.2f", vt);
-        g2.drawString("Bodies: " + bodies.length + " - vt: " + time + " - nIter: " + iteration
-            + " - frames/sec: " + framePerSec, TEXT_X, FIRST_LINE_Y);
+        canvas.dispose();
+    }
+
+    private void drawHeader(final Graphics2D g2) {
+        g2.drawString(String.format(Locale.ROOT, "Bodies: %d - vt: %.2f - nIter: %d - frames/sec: %d",
+                bodies.length, vt, iteration, framePerSec), TEXT_X, FIRST_LINE_Y);
         g2.drawString("Commands: UP for zoom in, DOWN for zoom out", TEXT_X, SECOND_LINE_Y);
-    }
-
-    private int getXcoord(final double x) {
-        return (int) (dx + x * dx * scale);
-    }
-
-    private int getYcoord(final double y) {
-        return (int) (dy - y * dy * scale);
     }
 }

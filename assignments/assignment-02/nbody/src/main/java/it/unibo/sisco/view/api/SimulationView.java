@@ -1,8 +1,6 @@
 package it.unibo.sisco.view.api;
 
-import it.unibo.sisco.model.api.Body;
-
-import java.util.List;
+import it.unibo.sisco.model.api.SimulationState;
 
 /**
  * A view that displays the stages of an N-body simulation.
@@ -22,16 +20,9 @@ public interface SimulationView {
     /**
      * Displays the current stage of the simulation.
      *
-     * <p>
-     * The bodies are the live ones of the model: the view must read them before
-     * returning and must not keep any reference to them, since they change at the
-     * next step.
-     *
-     * @param bodies    the bodies to display
-     * @param vt        the current virtual time
-     * @param iteration the number of steps executed so far
+     * @param state a snapshot of the simulation, which the view can keep
      */
-    void display(List<Body> bodies, double vt, long iteration);
+    void display(SimulationState state);
 
     /**
      * Notifies the view that the simulation has finished.

@@ -1,7 +1,9 @@
 package it.unibo.sisco.model.impl.simulation;
 
 import it.unibo.sisco.model.api.Body;
+import it.unibo.sisco.model.api.BodyState;
 import it.unibo.sisco.model.api.NBodySimulation;
+import it.unibo.sisco.model.api.SimulationState;
 
 import java.util.List;
 
@@ -88,6 +90,13 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
     @Override
     public final List<Body> getBodies() {
         return this.bodies;
+    }
+
+    @Override
+    public final SimulationState getState() {
+        return new SimulationState(this.bodies.stream()
+                .map(b -> new BodyState(b.getPos().x(), b.getPos().y(), b.getRadius()))
+                .toList(), this.vt, this.iteration);
     }
 
     @Override

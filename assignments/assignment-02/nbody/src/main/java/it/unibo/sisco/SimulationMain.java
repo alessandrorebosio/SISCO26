@@ -24,6 +24,7 @@ public final class SimulationMain {
 
     private static final int WINDOW_SIZE = 620;
     private static final int N_BODIES = 5000;
+    private static final int N_STEPS = 100;
 
     private SimulationMain() {
     }
@@ -38,11 +39,11 @@ public final class SimulationMain {
         final LaunchOptions options = LaunchOptions.parse(args);
         final List<Body> bodies = BodySets.random(N_BODIES);
         final NBodySimulation simulation = options.numThreads().isPresent()
-                ? NBodySimulations.byName(options.simulation(), bodies, options.numThreads().getAsInt())
-                : NBodySimulations.byName(options.simulation(), bodies);
+                ? NBodySimulations.of(options.simulation(), bodies, options.numThreads().getAsInt())
+                : NBodySimulations.of(options.simulation(), bodies);
         final SimulationView view = options.cli()
                 ? new ConsoleSimulationView()
                 : new SwingSimulationView(WINDOW_SIZE, WINDOW_SIZE);
-        new SimulationController(view, simulation).run();
+        new SimulationController(view, simulation, N_STEPS).run();
     }
 }

@@ -35,6 +35,19 @@ public interface NBodySimulation {
     List<Body> getBodies();
 
     /**
+     * Returns a snapshot of the simulation, taken now: unlike
+     * {@link #getBodies()}, it does not change at the next step and can be passed
+     * to other threads.
+     *
+     * <p>
+     * It must be called between two steps.
+     *
+     * @return the current state of the bodies, the virtual time and the number of
+     *         steps executed
+     */
+    SimulationState getState();
+
+    /**
      * Returns the number of bodies of the simulation.
      *
      * @return the number of bodies

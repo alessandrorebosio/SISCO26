@@ -1,4 +1,4 @@
-package it.unibo.sisco.model.impl.geometry;
+package it.unibo.sisco.model.api.geometry;
 
 /**
  * An immutable point in a 2D space. Being immutable, it can be shared among

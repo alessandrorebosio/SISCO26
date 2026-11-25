@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.NBodySimulation;
+import it.unibo.sisco.model.api.SimulationType;
 import it.unibo.sisco.model.impl.body.TestBodies;
 
 import java.util.List;
@@ -23,36 +24,29 @@ class NBodySimulationsTest {
     }
 
     @Test
-    void byNameChoosesTheImplementationIgnoringCase() {
-        assertInstanceOf(SequentialNBodySimulation.class, NBodySimulations.byName("sequential", this.bodies));
-        assertInstanceOf(ThreadNBodySimulation.class, NBodySimulations.byName("THREADS", this.bodies));
-        assertInstanceOf(ExecutorsNBodySimulation.class, NBodySimulations.byName("Executors", this.bodies));
+    void ofChoosesTheMatchingImplementation() {
+        assertInstanceOf(SequentialNBodySimulation.class, NBodySimulations.of(SimulationType.SEQUENTIAL, this.bodies));
+        assertInstanceOf(ThreadNBodySimulation.class, NBodySimulations.of(SimulationType.THREADS, this.bodies));
+        assertInstanceOf(ExecutorsNBodySimulation.class, NBodySimulations.of(SimulationType.EXECUTORS, this.bodies));
     }
 
     @Test
-    void byNameRejectsUnknownNames() {
-        assertThrows(IllegalArgumentException.class, () -> NBodySimulations.byName("gpu", this.bodies));
+    void ofWithThreadsBuildsTheParallelImplementations() {
+        assertInstanceOf(ThreadNBodySimulation.class, NBodySimulations.of(SimulationType.THREADS, this.bodies, 2));
+        assertInstanceOf(ExecutorsNBodySimulation.class, NBodySimulations.of(SimulationType.EXECUTORS, this.bodies, 2));
     }
 
     @Test
-    void byNameWithThreadsBuildsTheParallelImplementations() {
-        assertInstanceOf(ThreadNBodySimulation.class, NBodySimulations.byName(NBodySimulations.THREADS, this.bodies, 2));
-        assertInstanceOf(ExecutorsNBodySimulation.class,
-                NBodySimulations.byName(NBodySimulations.EXECUTORS, this.bodies, 2));
-    }
-
-    @Test
-    void byNameWithThreadsRejectsTheSequentialSimulationAndBadCounts() {
+    void ofWithThreadsRejectsTheSequentialSimulationAndBadCounts() {
         assertThrows(IllegalArgumentException.class,
-                () -> NBodySimulations.byName(NBodySimulations.SEQUENTIAL, this.bodies, 2));
+                () -> NBodySimulations.of(SimulationType.SEQUENTIAL, this.bodies, 2));
         assertThrows(IllegalArgumentException.class,
-                () -> NBodySimulations.byName(NBodySimulations.EXECUTORS, this.bodies, 0));
-        assertThrows(IllegalArgumentException.class, () -> NBodySimulations.byName("gpu", this.bodies, 2));
+                () -> NBodySimulations.of(SimulationType.EXECUTORS, this.bodies, 0));
     }
 
     @Test
     void builtSimulationsUseTheGivenBodies() {
-        final NBodySimulation sim = NBodySimulations.byName(NBodySimulations.EXECUTORS, this.bodies);
+        final NBodySimulation sim = NBodySimulations.of(SimulationType.EXECUTORS, this.bodies);
         assertEquals(this.bodies.size(), sim.getNumBodies());
     }
 }

@@ -5,12 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import it.unibo.sisco.model.api.Body;
+import it.unibo.sisco.model.api.BodyState;
 import it.unibo.sisco.model.api.NBodySimulation;
+import it.unibo.sisco.model.api.SimulationState;
+import it.unibo.sisco.model.api.geometry.Point2D;
+import it.unibo.sisco.model.api.geometry.Vector2D;
 import it.unibo.sisco.model.impl.body.BodySets;
 import it.unibo.sisco.model.impl.body.PointMassBody;
 import it.unibo.sisco.model.impl.body.TestBodies;
-import it.unibo.sisco.model.impl.geometry.Point2D;
-import it.unibo.sisco.model.impl.geometry.Vector2D;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +90,25 @@ abstract class AbstractNBodySimulationTest {
         bodies.clear();
         assertEquals(2, sim.getNumBodies());
         assertThrows(UnsupportedOperationException.class, () -> sim.getBodies().clear());
+    }
+
+    @Test
+    void stateIsASnapshotOfTheSimulation() {
+        final NBodySimulation sim = create(TestBodies.threeBodies(), DT);
+        sim.step();
+        final SimulationState state = sim.getState();
+        final List<BodyState> before = state.bodies();
+        assertEquals(1, state.iteration());
+        assertEquals(DT, state.vt(), DELTA);
+        assertEquals(sim.getNumBodies(), before.size());
+        for (int i = 0; i < before.size(); i++) {
+            final Body b = sim.getBodies().get(i);
+            assertEquals(new BodyState(b.getPos().x(), b.getPos().y(), b.getRadius()), before.get(i));
+        }
+        final List<BodyState> copy = List.copyOf(before);
+        sim.step();
+        assertEquals(copy, before);
+        assertThrows(UnsupportedOperationException.class, before::clear);
     }
 
     @Test

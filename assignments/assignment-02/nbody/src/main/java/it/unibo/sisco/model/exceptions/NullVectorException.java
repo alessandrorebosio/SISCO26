@@ -1,6 +1,6 @@
 package it.unibo.sisco.model.exceptions;
 
-import it.unibo.sisco.model.impl.geometry.Vector2D;
+import it.unibo.sisco.model.api.geometry.Vector2D;
 
 /**
  * Thrown when an operation is not defined on the null vector.

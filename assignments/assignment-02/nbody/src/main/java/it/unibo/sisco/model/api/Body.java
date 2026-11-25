@@ -1,8 +1,8 @@
 package it.unibo.sisco.model.api;
 
+import it.unibo.sisco.model.api.geometry.Point2D;
+import it.unibo.sisco.model.api.geometry.Vector2D;
 import it.unibo.sisco.model.exceptions.InfiniteForceException;
-import it.unibo.sisco.model.impl.geometry.Point2D;
-import it.unibo.sisco.model.impl.geometry.Vector2D;
 
 import java.util.List;
 

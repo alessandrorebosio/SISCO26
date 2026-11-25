@@ -1,9 +1,8 @@
 package it.unibo.sisco.view.impl;
 
-import it.unibo.sisco.model.api.Body;
+import it.unibo.sisco.model.api.SimulationState;
 import it.unibo.sisco.view.api.SimulationView;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -28,7 +27,7 @@ public final class ConsoleSimulationView implements SimulationView {
     }
 
     @Override
-    public void display(final List<Body> bodies, final double vt, final long iteration) {
+    public void display(final SimulationState state) {
         // Nothing to show between two steps
     }
 

@@ -3,7 +3,7 @@ package it.unibo.sisco;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import it.unibo.sisco.model.impl.simulation.NBodySimulations;
+import it.unibo.sisco.model.api.SimulationType;
 
 import java.util.OptionalInt;
 import org.junit.jupiter.api.Test;
@@ -14,34 +14,39 @@ class LaunchOptionsTest {
 
     @Test
     void withoutArgumentsTheGuiRunsTheThreadsSimulationWithTheDefaultThreads() {
-        assertEquals(new LaunchOptions(false, NBodySimulations.THREADS, OptionalInt.empty()), LaunchOptions.parse());
+        assertEquals(new LaunchOptions(false, SimulationType.THREADS, OptionalInt.empty()), LaunchOptions.parse());
     }
 
     @Test
     void cliFlagSelectsTheTerminal() {
-        final LaunchOptions expected = new LaunchOptions(true, NBodySimulations.THREADS, OptionalInt.empty());
+        final LaunchOptions expected = new LaunchOptions(true, SimulationType.THREADS, OptionalInt.empty());
         assertEquals(expected, LaunchOptions.parse(LaunchOptions.CLI_FLAG));
         assertEquals(expected, LaunchOptions.parse("CLI"));
     }
 
     @Test
     void otherArgumentIsTheSimulationName() {
-        assertEquals(new LaunchOptions(false, NBodySimulations.EXECUTORS, OptionalInt.empty()),
-                LaunchOptions.parse(NBodySimulations.EXECUTORS));
+        assertEquals(new LaunchOptions(false, SimulationType.EXECUTORS, OptionalInt.empty()),
+                LaunchOptions.parse("executors"));
     }
 
     @Test
     void numericArgumentIsTheNumberOfThreads() {
-        assertEquals(new LaunchOptions(false, NBodySimulations.THREADS, OptionalInt.of(THREADS)),
+        assertEquals(new LaunchOptions(false, SimulationType.THREADS, OptionalInt.of(THREADS)),
                 LaunchOptions.parse(String.valueOf(THREADS)));
     }
 
     @Test
     void argumentsCanBeGivenInAnyOrder() {
-        final LaunchOptions expected = new LaunchOptions(true, NBodySimulations.EXECUTORS, OptionalInt.of(THREADS));
+        final LaunchOptions expected = new LaunchOptions(true, SimulationType.EXECUTORS, OptionalInt.of(THREADS));
         final String threads = String.valueOf(THREADS);
-        assertEquals(expected, LaunchOptions.parse(LaunchOptions.CLI_FLAG, NBodySimulations.EXECUTORS, threads));
-        assertEquals(expected, LaunchOptions.parse(threads, NBodySimulations.EXECUTORS, LaunchOptions.CLI_FLAG));
+        assertEquals(expected, LaunchOptions.parse(LaunchOptions.CLI_FLAG, "executors", threads));
+        assertEquals(expected, LaunchOptions.parse(threads, "executors", LaunchOptions.CLI_FLAG));
+    }
+
+    @Test
+    void unknownSimulationNameIsRejected() {
+        assertThrows(IllegalArgumentException.class, () -> LaunchOptions.parse("gpu"));
     }
 
     @Test

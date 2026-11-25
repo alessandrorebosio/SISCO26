@@ -1,4 +1,4 @@
-package it.unibo.sisco.model.impl.geometry;
+package it.unibo.sisco.model.api.geometry;
 
 import it.unibo.sisco.model.exceptions.NullVectorException;
 

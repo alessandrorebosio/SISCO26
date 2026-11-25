@@ -1,12 +1,10 @@
 package it.unibo.sisco.view.impl;
 
-import it.unibo.sisco.model.api.Body;
+import it.unibo.sisco.model.api.SimulationState;
 import it.unibo.sisco.view.api.SimulationView;
-import it.unibo.sisco.view.impl.panel.BodyShape;
 import it.unibo.sisco.view.impl.panel.VisualiserPanel;
 import java.awt.Dimension;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -17,9 +15,9 @@ import javax.swing.SwingUtilities;
  *
  * <p>
  * Every Swing component is created and updated on the Event Dispatch Thread.
- * {@link #display(List, double, long)} copies the positions of the bodies in
- * the calling thread and waits until the Event Dispatch Thread has received
- * them, so the simulation never runs ahead of the view. Closing the window
+ * {@link #display(SimulationState)} hands the snapshot of the bodies to the
+ * Event Dispatch Thread and waits until it has received it, so the simulation
+ * never runs ahead of the view. Closing the window
  * terminates the application.
  */
 public final class SwingSimulationView implements SimulationView {
@@ -61,16 +59,12 @@ public final class SwingSimulationView implements SimulationView {
     }
 
     @Override
-    public void display(final List<Body> bodies, final double vt, final long iteration) {
+    public void display(final SimulationState state) {
         this.nFramesRendered++;
         final long elapsed = Math.max(1, System.currentTimeMillis() - this.startTime);
         final int framePerSec = (int) (this.nFramesRendered * MILLIS_PER_SECOND / elapsed);
-        // The snapshot is taken by the simulation thread, so the EDT never reads the live model
-        final List<BodyShape> shapes = bodies.stream()
-                .map(b -> new BodyShape(b.getPos().x(), b.getPos().y(), b.getRadius()))
-                .toList();
         runOnEdt(() -> {
-            this.panel.display(shapes, vt, iteration, framePerSec);
+            this.panel.display(state.bodies(), state.vt(), state.iteration(), framePerSec);
             this.panel.repaint();
         });
     }

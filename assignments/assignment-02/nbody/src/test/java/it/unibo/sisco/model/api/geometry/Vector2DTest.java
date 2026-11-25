@@ -1,4 +1,4 @@
-package it.unibo.sisco.model.impl.geometry;
+package it.unibo.sisco.model.api.geometry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

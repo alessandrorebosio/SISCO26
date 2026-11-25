@@ -19,17 +19,9 @@ import java.util.concurrent.TimeUnit;
  */
 public final class SimulationController implements Controller {
 
-    private static final int N_STEPS = 100;
-    private SimulationView view;
-    private NBodySimulation simulation;
-
-    /**
-     * Creates a controller with no view and no simulation: they must be given
-     * with {@link #attachView} and {@link #setSimulator} before {@link #run()}.
-     */
-    public SimulationController() {
-        // The view and the simulation are given later
-    }
+    private final SimulationView view;
+    private final NBodySimulation simulation;
+    private final int nSteps;
 
     /**
      * Creates a controller that runs the given simulation and displays it on
@@ -37,39 +29,26 @@ public final class SimulationController implements Controller {
      *
      * @param view       the view that displays the simulation
      * @param simulation the simulation to run
+     * @param nSteps     the number of steps executed by {@link #run()}
+     * @throws IllegalArgumentException if {@code nSteps} is not positive
      */
-    public SimulationController(final SimulationView view, final NBodySimulation simulation) {
-        this.attachView(view);
-        this.setSimulator(simulation);
+    public SimulationController(final SimulationView view, final NBodySimulation simulation, final int nSteps) {
+        if (nSteps < 1) {
+            throw new IllegalArgumentException("The number of steps must be positive: " + nSteps);
+        }
+        this.view = Objects.requireNonNull(view);
+        this.simulation = Objects.requireNonNull(simulation);
+        this.nSteps = nSteps;
     }
 
     @Override
     public void run() {
-        Objects.requireNonNull(this.view, "No view attached");
-        Objects.requireNonNull(this.simulation, "No simulation set");
-
         this.view.init();
         final long startTime = System.nanoTime();
-        for (int i = 0; i < N_STEPS; i++) {
+        for (int i = 0; i < this.nSteps; i++) {
             this.simulation.step();
-            this.view.display(
-                    this.simulation.getBodies(),
-                    this.simulation.getVirtualTime(),
-                    this.simulation.getIteration());
+            this.view.display(this.simulation.getState());
         }
         this.view.simulationOver(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime));
-    }
-
-    @Override
-    public void attachView(final SimulationView newView) {
-        if (this.view != null) {
-            throw new IllegalStateException("View already attached");
-        }
-        this.view = Objects.requireNonNull(newView);
-    }
-
-    @Override
-    public void setSimulator(final NBodySimulation newSimulation) {
-        this.simulation = Objects.requireNonNull(newSimulation);
     }
 }

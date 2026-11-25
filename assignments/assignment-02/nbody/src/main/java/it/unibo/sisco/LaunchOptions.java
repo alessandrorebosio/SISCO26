@@ -1,7 +1,8 @@
 package it.unibo.sisco;
 
-import it.unibo.sisco.model.impl.simulation.NBodySimulations;
+import it.unibo.sisco.model.api.SimulationType;
 
+import java.util.Locale;
 import java.util.OptionalInt;
 
 /**
@@ -9,12 +10,11 @@ import java.util.OptionalInt;
  * {@code [cli] [sequential|threads|executors] [numThreads]}.
  *
  * @param cli        whether the simulation runs on the terminal instead of the GUI
- * @param simulation the name of the simulation to run, as accepted by
- *                   {@link NBodySimulations#byName}
+ * @param simulation the implementation of the simulation to run
  * @param numThreads the number of threads of the simulation, empty to use the
  *                   default one
  */
-public record LaunchOptions(boolean cli, String simulation, OptionalInt numThreads) {
+public record LaunchOptions(boolean cli, SimulationType simulation, OptionalInt numThreads) {
 
     /** Argument that runs the simulation on the terminal. */
     public static final String CLI_FLAG = "cli";
@@ -22,17 +22,19 @@ public record LaunchOptions(boolean cli, String simulation, OptionalInt numThrea
     /**
      * Reads the options from the command-line arguments, in any order: an
      * argument made only of digits is the number of threads, any other one is
-     * the name of the simulation. Without arguments the simulation runs with the
-     * GUI and the {@value NBodySimulations#THREADS} implementation, with the
-     * default number of threads.
+     * the name of the simulation, ignoring case.
+     * Without arguments the simulation runs with the GUI and the
+     * {@link SimulationType#THREADS} implementation, with the default number of
+     * threads.
      *
      * @param args the command-line arguments
      * @return the options
      * @throws IllegalArgumentException if the number of threads is not positive
+     *                                  or the name of the simulation is unknown
      */
     public static LaunchOptions parse(final String... args) {
         boolean cli = false;
-        String simulation = NBodySimulations.THREADS;
+        SimulationType simulation = SimulationType.THREADS;
         OptionalInt numThreads = OptionalInt.empty();
         for (final String arg : args) {
             if (CLI_FLAG.equalsIgnoreCase(arg)) {
@@ -40,7 +42,7 @@ public record LaunchOptions(boolean cli, String simulation, OptionalInt numThrea
             } else if (arg.chars().allMatch(Character::isDigit) && !arg.isEmpty()) {
                 numThreads = OptionalInt.of(positive(arg));
             } else {
-                simulation = arg;
+                simulation = SimulationType.valueOf(arg.toUpperCase(Locale.ROOT));
             }
         }
         return new LaunchOptions(cli, simulation, numThreads);

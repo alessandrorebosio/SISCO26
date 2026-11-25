@@ -1,5 +1,7 @@
 package it.unibo.sisco.view.impl.panel;
 
+import it.unibo.sisco.model.api.BodyState;
+
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -29,7 +31,7 @@ public final class VisualiserPanel extends JPanel {
     private static final int FIRST_LINE_Y = 20;
     private static final int SECOND_LINE_Y = 40;
 
-    private BodyShape[] bodies = new BodyShape[0];
+    private BodyState[] bodies = new BodyState[0];
     private long iteration;
     private int framePerSec;
     private double vt;
@@ -57,13 +59,13 @@ public final class VisualiserPanel extends JPanel {
     /**
      * Updates the stage to draw; the panel is redrawn at the next repaint.
      *
-     * @param shapes the bodies to draw, which are copied
+     * @param states the bodies to draw, which are copied
      * @param time   the current virtual time
      * @param steps  the number of steps executed so far
      * @param fps    the frames rendered per second
      */
-    public void display(final List<BodyShape> shapes, final double time, final long steps, final int fps) {
-        this.bodies = shapes.toArray(new BodyShape[0]);
+    public void display(final List<BodyState> states, final double time, final long steps, final int fps) {
+        this.bodies = states.toArray(new BodyState[0]);
         this.vt = time;
         this.iteration = steps;
         this.framePerSec = fps;
@@ -91,7 +93,7 @@ public final class VisualiserPanel extends JPanel {
 
         final Graphics2D canvas = (Graphics2D) g2.create();
         canvas.clipRect(0, HEADER_HEIGHT, getWidth(), areaHeight);
-        for (final BodyShape b : this.bodies) {
+        for (final BodyState b : this.bodies) {
             // The radius of the model is drawn as the diameter, so the bodies are easier to tell apart
             final int diameter = Math.max(2, (int) Math.round(b.radius() * unit));
             final int x = (int) Math.round(centreX + b.x() * unit - diameter / 2.0);

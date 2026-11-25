@@ -2,25 +2,16 @@ package it.unibo.sisco.model.impl.simulation;
 
 import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.api.NBodySimulation;
+import it.unibo.sisco.model.api.SimulationType;
 
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Factory of the N-body simulations: it has a method for each implementation,
  * with the default number of threads or a given one, and methods that choose
- * the implementation by name, as given on the command line.
+ * the implementation from a {@link SimulationType}.
  */
 public final class NBodySimulations {
-
-    /** Name of the sequential implementation. */
-    public static final String SEQUENTIAL = "sequential";
-
-    /** Name of the implementation based on platform threads. */
-    public static final String THREADS = "threads";
-
-    /** Name of the implementation based on the Executor framework. */
-    public static final String EXECUTORS = "executors";
 
     private NBodySimulations() {
     }
@@ -84,47 +75,42 @@ public final class NBodySimulations {
     }
 
     /**
-     * Builds the simulation with the given name, ignoring case.
+     * Builds the simulation of the given type, with the default number of
+     * threads.
      *
-     * @param name   {@value #SEQUENTIAL}, {@value #THREADS} or {@value #EXECUTORS}
+     * @param type   the implementation to build
      * @param bodies the bodies of the simulation
      * @return the new simulation
-     * @throws IllegalArgumentException if the name is not one of the above
      */
-    public static NBodySimulation byName(final String name, final List<? extends Body> bodies) {
-        return switch (name.toLowerCase(Locale.ROOT)) {
+    public static NBodySimulation of(final SimulationType type, final List<? extends Body> bodies) {
+        return switch (type) {
             case SEQUENTIAL -> sequential(bodies);
             case THREADS -> threads(bodies);
             case EXECUTORS -> executors(bodies);
-            default -> throw unknown(name);
         };
     }
 
     /**
-     * Builds the parallel simulation with the given name, ignoring case, using
-     * the given number of threads.
+     * Builds the parallel simulation of the given type, using the given number of
+     * threads.
      *
-     * @param name       {@value #THREADS} or {@value #EXECUTORS}
+     * @param type       {@link SimulationType#THREADS} or
+     *                   {@link SimulationType#EXECUTORS}
      * @param bodies     the bodies of the simulation
      * @param numThreads the number of threads, that is the size of the pool for
-     *                   {@value #EXECUTORS}
+     *                   {@link SimulationType#EXECUTORS}
      * @return the new simulation
-     * @throws IllegalArgumentException if the name is not one of the above, also
-     *                                  when it is {@value #SEQUENTIAL}, or if
+     * @throws IllegalArgumentException if the type is
+     *                                  {@link SimulationType#SEQUENTIAL} or if
      *                                  {@code numThreads} is not positive
      */
-    public static NBodySimulation byName(final String name, final List<? extends Body> bodies, final int numThreads) {
-        return switch (name.toLowerCase(Locale.ROOT)) {
+    public static NBodySimulation of(final SimulationType type, final List<? extends Body> bodies,
+            final int numThreads) {
+        return switch (type) {
             case THREADS -> threads(bodies, numThreads);
             case EXECUTORS -> executors(bodies, numThreads);
             case SEQUENTIAL -> throw new IllegalArgumentException(
-                    "The " + SEQUENTIAL + " simulation does not take a number of threads");
-            default -> throw unknown(name);
+                    "The " + type + " simulation does not take a number of threads");
         };
-    }
-
-    private static IllegalArgumentException unknown(final String name) {
-        return new IllegalArgumentException("Unknown simulation '" + name + "', expected "
-                + SEQUENTIAL + ", " + THREADS + " or " + EXECUTORS);
     }
 }

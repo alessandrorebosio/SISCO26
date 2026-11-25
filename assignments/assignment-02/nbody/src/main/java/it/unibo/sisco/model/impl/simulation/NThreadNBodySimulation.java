@@ -8,17 +8,20 @@ import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.impl.barrier.MonitorBarrier;
 
 /**
- * Thread-based implementation of the N-body simulation using Java threads directly.
- * Each worker thread is responsible for one body and synchronizes with the other workers
+ * Thread-based implementation of the N-body simulation using Java threads
+ * directly.
+ * Each worker thread is responsible for one body and synchronizes with the
+ * other workers
  * between the two phases of each step.
  */
-public final class ThreadNBodySimulation extends AbstractNBodySimulation {
+public final class NThreadNBodySimulation extends AbstractNBodySimulation {
 
     /**
      * Default virtual time elapsed at each step.
      */
     public static final double DEFAULT_DT = 0.001;
-    //Multiple worker threads, initially one per body, and a shared barrier for synchronization.
+    // Multiple worker threads, initially one per body, and a shared barrier for
+    // synchronization.
     private final List<BodyWorker> workers;
     private final Barrier barrier;
     private boolean started;
@@ -28,7 +31,7 @@ public final class ThreadNBodySimulation extends AbstractNBodySimulation {
      *
      * @param bodies the bodies of the simulation
      */
-    public ThreadNBodySimulation(final List<? extends Body> bodies) {
+    public NThreadNBodySimulation(final List<? extends Body> bodies) {
         this(bodies, DEFAULT_DT);
     }
 
@@ -36,49 +39,49 @@ public final class ThreadNBodySimulation extends AbstractNBodySimulation {
      * Builds a simulation over a set of bodies.
      *
      * @param bodies the bodies of the simulation
-     * @param dt the virtual time elapsed at each step
+     * @param dt     the virtual time elapsed at each step
      * @throws IllegalArgumentException if {@code dt} is not positive
      */
-    public ThreadNBodySimulation(final List<? extends Body> bodies, final double dt) {
+    public NThreadNBodySimulation(final List<? extends Body> bodies, final double dt) {
         super(bodies, dt);
         this.barrier = new MonitorBarrier(getBodies().size() + 1);
         this.workers = getBodies().stream()
                 .map(BodyWorker::new)
                 .toList();
         /*
-            final List<BodyWorker> list = new ArrayList<>();
-            for (final Body body : getBodies()) {
-                list.add(new BodyWorker(body));
-            }
-            this.workers = List.copyOf(list);
-        */
+         * final List<BodyWorker> list = new ArrayList<>();
+         * for (final Body body : getBodies()) {
+         * list.add(new BodyWorker(body));
+         * }
+         * this.workers = List.copyOf(list);
+         */
         this.started = false;
     }
 
     @Override
     protected void computeStep() {
-            if (getNumBodies() == 0) {
-                return;
+        if (getNumBodies() == 0) {
+            return;
+        }
+        if (!this.started) {
+            for (final BodyWorker worker : this.workers) {
+                worker.start();
             }
-            if (!this.started) {
-                for (final BodyWorker worker : this.workers) {
-                    worker.start();
-                }
-                this.started = true;
-            }
-            try {
-                // Release workers to start Phase 1 (updateVelocity)
-                this.barrier.await();
-                // Wait for Phase 1 to finish and release workers for Phase 2 (updatePosition)
-                this.barrier.await();
-                // Wait for Phase 2 to finish before completing the step
-                this.barrier.await();
-            } catch (final InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new IllegalStateException("Simulation step interrupted", e);
-            } catch (final BrokenBarrierException e) {
-                throw new IllegalStateException("Simulation barrier broken", e);
-            }
+            this.started = true;
+        }
+        try {
+            // Release workers to start Phase 1 (updateVelocity)
+            this.barrier.await();
+            // Wait for Phase 1 to finish and release workers for Phase 2 (updatePosition)
+            this.barrier.await();
+            // Wait for Phase 2 to finish before completing the step
+            this.barrier.await();
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Simulation step interrupted", e);
+        } catch (final BrokenBarrierException e) {
+            throw new IllegalStateException("Simulation barrier broken", e);
+        }
     }
 
     private final class BodyWorker extends Thread {
@@ -88,7 +91,8 @@ public final class ThreadNBodySimulation extends AbstractNBodySimulation {
         private BodyWorker(final Body body) {
             super("BodyWorker-" + body.getId());
             this.body = body;
-            // Set the thread as a daemon so it doesn't prevent the JVM from exiting if the main thread finishes
+            // Set the thread as a daemon so it doesn't prevent the JVM from exiting if the
+            // main thread finishes
             this.setDaemon(true);
         }
 

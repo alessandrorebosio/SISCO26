@@ -10,10 +10,11 @@ import java.util.Locale;
 import javax.swing.JPanel;
 
 /**
- * Panel that draws the bodies, centred on the origin. The UP and DOWN arrow keys zoom in and
- * out.
+ * Panel that draws the bodies, centred on the origin. The UP and DOWN arrow
+ * keys zoom in and out.
  *
- * <p>It must be accessed only from the Event Dispatch Thread.
+ * <p>
+ * It must be accessed only from the Event Dispatch Thread.
  *
  * @serial exclude
  */
@@ -62,13 +63,14 @@ public final class VisualiserPanel extends JPanel {
     }
 
     /**
-     * Updates the stage to draw. The shapes are copied; the panel is redrawn at the next
+     * Updates the stage to draw. The shapes are copied; the panel is redrawn at the
+     * next
      * repaint.
      *
      * @param shapes the bodies to draw
-     * @param time the current virtual time
-     * @param steps the number of steps executed so far
-     * @param fps the frames rendered per second
+     * @param time   the current virtual time
+     * @param steps  the number of steps executed so far
+     * @param fps    the frames rendered per second
      */
     public void display(final List<BodyShape> shapes, final double time, final long steps, final int fps) {
         this.bodies = shapes.toArray(new BodyShape[0]);
@@ -90,7 +92,7 @@ public final class VisualiserPanel extends JPanel {
         }
         final String time = String.format(Locale.ROOT, "%.2f", vt);
         g2.drawString("Bodies: " + bodies.length + " - vt: " + time + " - nIter: " + iteration
-            + " - frames/sec: " + framePerSec, TEXT_X, FIRST_LINE_Y);
+                + " - frames/sec: " + framePerSec, TEXT_X, FIRST_LINE_Y);
         g2.drawString("Commands: UP for zoom in, DOWN for zoom out", TEXT_X, SECOND_LINE_Y);
     }
 

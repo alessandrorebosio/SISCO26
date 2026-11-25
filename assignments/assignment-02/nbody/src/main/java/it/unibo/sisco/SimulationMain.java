@@ -5,13 +5,14 @@ import it.unibo.sisco.controller.impl.SimulationController;
 import it.unibo.sisco.view.impl.ConsoleSimulationView;
 
 /**
- * Entry point of the N-body simulation without GUI: it runs the sequential simulation of
- * 5000 random bodies for 100 steps and logs the elapsed time. Start it with
- * {@code ./gradlew run}.
+ * Entry point of the N-body simulation without GUI: it runs the sequential
+ * simulation of 5000 random bodies for 100 steps and logs the elapsed time.
+ * Start it with {@code ./gradlew run}.
  */
 public final class SimulationMain {
 
-    private SimulationMain() { }
+    private SimulationMain() {
+    }
 
     /**
      * Runs the simulation and logs its duration.

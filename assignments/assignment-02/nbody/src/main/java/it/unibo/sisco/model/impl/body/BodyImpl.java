@@ -10,7 +10,9 @@ import it.unibo.sisco.model.impl.geometry.Vector2D;
  * Default implementation of {@link Body}, with a scaled gravitational constant
  * {@code G = 0.001}.
  *
- * <p>Two bodies are equal if they have the same identifier. The class is not thread-safe.
+ * <p>
+ * Two bodies are equal if they have the same identifier. The class is not
+ * thread-safe.
  */
 public final class BodyImpl implements Body {
 
@@ -25,11 +27,11 @@ public final class BodyImpl implements Body {
     /**
      * Builds a new body.
      *
-     * @param id the identifier of the body
-     * @param pos the initial position
-     * @param vel the initial velocity
+     * @param id     the identifier of the body
+     * @param pos    the initial position
+     * @param vel    the initial velocity
      * @param radius the radius
-     * @param mass the mass
+     * @param mass   the mass
      */
     public BodyImpl(final int id, final Point2D pos, final Vector2D vel, final double radius, final double mass) {
         this.id = id;
@@ -75,8 +77,8 @@ public final class BodyImpl implements Body {
         if (dist > 0) {
             try {
                 return Vector2D.between(pos, b.getPos())
-                    .normalize()
-                    .scalarMul(b.getMass() * G_CONST_SCALED / (dist * dist));
+                        .normalize()
+                        .scalarMul(b.getMass() * G_CONST_SCALED / (dist * dist));
             } catch (final NullVectorException e) {
                 throw new InfiniteForceException(e);
             }

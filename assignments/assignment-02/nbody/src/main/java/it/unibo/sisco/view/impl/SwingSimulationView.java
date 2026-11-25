@@ -11,13 +11,16 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 /**
- * Swing implementation of {@link SimulationView}: a window that draws the bodies and shows
- * the virtual time, the number of steps and the frames rendered per second.
+ * Swing implementation of {@link SimulationView}: a window that draws the
+ * bodies and shows the virtual time, the number of steps and the frames
+ * rendered per second.
  *
- * <p>Every Swing component is created and updated on the Event Dispatch Thread.
- * {@link #display(List, double, long)} copies the positions of the bodies in the calling
- * thread and waits until the Event Dispatch Thread has received them, so the simulation
- * never runs ahead of the view. Closing the window terminates the application.
+ * <p>
+ * Every Swing component is created and updated on the Event Dispatch Thread.
+ * {@link #display(List, double, long)} copies the positions of the bodies in
+ * the calling thread and waits until the Event Dispatch Thread has received
+ * them, so the simulation never runs ahead of the view. Closing the window
+ * terminates the application.
  */
 public final class SwingSimulationView implements SimulationView {
 
@@ -28,7 +31,8 @@ public final class SwingSimulationView implements SimulationView {
     private long startTime;
 
     /**
-     * Builds and shows the window of the view. It blocks until the window is created.
+     * Builds and shows the window of the view. It blocks until the window is
+     * created.
      *
      * @param w the width of the window
      * @param h the height of the window
@@ -57,10 +61,13 @@ public final class SwingSimulationView implements SimulationView {
         nFramesRendered++;
         final long elapsed = Math.max(1, System.currentTimeMillis() - startTime);
         final int framePerSec = (int) (nFramesRendered / (double) elapsed * MILLIS_PER_SECOND);
-        /* the snapshot is taken by the simulation thread, so the EDT never reads the live model */
+        /*
+         * the snapshot is taken by the simulation thread, so the EDT never reads the
+         * live model
+         */
         final List<BodyShape> shapes = bodies.stream()
-            .map(b -> new BodyShape(b.getPos().x(), b.getPos().y(), b.getRadius()))
-            .toList();
+                .map(b -> new BodyShape(b.getPos().x(), b.getPos().y(), b.getRadius()))
+                .toList();
         runOnEdt(() -> {
             panel.display(shapes, vt, iteration, framePerSec);
             panel.repaint();
@@ -80,12 +87,14 @@ public final class SwingSimulationView implements SimulationView {
     @Override
     public void selectedSimulator(final SimulatorTypes simulator) {
         // TODO Auto-generated method stub
-        //throw new UnsupportedOperationException("Unimplemented method 'selectedSimulator'");
+        // throw new UnsupportedOperationException("Unimplemented method
+        // 'selectedSimulator'");
     }
 
     @Override
     public void simulationOver(final long timeElapsed) {
         // TODO Auto-generated method stub
-        //throw new UnsupportedOperationException("Unimplemented method 'simulationOver'");
+        // throw new UnsupportedOperationException("Unimplemented method
+        // 'simulationOver'");
     }
 }

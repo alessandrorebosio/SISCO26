@@ -1,8 +1,8 @@
 package it.unibo.sisco.model.impl.geometry;
 
 /**
- * An immutable point in a 2D space. Being immutable, it can be shared among threads
- * without synchronisation.
+ * An immutable point in a 2D space. Being immutable, it can be shared among
+ * threads without synchronisation.
  *
  * @param x the x coordinate
  * @param y the y coordinate

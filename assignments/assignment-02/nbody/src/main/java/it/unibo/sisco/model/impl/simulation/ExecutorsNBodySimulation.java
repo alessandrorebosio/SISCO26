@@ -19,7 +19,7 @@ public class ExecutorsNBodySimulation extends AbstractNBodySimulation {
      * Default virtual time elapsed at each step.
      */
     public static final double DEFAULT_DT = 0.001;
-    private final int taskNumber;
+    private final int threadNumber;
 
     /**
      * Builds an executor-based simulation over a set of bodies.
@@ -30,7 +30,7 @@ public class ExecutorsNBodySimulation extends AbstractNBodySimulation {
      */
     public ExecutorsNBodySimulation(final List<? extends Body> bodies, final double dt) {
         super(bodies, dt);
-        this.taskNumber = Runtime.getRuntime().availableProcessors() + 1;
+        this.threadNumber = Runtime.getRuntime().availableProcessors() + 1;
     }
 
     /**
@@ -45,8 +45,8 @@ public class ExecutorsNBodySimulation extends AbstractNBodySimulation {
     @Override
     protected void computeStep() {
         try (
-            final ExecutorService execVel = Executors.newFixedThreadPool(this.taskNumber);
-            final ExecutorService execPos = Executors.newFixedThreadPool(this.taskNumber);
+            final ExecutorService execVel = Executors.newFixedThreadPool(this.threadNumber);
+            final ExecutorService execPos = Executors.newFixedThreadPool(this.threadNumber);
         ) {
             this.bodies.forEach(b ->
                 execVel.submit(() -> updateVelocity(b))

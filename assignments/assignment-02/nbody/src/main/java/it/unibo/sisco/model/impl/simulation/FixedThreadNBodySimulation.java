@@ -9,10 +9,10 @@ import it.unibo.sisco.model.api.Body;
 import it.unibo.sisco.model.impl.barrier.MonitorBarrier;
 
 /**
- * Thread-based implementation of the N-body simulation using Java platform threads
- * and a custom monitor barrier.
+ * Thread-based implementation of the N-body simulation using Java platform
+ * threads and a custom monitor barrier.
  */
-public final class ThreadNBodySimu extends AbstractNBodySimulation {
+public final class FixedThreadNBodySimulation extends AbstractNBodySimulation {
 
     /**
      * Default virtual time elapsed at each step.
@@ -28,7 +28,7 @@ public final class ThreadNBodySimu extends AbstractNBodySimulation {
      *
      * @param bodies the bodies of the simulation
      */
-    public ThreadNBodySimu(final List<? extends Body> bodies) {
+    public FixedThreadNBodySimulation(final List<? extends Body> bodies) {
         this(bodies, DEFAULT_DT);
     }
 
@@ -36,10 +36,10 @@ public final class ThreadNBodySimu extends AbstractNBodySimulation {
      * Builds a simulation over a set of bodies.
      *
      * @param bodies the bodies of the simulation
-     * @param dt the virtual time elapsed at each step
+     * @param dt     the virtual time elapsed at each step
      * @throws IllegalArgumentException if {@code dt} is not positive
      */
-    public ThreadNBodySimu(final List<? extends Body> bodies, final double dt) {
+    public FixedThreadNBodySimulation(final List<? extends Body> bodies, final double dt) {
         super(bodies, dt);
         final List<Body> simulationBodies = getBodies();
         final int nBodies = simulationBodies.size();

@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Factory of body sets to initialise a simulation. Every set is an unmodifiable list of new
- * bodies, with identifiers from {@code 0} to {@code size - 1}.
+ * Factory of body sets to initialise a simulation. Every set is an unmodifiable
+ * list of new bodies, with identifiers from {@code 0} to {@code size - 1}.
  */
 public final class BodySets {
 
@@ -33,29 +33,29 @@ public final class BodySets {
     public static List<Body> twoBodies() {
         // CHECKSTYLE: MagicNumber OFF
         return List.of(
-            new BodyImpl(0, new Point2D(-0.3, 0), Vector2D.ZERO, TEST_RADIUS, 1),
-            new BodyImpl(1, new Point2D(0.3, 0), Vector2D.ZERO, TEST_RADIUS, 1)
-        );
+                new BodyImpl(0, new Point2D(-0.3, 0), Vector2D.ZERO, TEST_RADIUS, 1),
+                new BodyImpl(1, new Point2D(0.3, 0), Vector2D.ZERO, TEST_RADIUS, 1));
         // CHECKSTYLE: MagicNumber ON
     }
 
     /**
-     * Builds a set of three bodies: a heavy one in the centre and two lighter ones orbiting it.
+     * Builds a set of three bodies: a heavy one in the centre and two lighter ones
+     * orbiting it.
      *
      * @return the body set
      */
     public static List<Body> threeBodies() {
         // CHECKSTYLE: MagicNumber OFF
         return List.of(
-            new BodyImpl(0, new Point2D(0, 0), Vector2D.ZERO, TEST_RADIUS, 20),
-            new BodyImpl(1, new Point2D(0.3, 0), new Vector2D(0, 0.25), TEST_RADIUS, 1),
-            new BodyImpl(2, new Point2D(-0.5, 0), new Vector2D(0, -0.15), TEST_RADIUS, 1)
-        );
+                new BodyImpl(0, new Point2D(0, 0), Vector2D.ZERO, TEST_RADIUS, 20),
+                new BodyImpl(1, new Point2D(0.3, 0), new Vector2D(0, 0.25), TEST_RADIUS, 1),
+                new BodyImpl(2, new Point2D(-0.5, 0), new Vector2D(0, -0.15), TEST_RADIUS, 1));
         // CHECKSTYLE: MagicNumber ON
     }
 
     /**
-     * Builds a set of bodies with random position, velocity and mass, seeded with the current
+     * Builds a set of bodies with random position, velocity and mass, seeded with
+     * the current
      * time, so the set is not reproducible.
      *
      * @param nBodies the number of bodies
@@ -69,11 +69,13 @@ public final class BodySets {
     /**
      * Builds a set of bodies with random position, velocity and mass.
      *
-     * <p>Positions are in {@code [-1, 1)} on both axes, velocity components in
-     * {@code [-0.1, 0.1)}, masses in {@code [1, 10)} and every radius is {@code 0.01}.
+     * <p>
+     * Positions are in {@code [-1, 1)} on both axes, velocity components in
+     * {@code [-0.1, 0.1)}, masses in {@code [1, 10)} and every radius is
+     * {@code 0.01}.
      *
      * @param nBodies the number of bodies
-     * @param seed the seed of the random generator, to get reproducible sets
+     * @param seed    the seed of the random generator, to get reproducible sets
      * @return the body set
      */
     public static List<Body> random(final int nBodies, final long seed) {

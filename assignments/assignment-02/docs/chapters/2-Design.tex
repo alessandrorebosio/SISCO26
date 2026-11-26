@@ -27,7 +27,7 @@ In questo modo le versioni concorrenti si occupano solo di dividere il lavoro e 
     \draw[gen] (seq.north) |- ($(abs.south)!0.5!(thr.north)$) -| (abs.south);
     \draw[gen] (exe.north) |- ($(abs.south)!0.5!(thr.north)$) -| (abs.south);
   \end{tikzpicture}
-  \caption{Gerarchia delle simulazioni: ogni sottoclasse implementa solo \texttt{computeStep()}.}
+  \caption{Gerarchia delle simulazioni: le sottoclassi implementano \texttt{computeStep()}.}
   \label{fig:gerarchia}
 \end{figure}
 
@@ -38,15 +38,22 @@ In questo modo le versioni concorrenti si occupano solo di dividere il lavoro e 
 % ======================================================
 \section{Monitor di sincronizzazione}
 \label{sec:monitor}
-% TODO: descrivere i monitor di sincronizzazione una volta implementati.
-\textbf{TODO}: da completare dopo l'implementazione dei monitor.
+Come richiesto dalle specifiche, la coordinazione tra i thread della versione multithread è affidata a un monitor implementato appositamente, \texttt{MonitorBarrier}.
+I suoi metodi sono \texttt{synchronized}, l'attesa avviene tramite \texttt{wait()} all'interno di un ciclo \texttt{while} e ogni cambiamento di stato invoca \texttt{notifyAll()}.
+
+% ======================================================
+% 2.2.1 - BARRIER
+% ======================================================
+\subsection{\texttt{MonitorBarrier}: Barriera ciclica}
+\label{subsec:barrier}
+La barriera sospende i thread che invocano \texttt{await()} finché non sono arrivati tutti: l'ultimo li risveglia e la riporta allo stato iniziale, così da poterla riutilizzare a ogni passo (\emph{cyclic barrier}).
+Se un thread viene interrotto o un \texttt{BodyWorker} termina, la barriera si rompe e sblocca tutti, evitando attese infinite.
 
 % ======================================================
 %
 % 2.3 - MULTITHREADED VERSION
 %
 % ======================================================
-\clearpage
 \section{Versione multithread}
 \label{sec:design_thread}
 
@@ -123,22 +130,27 @@ Il modello FSP di questo comportamento è descritto nel \cref{chap:fsp}.
 % 2.4.1 - STRUCTURE
 % ======================================================
 \subsection{Struttura}
-% TODO: descrivere la struttura della versione con Executor una volta implementata.
-\textbf{TODO}: da completare dopo l'implementazione della versione con Executor.
+La versione task-based utilizza un \emph{fixed thread pool}, creato una sola volta e condiviso da tutti i passi.
+Anziché dividere i corpi in blocchi, per ogni fase viene creato un task per corpo, e il pool li distribuisce dinamicamente tra i thread (\emph{load balancing}), al costo di $2N$ task per passo.
+
+Non serve una barriera dedicata: il ruolo è svolto da
+\begin{center}
+  \texttt{CompletableFuture.allOf(...).join()}
+\end{center}
+che attende il completamento di tutti i task di una fase.
 
 % ======================================================
 % 2.4.2 - BEHAVIOUR
 % ======================================================
 \subsection{Comportamento}
-% TODO: descrivere il comportamento della versione con Executor una volta implementata.
-\textbf{TODO}: da completare dopo l'implementazione della versione con Executor.
+A ogni passo il master sottomette un task \texttt{updateVelocity(b)} per ogni corpo e ne attende il completamento; solo dopo sottomette i task \texttt{updatePosition(b)} e attende di nuovo.
+Si ottengono così le stesse garanzie della versione multithread (vedi \cref{sec:design_thread}), con la sincronizzazione delegata all'Executor Framework.
 
 % ======================================================
 %
 % 2.5 - GUI VERSION
 %
 % ======================================================
-\clearpage
 \section{Versione con GUI}
 \label{sec:design_gui}
 

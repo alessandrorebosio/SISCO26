@@ -28,11 +28,11 @@ public interface SimulationView {
      * next step.
      *
      * @param bodies    the bodies to display
-     * @param millis    accumulated computation time in milliseconds
+     * @param nanos     accumulated computation time in nanoseconds
      * @param vt        the current virtual time
      * @param iteration the number of steps executed so far
      */
-    void display(List<Body> bodies, long millis, double vt, long iteration);
+    void display(List<Body> bodies, long nanos, double vt, long iteration);
 
     /**
      * Notifies the view of the selected simulation implementation.
@@ -44,7 +44,7 @@ public interface SimulationView {
     /**
      * Notifies the view that the simulation has finished.
      *
-     * @param timeElapsed the elapsed time in milliseconds
+     * @param timeElapsedNanos the accumulated computation time in nanoseconds
      */
-    void simulationOver(long timeElapsed);
+    void simulationOver(long timeElapsedNanos);
 }

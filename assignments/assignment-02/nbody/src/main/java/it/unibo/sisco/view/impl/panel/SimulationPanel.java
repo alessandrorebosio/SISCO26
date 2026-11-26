@@ -47,23 +47,23 @@ public final class SimulationPanel extends JPanel {
      * Updates the displayed bodies and the options panel statistics.
      *
      * @param shapes the current body shapes
-     * @param elapsedTime elapsed time in milliseconds
+     * @param elapsedNanos accumulated computation time in nanoseconds
      * @param virtualTime the current virtual time
      * @param iteration the number of completed steps
      * @param stepsPerSecond simulation steps per second of computation time
      */
-    public void display(final List<BodyShape> shapes, final long elapsedTime, final double virtualTime, final long iteration, final int stepsPerSecond) {
+    public void display(final List<BodyShape> shapes, final long elapsedNanos, final double virtualTime, final long iteration, final int stepsPerSecond) {
         this.drawPanel.display(shapes);
-        this.optionPanel.updateStatistics(elapsedTime, virtualTime, iteration, stepsPerSecond);
+        this.optionPanel.updateStatistics(elapsedNanos, virtualTime, iteration, stepsPerSecond);
         this.drawPanel.repaint();
     }
 
     /**
      * Shows the completion status in the options panel.
      *
-     * @param elapsedMillis elapsed wall-clock time in milliseconds
+     * @param elapsedNanos accumulated computation time in nanoseconds
      */
-    public void showSimulationOver(final long elapsedMillis) {
-        this.optionPanel.showSimulationOver(elapsedMillis);
+    public void showSimulationOver(final long elapsedNanos) {
+        this.optionPanel.showSimulationOver(elapsedNanos);
     }
 }

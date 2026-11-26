@@ -1,6 +1,7 @@
 package it.unibo.sisco.view.impl;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -67,7 +68,7 @@ public class ConsoleSimulationView implements SimulationView {
     }
 
     @Override
-    public void display(final List<Body> bodies, final long elapsed, final double vt, final long iteration) {
+    public void display(final List<Body> bodies, final long nanos, final double vt, final long iteration) {
         // Show nothing
     }
 
@@ -79,9 +80,9 @@ public class ConsoleSimulationView implements SimulationView {
     }
 
     @Override
-    public void simulationOver(final long timeElapsed) {
+    public void simulationOver(final long timeElapsedNanos) {
         System.out.println("Simulation over");
-        System.out.println("Time elapsed: " + timeElapsed);
+        System.out.printf(Locale.ROOT, "Time elapsed: %.3f s%n", timeElapsedNanos / 1_000_000_000.0);
     }
 
 }

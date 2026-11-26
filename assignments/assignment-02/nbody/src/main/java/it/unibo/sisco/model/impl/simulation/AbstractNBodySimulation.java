@@ -35,7 +35,8 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
     protected final List<Body> bodies;
     private final double dt;
     private long iteration;
-    private double vt;
+    private double virtualTime;
+    private long simulationNanos;
 
     /**
      * Builds a simulation over a set of bodies.
@@ -54,9 +55,11 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
 
     @Override
     public final void step() {
-        computeStep();
-        vt += dt;
-        iteration++;
+        final long start = System.nanoTime();
+        this.computeStep();
+        this.simulationNanos += System.nanoTime() - start;
+        this.virtualTime += this.dt;
+        this.iteration++;
     }
 
     /**
@@ -90,22 +93,27 @@ public abstract class AbstractNBodySimulation implements NBodySimulation {
 
     @Override
     public final List<Body> getBodies() {
-        return bodies;
+        return this.bodies;
     }
 
     @Override
     public final int getNumBodies() {
-        return bodies.size();
+        return this.bodies.size();
     }
 
     @Override
     public final double getVirtualTime() {
-        return vt;
+        return this.virtualTime;
     }
 
     @Override
     public final long getIteration() {
-        return iteration;
+        return this.iteration;
+    }
+
+    @Override
+    public final long getTotalComputeNanos() {
+        return this.simulationNanos;
     }
 
     /**

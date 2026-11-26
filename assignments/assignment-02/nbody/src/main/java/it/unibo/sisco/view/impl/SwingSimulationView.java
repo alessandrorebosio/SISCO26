@@ -32,7 +32,7 @@ import javax.swing.SwingUtilities;
  */
 public final class SwingSimulationView implements SimulationView {
 
-    private static final double MILLIS_PER_SECOND = 1000.0;
+    private static final double NANOS_PER_SECOND = 1_000_000_000.0;
 
     private final Controller controller;
     private final JFrame frame;
@@ -49,7 +49,7 @@ public final class SwingSimulationView implements SimulationView {
         this.controller = controller;
         this.frame = new JFrame("Bodies Simulation");
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.frame.setMinimumSize(new Dimension(600, 400));
+        this.frame.setMinimumSize(new Dimension(700, 500));
         this.frame.setSize(w, h);
         this.frame.setLocationByPlatform(true);
         this.frame.setAlwaysOnTop(true);
@@ -84,15 +84,15 @@ public final class SwingSimulationView implements SimulationView {
     }
 
     @Override
-    public void display(final List<Body> bodies, final long millis, final double vt, final long iteration) {
-        final int stepsPerSecond = millis != 0
-            ? (int) (iteration / (double) millis * MILLIS_PER_SECOND)
+    public void display(final List<Body> bodies, final long nanos, final double vt, final long iteration) {
+        final int stepsPerSecond = nanos != 0
+            ? (int) (iteration * NANOS_PER_SECOND / nanos)
             : 0;
         final List<BodyShape> shapes = bodies.stream()
             .map(b -> new BodyShape(b.getPos().x(), b.getPos().y(), b.getRadius()))
             .toList();
         runOnEdt(() -> {
-            ((SimulationPanel) this.currentPanel).display(shapes, millis, vt, iteration, stepsPerSecond);
+            ((SimulationPanel) this.currentPanel).display(shapes, nanos, vt, iteration, stepsPerSecond);
         });
     }
 
@@ -111,10 +111,10 @@ public final class SwingSimulationView implements SimulationView {
     }
 
     @Override
-    public void simulationOver(final long timeElapsed) {
+    public void simulationOver(final long timeElapsedNanos) {
         runOnEdt(() -> {
             if (this.currentPanel instanceof SimulationPanel panel)
-                panel.showSimulationOver(timeElapsed);
+                panel.showSimulationOver(timeElapsedNanos);
         });
     }
 }

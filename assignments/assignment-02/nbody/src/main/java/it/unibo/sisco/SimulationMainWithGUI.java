@@ -23,7 +23,6 @@ public final class SimulationMainWithGUI {
     public static void main(final String[] args) {
         final Controller simulation = new SimulationController();
         simulation.attachView(new SwingSimulationView(simulation, WINDOW_SIZE + 200, WINDOW_SIZE));
-        //simulation.setSimulator(SimulatorTypes.N_SYSTEM_THREAD);
         simulation.run();
     }
 }

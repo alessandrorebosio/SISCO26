@@ -111,31 +111,31 @@ public final class OptionPanel extends JPanel {
     /**
      * Updates the statistics shown in the sidebar.
      *
-     * @param elapsedMillis elapsed time in milliseconds
+     * @param elapsedNanos accumulated computation time in nanoseconds
      * @param virtualTime current virtual time
      * @param iteration number of completed steps
      * @param stepsPerSecond simulation steps per second of computation time
      */
-    public void updateStatistics(final long elapsedMillis, final double virtualTime, final long iteration, final int stepsPerSecond) {
+    public void updateStatistics(final long elapsedNanos, final double virtualTime, final long iteration, final int stepsPerSecond) {
         this.virtualTimeLabel.setText(
             "Virtual time: " + String.format(Locale.ROOT, "%.2f", virtualTime)
         );
         this.iterationsLabel.setText("Iterations completed: " + iteration);
         this.stepsPerSecondLabel.setText("Step/sec: " + stepsPerSecond);
-        this.realTimeLabel.setText(formatTime("Computation time", elapsedMillis));
+        this.realTimeLabel.setText(formatTime("Computation time", elapsedNanos));
     }
 
     /**
      * Shows the completion status and disables the simulation controls.
      *
-     * @param elapsedMillis elapsed wall-clock time in milliseconds
+     * @param elapsedNanos accumulated computation time in nanoseconds
      */
-    public void showSimulationOver(final long elapsedMillis) {
+    public void showSimulationOver(final long elapsedNanos) {
         this.startButton.setEnabled(false);
         this.pauseButton.setEnabled(false);
         this.stepButton.setEnabled(false);
         this.statusLabel.setVisible(true);
-        this.elapsedTimeLabel.setText(formatTime("Elapsed", elapsedMillis));
+        this.elapsedTimeLabel.setText(formatTime("Elapsed time", elapsedNanos));
         this.elapsedTimeLabel.setVisible(true);
     }
 
@@ -145,8 +145,8 @@ public final class OptionPanel extends JPanel {
         updateControls();
     }
 
-    private static String formatTime(final String label, final long elapsedMillis) {
-        return String.format(Locale.ROOT, "%s: %.1f s", label, elapsedMillis / 1000.0);
+    private static String formatTime(final String label, final long elapsedNanos) {
+        return String.format(Locale.ROOT, "%s: %.1f s", label, elapsedNanos / 1_000_000_000.0);
     }
 
     private void updateControls() {

@@ -41,15 +41,16 @@ public final class SimulationController implements Controller {
         FINISHED
     }
 
+    // Controller attributes
     private final BlockingQueue<SimulationEvents> eventQueue;
     private final Object stateLock;
     private Set<SimulationEvents> nextReceivableEvents;
-    private NBodySimulation simulator;
     private ControllerState state;
     private Configuration config;
+
+    // Model and View
+    private NBodySimulation simulator;
     private SimulationView view;
-    private long stepsCompleted;
-    private long elapsedTime;
 
     /**
      * Creates a controller for an N-body simulation.
@@ -91,7 +92,7 @@ public final class SimulationController implements Controller {
                 this.state = ControllerState.PAUSED;
             }
         }
-        if (this.view != null) this.view.simulationOver(this.elapsedTime);
+        if (this.view != null) this.view.simulationOver(this.simulator.getTotalComputeNanos());
     }
 
     private void processEvent(final SimulationEvents event) {
@@ -101,7 +102,7 @@ public final class SimulationController implements Controller {
                 if (this.view != null) {
                     this.view.display(
                         this.simulator.getBodies(),
-                        this.elapsedTime,
+                        this.simulator.getTotalComputeNanos(),
                         this.simulator.getVirtualTime(),
                         this.simulator.getIteration()
                     );
@@ -123,8 +124,7 @@ public final class SimulationController implements Controller {
     private void executeStep() {
         this.simulationStep();
         synchronized (this.stateLock) {
-            this.stepsCompleted++;
-            if (this.stepsCompleted >= this.config.iterations()) {
+            if (this.simulator.getIteration() >= this.config.iterations()) {
                 this.state = ControllerState.FINISHED;
                 this.eventQueue.clear();
             }
@@ -132,13 +132,11 @@ public final class SimulationController implements Controller {
     }
 
     private void simulationStep() {
-        final long startTime = System.currentTimeMillis();
         this.simulator.step();
-        this.elapsedTime += System.currentTimeMillis() - startTime;
         if (this.view != null) {
             this.view.display(
                 this.simulator.getBodies(),
-                this.elapsedTime,
+                this.simulator.getTotalComputeNanos(),
                 this.simulator.getVirtualTime(),
                 this.simulator.getIteration()
             );
@@ -193,6 +191,5 @@ public final class SimulationController implements Controller {
         if (this.view != null)
             this.view.selectedConfiguration(this.config);
         this.simulator = configuredSimulator;
-        this.stepsCompleted = 0;
     }
 }

@@ -55,4 +55,12 @@ public interface NBodySimulation {
      * @return the number of steps executed, {@code 0} before the first step
      */
     long getIteration();
+
+    /**
+     * Returns the total time spent computing simulation steps.
+     *
+     * @return the accumulated computation time in nanoseconds, {@code 0} before
+     *         the first step
+     */
+    long getTotalComputeNanos();
 }
